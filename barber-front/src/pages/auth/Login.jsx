@@ -37,7 +37,7 @@ function Login() {
         <div className="auth-form-container">
           <div className="auth-header">
             <div className="auth-logo">
-              <span className="auth-title">Barber Shop</span>
+              <span className="auth-title">Barber Link</span>
             </div>
             <h2 className="auth-title">Iniciar Sesión</h2>
             <p className="auth-subtitle">Ingresa tus credenciales para acceder a tu cuenta</p>

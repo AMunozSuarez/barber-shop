@@ -49,7 +49,7 @@ function Register() {
         <div className="auth-form-container">
           <div className="auth-header">
             <div className="auth-logo">
-              <span className="auth-title">Barber Shop</span>
+              <span className="auth-title">Barber Link</span>
             </div>
             <h2 className="auth-title">Crear Cuenta</h2>
             <p className="auth-subtitle">Completa tus datos para comenzar</p>

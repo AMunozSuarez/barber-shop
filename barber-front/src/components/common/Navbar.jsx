@@ -22,7 +22,7 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="navbar-brand">
-        <Link to="/">Barber Shop</Link>
+        <Link to="/">Barber Link</Link>
       </div>
       
       <div className="menu-toggle" onClick={toggleMenu}>

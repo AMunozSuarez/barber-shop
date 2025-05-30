@@ -23,16 +23,16 @@ const mockUsers = [
     role: 'barber',
     createdAt: '2023-01-10T10:00:00Z'
   },
-  {
-    id: 3,
-    username: 'admin',
-    email: 'admin@example.com',
-    password: 'admin123',
-    name: 'Admin',
-    phone: '555555555',
-    role: 'admin',
-    createdAt: '2023-01-01T09:00:00Z'
-  }
+  // {
+  //   id: 3,
+  //   username: 'admin',
+  //   email: 'admin@example.com',
+  //   password: 'admin123',
+  //   name: 'Admin',
+  //   phone: '555555555',
+  //   role: 'admin',
+  //   createdAt: '2023-01-01T09:00:00Z'
+  // }
 ];
 
 // Inicializar usuarios en localStorage si no existen
