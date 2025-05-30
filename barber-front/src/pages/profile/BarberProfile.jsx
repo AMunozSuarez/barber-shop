@@ -251,26 +251,6 @@ const BarberProfile = () => {
                   </div>
                 </div>
                 
-                {activeTab === 'services' && (
-                  <div className="services-list">
-                    {profileData.services && profileData.services.length > 0 ? (
-                      profileData.services.map(service => (
-                        <div key={service.id} className="service-item">
-                          <div className="service-info">
-                            <div className="service-name">{service.name}</div>
-                            <div className="service-description">{service.description || 'Sin descripción'}</div>
-                          </div>
-                          <div className="service-meta">
-                            <div className="service-price">${service.price}</div>
-                            <div className="service-duration">{service.duration} min</div>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p>No hay servicios disponibles</p>
-                    )}
-                  </div>
-                )}
                 
                 {activeTab === 'reviews' && (
                   <div className="reviews-list">

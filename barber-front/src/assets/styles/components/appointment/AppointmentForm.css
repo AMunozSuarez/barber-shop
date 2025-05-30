@@ -70,6 +70,8 @@
   border-radius: 6px;
   font-family: 'Roboto', 'Segoe UI', sans-serif;
   font-size: 14px;
+  background-color: var(--white);
+  color: var(--dark-text);
 }
 
 .form-group input:focus, 

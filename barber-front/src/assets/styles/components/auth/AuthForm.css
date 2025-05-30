@@ -1,6 +1,7 @@
 @import '/src/assets/styles/variables.css';
 
 .auth-form {
+  color: var(--dark-text);
   background-color: var(--white);
   border-radius: var(--border-radius-md);
   box-shadow: var(--box-shadow);
@@ -55,7 +56,6 @@
 .form-submit {
   width: 100%;
   padding: var(--spacing-md);
-  background-color: var(--primary-color);
   color: var(--white);
   border: none;
   border-radius: var(--border-radius-md);
@@ -67,7 +67,7 @@
 }
 
 .form-submit:hover {
-  background-color: var(--secondary-color);
+  /* background-color: var(--secondary-color); */
 }
 
 .form-footer {

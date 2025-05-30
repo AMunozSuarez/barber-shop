@@ -49,7 +49,6 @@ function Register() {
         <div className="auth-form-container">
           <div className="auth-header">
             <div className="auth-logo">
-              <img src="/assets/images/logo.png" alt="Barber Shop Logo" />
               <span className="auth-title">Barber Shop</span>
             </div>
             <h2 className="auth-title">Crear Cuenta</h2>
