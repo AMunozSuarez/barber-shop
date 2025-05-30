@@ -43,5 +43,4 @@ export const useAuth = () => {
   };
 };
 
-// Export as default for consistency
 export default useAuth;

@@ -32,7 +32,6 @@ export const useAppointment = () => {
     }
   };
 
-  // Alias for addAppointment to maintain compatibility with components
   const bookAppointment = addAppointment;
 
   const removeAppointment = async (appointmentId) => {
@@ -50,9 +49,8 @@ export const useAppointment = () => {
     error,
     addAppointment,
     removeAppointment,
-    bookAppointment, // Add bookAppointment as an alias
+    bookAppointment,
   };
 };
 
-// Export as default for backwards compatibility
 export default useAppointment;

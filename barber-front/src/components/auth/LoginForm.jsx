@@ -12,7 +12,6 @@ function LoginForm() {
     e.preventDefault();
     try {
       await login(email, password);
-      // Redirect or perform additional actions after successful login
     } catch (err) {
       setError('Invalid email or password');
     }

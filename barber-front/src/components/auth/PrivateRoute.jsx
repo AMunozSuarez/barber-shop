@@ -6,12 +6,10 @@ const PrivateRoute = ({ children }) => {
   const location = useLocation();
 
   if (loading) {
-    // Puedes mostrar un componente de carga aquí si lo deseas
     return <div>Cargando...</div>;
   }
 
   if (!isAuthenticated) {
-    // Redirigir al login si no está autenticado, guardando la ubicación actual
     return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }
 

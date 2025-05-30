@@ -10,7 +10,6 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      // No es necesario redirigir, ya que useAuth actualizará isAuthenticated
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
     }
