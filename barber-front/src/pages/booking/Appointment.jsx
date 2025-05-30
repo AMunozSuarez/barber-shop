@@ -80,14 +80,14 @@ const Appointment = () => {
       case 1: // Selección de servicio
         return (
           <>
-            <div className="search-bar">
+            {/* <div className="search-bar">
               <input 
                 type="text" 
                 placeholder="¿Qué servicio buscas?" 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-            </div>
+            </div> */}
             <div className="service-category">
               <h1>Cortes de cabello</h1>
               <button className="collapse-button">-</button>

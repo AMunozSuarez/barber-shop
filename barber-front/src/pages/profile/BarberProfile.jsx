@@ -16,6 +16,7 @@ const BarberProfile = () => {
   
   const [profileData, setProfileData] = useState(null);
   const [stats, setStats] = useState(null);
+  const [activeTab, setActiveTab] = useState('services');
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -93,89 +94,66 @@ const BarberProfile = () => {
 
   return (
     <div className="barber-profile-page">
-      <div className="barber-profile-container">
-        <div className="barber-profile-header">
-          <div className="barber-profile-avatar">
+      <div className="barber-container">
+        {/* Sección de portada */}
+        <div className="barber-header">
+          <div className="barber-cover">
             <img 
-              src={profileData.image || `https://ui-avatars.com/api/?name=${profileData.name}&background=random`} 
-              alt={`${profileData.name}`} 
+              src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" 
+              alt="Barber shop background" 
             />
           </div>
-          <div className="barber-profile-info">
-            <h1 className="barber-profile-name">{profileData.name}</h1>
-            <p className="barber-profile-specialty">{profileData.specialty}</p>
+          
+          <div className="barber-info-card">
             
-            <div className="barber-profile-stats">
-              <div className="stat-item">
-                <div className="stat-icon">⭐</div>
-                <div className="stat-text">
-                  <span className="stat-value">{profileData.rating}</span>
-                  Calificación
-                </div>
+            <h1 className="barber-name">{profileData.name}</h1>
+            <p className="barber-title">{profileData.specialty}</p>
+            
+            <div className="barber-rating">
+              <div className="barber-stars">⭐⭐⭐⭐⭐</div>
+              <span className="barber-rating-count">{profileData.rating} ({profileData.reviews} reseñas)</span>
+            </div>
+            
+            <div className="barber-tags">
+              <span className="barber-tag">Cortes de Cabello</span>
+              <span className="barber-tag">Barba</span>
+              <span className="barber-tag">Afeitado Clásico</span>
+            </div>
+            
+            <p className="barber-bio">{profileData.bio || 'Sin biografía'}</p>
+            
+            <div className="barber-stats">
+              <div className="barber-stat">
+                <div className="barber-stat-value">{profileData.experience}</div>
+                <div className="barber-stat-label">Años de experiencia</div>
               </div>
-              <div className="stat-item">
-                <div className="stat-icon">💬</div>
-                <div className="stat-text">
-                  <span className="stat-value">{profileData.reviews}</span>
-                  Reseñas
-                </div>
+              <div className="barber-stat">
+                <div className="barber-stat-value">{stats?.completedAppointments || 0}</div>
+                <div className="barber-stat-label">Citas completadas</div>
               </div>
-              <div className="stat-item">
-                <div className="stat-icon">💈</div>
-                <div className="stat-text">
-                  <span className="stat-value">{profileData.experience}</span>
-                  Años exp.
-                </div>
+              <div className="barber-stat">
+                <div className="barber-stat-value">{profileData.services?.length || 0}</div>
+                <div className="barber-stat-label">Servicios</div>
               </div>
             </div>
             
-            <div className="barber-profile-actions">
+            <div className="barber-actions">
               <button
-                className="edit-profile-btn"
+                className="book-button"
                 onClick={() => setIsEditing(!isEditing)}
               >
                 {isEditing ? 'Cancelar Edición' : 'Editar Perfil'}
               </button>
+              {!isEditing && (
+                <button className="contact-button">Contactar</button>
+              )}
             </div>
           </div>
         </div>
         
-        <div className="barber-profile-content">
-          <div className="barber-profile-sidebar">
-            <h2 className="sidebar-title">Menú</h2>
-            <ul className="sidebar-menu">
-              <li className="sidebar-menu-item">
-                <Link to="/admin/dashboard" className="sidebar-menu-link">
-                  <span className="sidebar-menu-icon">📊</span> Dashboard
-                </Link>
-              </li>
-              <li className="sidebar-menu-item">
-                <Link to="/" className="sidebar-menu-link">
-                  <span className="sidebar-menu-icon">🏠</span> Inicio
-                </Link>
-              </li>
-            </ul>
-            
-            {stats && (
-              <div className="sidebar-stats">
-                <h3>Resumen</h3>
-                <div className="sidebar-stat-item">
-                  <span className="stat-label">Citas programadas:</span>
-                  <span className="stat-value">{stats.upcomingAppointments}</span>
-                </div>
-                <div className="sidebar-stat-item">
-                  <span className="stat-label">Citas completadas:</span>
-                  <span className="stat-value">{stats.completedAppointments}</span>
-                </div>
-                <div className="sidebar-stat-item">
-                  <span className="stat-label">Ingresos:</span>
-                  <span className="stat-value">${stats.totalRevenue}</span>
-                </div>
-              </div>
-            )}
-          </div>
-          
-          <div className="barber-profile-main">
+        {/* Contenido principal */}
+        <div className="barber-content">
+          <div className="barber-main">
             {isEditing ? (
               <div className="profile-section">
                 <h2 className="section-title">Editar Perfil</h2>
@@ -258,80 +236,220 @@ const BarberProfile = () => {
               </div>
             ) : (
               <>
-                <div className="profile-section">
-                  <h2 className="section-title">Información Personal</h2>
-                  <div className="profile-details">
-                    <div className="detail-item">
-                      <span className="detail-label">Nombre:</span>
-                      <span className="detail-value">{profileData.name}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Email:</span>
-                      <span className="detail-value">{profileData.email}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Teléfono:</span>
-                      <span className="detail-value">{profileData.phone || 'No especificado'}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Especialidad:</span>
-                      <span className="detail-value">{profileData.specialty}</span>
-                    </div>
-                    <div className="detail-item">
-                      <span className="detail-label">Experiencia:</span>
-                      <span className="detail-value">{profileData.experience} años</span>
-                    </div>
+                <div className="content-tabs">
+                  <div 
+                    className={`content-tab ${activeTab === 'info' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('info')}
+                  >
+                    Información
+                  </div>
+                  <div 
+                    className={`content-tab ${activeTab === 'reviews' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('reviews')}
+                  >
+                    Reseñas
                   </div>
                 </div>
                 
-                <div className="profile-section">
-                  <h2 className="section-title">Biografía</h2>
-                  <p className="barber-bio">{profileData.bio || 'Sin biografía'}</p>
-                </div>
-                
-                <div className="profile-section">
-                  <h2 className="section-title">Servicios</h2>
-                  {profileData.services && profileData.services.length > 0 ? (
-                    <div className="services-list">
-                      {profileData.services.map(service => (
+                {activeTab === 'services' && (
+                  <div className="services-list">
+                    {profileData.services && profileData.services.length > 0 ? (
+                      profileData.services.map(service => (
                         <div key={service.id} className="service-item">
-                          <div className="service-name">{service.name}</div>
-                          <div className="service-details">
-                            <span className="service-duration">{service.duration} min</span>
-                            <span className="service-price">${service.price}</span>
+                          <div className="service-info">
+                            <div className="service-name">{service.name}</div>
+                            <div className="service-description">{service.description || 'Sin descripción'}</div>
+                          </div>
+                          <div className="service-meta">
+                            <div className="service-price">${service.price}</div>
+                            <div className="service-duration">{service.duration} min</div>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p>No hay servicios disponibles</p>
-                  )}
-                </div>
+                      ))
+                    ) : (
+                      <p>No hay servicios disponibles</p>
+                    )}
+                  </div>
+                )}
                 
-                <div className="profile-section">
-                  <h2 className="section-title">Disponibilidad</h2>
-                  <div className="availability-list">
-                    {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => (
-                      <div 
-                        key={day} 
-                        className={`availability-day-display ${profileData.availability && profileData.availability.includes(day) ? 'available' : 'unavailable'}`}
-                      >
-                        <span className="day-name">
-                          {day === 'monday' ? 'Lunes' :
-                           day === 'tuesday' ? 'Martes' :
-                           day === 'wednesday' ? 'Miércoles' :
-                           day === 'thursday' ? 'Jueves' :
-                           day === 'friday' ? 'Viernes' :
-                           day === 'saturday' ? 'Sábado' : 'Domingo'}
-                        </span>
-                        <span className="day-status">
-                          {profileData.availability && profileData.availability.includes(day) ? '✓' : '✕'}
-                        </span>
+                {activeTab === 'reviews' && (
+                  <div className="reviews-list">
+                    {profileData.reviewsList && profileData.reviewsList.length > 0 ? (
+                      profileData.reviewsList.map(review => (
+                        <div key={review.id} className="review-item">
+                          <div className="review-header">
+                            <div className="reviewer">
+                              <img 
+                                className="reviewer-avatar"
+                                src={review.avatar || `https://ui-avatars.com/api/?name=${review.name}`} 
+                                alt={review.name} 
+                              />
+                              <div className="reviewer-name">{review.name}</div>
+                            </div>
+                            <div className="review-date">{review.date}</div>
+                          </div>
+                          <div className="review-rating">{'⭐'.repeat(review.rating)}</div>
+                          <div className="review-content">{review.comment}</div>
+                          <div className="review-service">Servicio: {review.service}</div>
+                        </div>
+                      ))
+                    ) : (
+                      <p>No hay reseñas disponibles</p>
+                    )}
+                  </div>
+                )}
+                
+                {activeTab === 'info' && (
+                  <>
+                    <div className="profile-section">
+                      <h2 className="section-title">Información Personal</h2>
+                      <div className="profile-details">
+                        <div className="detail-item">
+                          <span className="detail-label">Nombre:</span>
+                          <span className="detail-value">{profileData.name}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="detail-label">Email:</span>
+                          <span className="detail-value">{profileData.email}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="detail-label">Teléfono:</span>
+                          <span className="detail-value">{profileData.phone || 'No especificado'}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="detail-label">Especialidad:</span>
+                          <span className="detail-value">{profileData.specialty}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="detail-label">Experiencia:</span>
+                          <span className="detail-value">{profileData.experience} años</span>
+                        </div>
                       </div>
-                    ))}
+                    </div>
+                    
+                    <div className="profile-section">
+                      <h2 className="section-title">Biografía</h2>
+                      <p className="barber-bio">{profileData.bio || 'Sin biografía'}</p>
+                    </div>
+                    
+                    <div className="profile-section">
+                      <h2 className="section-title">Disponibilidad</h2>
+                      <div className="availability-list">
+                        {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => (
+                          <div 
+                            key={day} 
+                            className={`availability-day-display ${profileData.availability && profileData.availability.includes(day) ? 'available' : 'unavailable'}`}
+                          >
+                            <span className="day-name">
+                              {day === 'monday' ? 'Lunes' :
+                               day === 'tuesday' ? 'Martes' :
+                               day === 'wednesday' ? 'Miércoles' :
+                               day === 'thursday' ? 'Jueves' :
+                               day === 'friday' ? 'Viernes' :
+                               day === 'saturday' ? 'Sábado' : 'Domingo'}
+                            </span>
+                            <span className="day-status">
+                              {profileData.availability && profileData.availability.includes(day) ? '✓' : '✕'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+          
+          {/* Barra lateral */}
+          <div className="barber-sidebar">
+            <div className="sidebar-card">
+              <h3 className="sidebar-title">Horario</h3>
+              <div className="availability-days">
+                <div className="day-item">
+                  <span className="day-name">Lunes</span>
+                  <span className="day-hours">9:00 AM - 6:00 PM</span>
+                </div>
+                <div className="day-item">
+                  <span className="day-name">Martes</span>
+                  <span className="day-hours">9:00 AM - 6:00 PM</span>
+                </div>
+                <div className="day-item">
+                  <span className="day-name">Miércoles</span>
+                  <span className="day-hours">9:00 AM - 6:00 PM</span>
+                </div>
+                <div className="day-item">
+                  <span className="day-name">Jueves</span>
+                  <span className="day-hours">9:00 AM - 6:00 PM</span>
+                </div>
+                <div className="day-item">
+                  <span className="day-name">Viernes</span>
+                  <span className="day-hours">9:00 AM - 7:00 PM</span>
+                </div>
+                <div className="day-item">
+                  <span className="day-name">Sábado</span>
+                  <span className="day-hours">10:00 AM - 4:00 PM</span>
+                </div>
+                <div className="day-item">
+                  <span className="day-name">Domingo</span>
+                  <span className="day-hours closed">Cerrado</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="sidebar-card">
+              <h3 className="sidebar-title">Contacto</h3>
+              <div className="contact-info">
+                <div className="contact-item">
+                  <div className="contact-icon">📱</div>
+                  <div className="contact-text">{profileData.phone || 'No disponible'}</div>
+                </div>
+                <div className="contact-item">
+                  <div className="contact-icon">📧</div>
+                  <div className="contact-text">{profileData.email}</div>
+                </div>
+                <div className="contact-item">
+                  <div className="contact-icon">📍</div>
+                  <div className="contact-text">Calle Principal #123, Ciudad</div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="sidebar-card">
+              <h3 className="sidebar-title">Galería</h3>
+              <div className="gallery-grid">
+                <div className="gallery-item">
+                  <img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Corte de pelo" />
+                </div>
+                <div className="gallery-item">
+                  <img src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Afeitado de barba" />
+                </div>
+                <div className="gallery-item">
+                  <img src="https://images.unsplash.com/photo-1621607950931-2de456e2d2e9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Corte con tijeras" />
+                </div>
+                <div className="gallery-item">
+                  <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Herramientas de barbería" />
+                </div>
+              </div>
+              <a href="#" className="view-all">Ver más fotos</a>
+            </div>
+            
+            {stats && (
+              <div className="sidebar-card">
+                <h3 className="sidebar-title">Estadísticas</h3>
+                <div className="contact-item">
+                  <div className="contact-icon">📅</div>
+                  <div className="contact-text">
+                    <strong>{stats.upcomingAppointments}</strong> citas programadas
                   </div>
                 </div>
-              </>
+                <div className="contact-item">
+                  <div className="contact-icon">✅</div>
+                  <div className="contact-text">
+                    <strong>{stats.completedAppointments}</strong> citas completadas
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>

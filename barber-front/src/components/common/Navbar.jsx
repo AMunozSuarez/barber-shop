@@ -51,7 +51,7 @@ const Navbar = () => {
             )}
             {user?.role === 'barber' && (
               <li>
-                <Link to="/barber/dashboard" onClick={() => setMenuOpen(false)}>Panel Barbero</Link>
+                <Link to="/barber-profile" onClick={() => setMenuOpen(false)}>Panel Barbero</Link>
               </li>
             )}
             <li>

@@ -32,9 +32,6 @@ const Home = () => {
           </section>
         )}
       </main>
-      <footer className="home-footer">
-        <p>&copy; {new Date().getFullYear()} Barber Shop. Todos los derechos reservados.</p>
-      </footer>
     </div>
   );
 };
