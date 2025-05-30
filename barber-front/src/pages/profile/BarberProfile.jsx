@@ -104,6 +104,7 @@ const BarberProfile = () => {
             />
           </div>
           
+          
           <div className="barber-info-card">
             
             <h1 className="barber-name">{profileData.name}</h1>
