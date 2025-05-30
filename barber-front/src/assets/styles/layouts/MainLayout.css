@@ -1,0 +1,70 @@
+@import '/src/assets/styles/variables.css';
+
+.main-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+}
+
+/* For pages with a hero section that should be full width */
+.hero-layout .main-content {
+  padding: 0;
+}
+
+/* For pages with standard padding */
+.standard-layout .main-content {
+  padding-top: var(--spacing-xl);
+  padding-bottom: var(--spacing-xl);
+}
+
+/* Page header styles for non-hero pages */
+.page-header {
+  background-color: var(--primary-color);
+  color: var(--white);
+  padding: var(--spacing-xl) 0;
+  margin-bottom: var(--spacing-xl);
+}
+
+.page-title {
+  font-size: var(--text-3xl);
+  margin-bottom: var(--spacing-sm);
+}
+
+.page-subtitle {
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 600px;
+}
+
+.breadcrumbs {
+  display: flex;
+  gap: var(--spacing-xs);
+  font-size: var(--text-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.breadcrumbs a {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.breadcrumbs .separator {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.breadcrumbs .current {
+  color: var(--white);
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    padding: var(--spacing-lg) 0;
+  }
+  
+  .page-title {
+    font-size: var(--text-2xl);
+  }
+}

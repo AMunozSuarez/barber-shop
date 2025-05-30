@@ -1,12 +1,51 @@
-# React + Vite
+# Barber Management Software
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project is a front-end application for a barber management system built with React and Vite. It allows users to schedule appointments, manage their profiles, and provides administrative features for managing barbers and appointments.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **User Authentication**: Users can register and log in to manage their profiles.
+- **Appointment Scheduling**: Users can select barbers, choose services, and book appointments.
+- **Admin Dashboard**: Admins can manage barbers, view statistics, and adjust settings.
+- **Profile Management**: Both users and barbers can manage their profiles.
 
-## Expanding the ESLint configuration
+## Project Structure
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **public/**: Contains static assets like images and the favicon.
+- **src/**: Contains all the source code for the application.
+  - **assets/**: Contains icons and styles used throughout the application.
+  - **components/**: Contains reusable components for the application, organized by feature.
+  - **context/**: Contains context providers for managing global state.
+  - **hooks/**: Contains custom hooks for encapsulating logic.
+  - **layouts/**: Contains layout components for different sections of the application.
+  - **pages/**: Contains page components for routing.
+  - **services/**: Contains service files for API calls.
+  - **utils/**: Contains utility functions for various purposes.
+  
+## Getting Started
+
+1. **Clone the repository**:
+   ```
+   git clone <repository-url>
+   cd barber-front
+   ```
+
+2. **Install dependencies**:
+   ```
+   npm install
+   ```
+
+3. **Run the application**:
+   ```
+   npm run dev
+   ```
+
+4. **Open your browser** and navigate to `http://localhost:3000` to see the application in action.
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request for any enhancements or bug fixes.
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file for details.

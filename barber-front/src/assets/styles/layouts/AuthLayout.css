@@ -1,0 +1,65 @@
+@import '/src/assets/styles/variables.css';
+
+.auth-layout {
+  min-height: 100vh;
+  display: flex;
+  background-color: var(--light);
+}
+
+.auth-background {
+  flex: 1;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/assets/images/barber-shop.jpg');
+  background-size: cover;
+  background-position: center;
+  display: none;
+}
+
+.auth-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-xl);
+}
+
+.auth-logo {
+  margin-bottom: var(--spacing-xl);
+  display: flex;
+  align-items: center;
+}
+
+.auth-logo img {
+  height: 50px;
+  margin-right: var(--spacing-sm);
+}
+
+.auth-logo-text {
+  font-family: var(--font-accent);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 450px;
+}
+
+.auth-footer {
+  margin-top: var(--spacing-xl);
+  text-align: center;
+  color: var(--medium);
+  font-size: var(--text-sm);
+}
+
+.auth-footer a {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+@media (min-width: 992px) {
+  .auth-background {
+    display: block;
+  }
+}

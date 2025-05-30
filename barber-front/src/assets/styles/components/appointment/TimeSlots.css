@@ -1,0 +1,84 @@
+@import '/src/assets/styles/variables.css';
+
+.time-slots {
+  background-color: var(--white);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--gray-medium);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.time-slots h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--dark-text);
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--gray-medium);
+}
+
+.time-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-md);
+}
+
+.time-slots ul {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--spacing-sm);
+}
+
+.time-slots li {
+  margin-bottom: var(--spacing-sm);
+}
+
+.time-slots button {
+  width: 100%;
+  padding: 10px;
+  background-color: var(--gray-light);
+  border: 1px solid var(--gray-medium);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--dark-text);
+  font-size: 14px;
+}
+
+.time-slots button:hover {
+  background-color: var(--primary-light);
+  border-color: var(--primary);
+}
+
+.time-slots button.selected {
+  background-color: var(--primary);
+  color: var(--white);
+  border-color: var(--primary);
+}
+
+.time-slots button.unavailable {
+  background-color: #f1f1f1;
+  color: var(--medium);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.time-slots-message {
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--medium);
+}
+
+@media (max-width: 768px) {
+  .time-slots ul {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .time-slots ul {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

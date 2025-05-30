@@ -1,0 +1,103 @@
+@import '/src/assets/styles/variables.css';
+
+.stats-card {
+  background-color: var(--white);
+  color: var(--dark-text);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-lg);
+  box-shadow: var(--box-shadow);
+  display: flex;
+  align-items: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid var(--gray-medium);
+}
+
+.stats-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.stats-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: var(--spacing-lg);
+  font-size: var(--text-2xl);
+  flex-shrink: 0;
+}
+
+.stats-icon.appointments {
+  background-color: rgba(43, 155, 92, 0.1);
+  color: var(--primary);
+}
+
+.stats-icon.clients {
+  background-color: rgba(43, 155, 92, 0.15);
+  color: var(--primary);
+}
+
+.stats-icon.revenue {
+  background-color: rgba(43, 155, 92, 0.2);
+  color: var(--primary);
+}
+
+.stats-icon.services {
+  background-color: rgba(43, 155, 92, 0.25);
+  color: var(--primary);
+}
+
+.stats-content {
+  flex: 1;
+}
+
+.stats-value {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  margin-bottom: var(--spacing-xs);
+  color: var(--dark);
+}
+
+.stats-label {
+  color: var(--gray-text);
+  font-size: var(--text-sm);
+}
+
+.stats-change {
+  display: flex;
+  align-items: center;
+  font-size: var(--text-sm);
+  margin-top: var(--spacing-xs);
+}
+
+.stats-change.positive {
+  color: var(--primary);
+}
+
+.stats-change.negative {
+  color: var(--secondary);
+}
+
+.stats-change-icon {
+  margin-right: var(--spacing-xs);
+}
+
+.stats-period {
+  font-size: var(--text-xs);
+  color: var(--gray-text);
+  margin-left: var(--spacing-xs);
+}
+
+@media (max-width: 768px) {
+  .stats-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .stats-icon {
+    margin-right: 0;
+    margin-bottom: var(--spacing-md);
+  }
+}

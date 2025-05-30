@@ -1,0 +1,228 @@
+@import '/src/assets/styles/variables.css';
+
+.appointment-form {
+  background-color: var(--white);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--gray-medium);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.appointment-form h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--dark-text);
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--gray-medium);
+}
+
+.appointment-form-container {
+  background-color: var(--white);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-xl);
+  box-shadow: var(--box-shadow);
+}
+
+.appointment-form-header {
+  margin-bottom: var(--spacing-lg);
+}
+
+.appointment-form-title {
+  font-size: var(--text-2xl);
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-xs);
+}
+
+.appointment-form-subtitle {
+  color: var(--medium);
+}
+
+.form-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.form-section-title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 1px solid #eee;
+}
+
+.form-group {
+  margin-bottom: var(--spacing-md);
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  font-weight: 500;
+  color: var(--dark);
+}
+
+.form-group input, 
+.form-group select, 
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--gray-medium);
+  border-radius: 6px;
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
+  font-size: 14px;
+}
+
+.form-group input:focus, 
+.form-group select:focus, 
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.form-input, 
+.form-select, 
+.form-textarea {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 1px solid #ddd;
+  border-radius: var(--border-radius-sm);
+  font-family: var(--font-primary);
+  font-size: var(--text-md);
+}
+
+.form-input:focus, 
+.form-select:focus, 
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.form-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.submit-button {
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: var(--text-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: var(--spacing-md);
+  width: 100%;
+}
+
+.submit-button:hover {
+  background-color: #1a2530;
+}
+
+.form-error {
+  color: #e74c3c;
+  background-color: #fadbd8;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  text-align: center;
+  border: 1px solid #e74c3c;
+}
+
+.service-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.service-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.service-option {
+  border: 1px solid #ddd;
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-md);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.service-option:hover {
+  background-color: var(--light);
+}
+
+.service-option.selected {
+  border-color: var(--primary-color);
+  background-color: rgba(44, 62, 80, 0.05);
+}
+
+.service-name {
+  font-weight: 600;
+  margin-bottom: var(--spacing-xs);
+}
+
+.service-price {
+  font-size: var(--text-sm);
+  color: var(--secondary-color);
+}
+
+.service-duration {
+  font-size: var(--text-sm);
+  color: var(--medium);
+}
+
+.appointment-summary {
+  background-color: var(--gray-light);
+  border-radius: var(--border-radius);
+  padding: 20px;
+  margin-top: 24px;
+}
+
+.summary-title {
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--gray-medium);
+}
+
+.summary-label {
+  font-weight: 500;
+}
+
+.summary-total {
+  font-weight: 700;
+  color: var(--secondary-color);
+  font-size: var(--text-lg);
+  margin-top: var(--spacing-md);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--spacing-xl);
+}
+
+@media (max-width: 768px) {
+  .service-options {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+  
+  .form-actions button {
+    width: 100%;
+  }
+}

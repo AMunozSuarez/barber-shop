@@ -1,0 +1,299 @@
+@import '/src/assets/styles/variables.css';
+
+.admin-dashboard-component {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--spacing-xl);
+}
+
+.dashboard-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.dashboard-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.dashboard-card {
+  background-color: var(--white);
+  color: var(--dark-text);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--box-shadow);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--gray-medium);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.card-title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.card-filter {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--text-sm);
+  border: 1px solid var(--gray-medium);
+  border-radius: var(--border-radius-sm);
+  background-color: var(--white);
+  transition: border-color 0.3s ease;
+}
+
+.card-filter:hover,
+.card-filter:focus {
+  border-color: var(--primary);
+}
+
+.card-more {
+  color: var(--gray-text);
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.card-more:hover {
+  color: var(--primary);
+}
+
+.chart-container {
+  height: 300px;
+  margin-bottom: var(--spacing-md);
+}
+
+.chart-legend {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: var(--text-sm);
+  color: var(--gray-text);
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: var(--spacing-xs);
+}
+
+.recent-activity {
+  margin-top: var(--spacing-md);
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  padding: var(--spacing-md) 0;
+  border-bottom: 1px solid var(--gray-medium);
+}
+
+.activity-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: var(--spacing-md);
+  flex-shrink: 0;
+}
+
+.activity-icon.appointment {
+  background-color: rgba(43, 155, 92, 0.1);
+  color: var(--primary);
+}
+
+.activity-icon.user {
+  background-color: rgba(43, 155, 92, 0.15);
+  color: var(--primary);
+}
+
+.activity-icon.payment {
+  background-color: rgba(43, 155, 92, 0.2);
+  color: var(--primary);
+}
+
+.activity-content {
+  flex: 1;
+}
+
+.activity-text {
+  margin-bottom: var(--spacing-xs);
+}
+
+.activity-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-sm);
+  color: var(--gray-text);
+}
+
+.activity-time {
+  font-style: italic;
+}
+
+.upcoming-appointments {
+  margin-top: var(--spacing-md);
+}
+
+.appointment-item {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-md) 0;
+  border-bottom: 1px solid var(--gray-medium);
+}
+
+.appointment-time {
+  min-width: 80px;
+  text-align: center;
+  padding: var(--spacing-xs) 0;
+  background-color: var(--primary-light);
+  border-radius: var(--border-radius-sm);
+  margin-right: var(--spacing-md);
+}
+
+.appointment-time-value {
+  font-weight: 600;
+  font-size: var(--text-md);
+}
+
+.appointment-time-period {
+  font-size: var(--text-xs);
+  color: var(--gray-text);
+}
+
+.appointment-details {
+  flex: 1;
+}
+
+.appointment-client {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--spacing-xs);
+}
+
+.client-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin-right: var(--spacing-xs);
+}
+
+.client-name {
+  font-weight: 500;
+}
+
+.appointment-service {
+  font-size: var(--text-sm);
+  color: var(--gray-text);
+}
+
+.appointment-actions {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.action-icon {
+  color: var(--gray-text);
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.action-icon:hover {
+  color: var(--primary);
+}
+
+.dashboard-todo {
+  margin-top: var(--spacing-md);
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-sm) 0;
+}
+
+.todo-checkbox {
+  margin-right: var(--spacing-sm);
+}
+
+.todo-text {
+  flex: 1;
+}
+
+.todo-item.completed .todo-text {
+  text-decoration: line-through;
+  color: var(--gray-text);
+}
+
+.todo-delete {
+  color: var(--gray-text);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s ease, color 0.3s ease;
+}
+
+.todo-delete:hover {
+  color: var(--secondary);
+}
+
+.todo-item:hover .todo-delete {
+  opacity: 1;
+}
+
+.add-todo {
+  display: flex;
+  margin-top: var(--spacing-md);
+}
+
+.todo-input {
+  flex: 1;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--gray-medium);
+  border-radius: var(--border-radius-sm) 0 0 var(--border-radius-sm);
+  transition: border-color 0.3s ease;
+}
+
+.todo-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.add-todo-button {
+  background-color: var(--primary);
+  color: var(--white);
+  border: none;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-todo-button:hover {
+  background-color: #238a4d;
+}
+
+@media (max-width: 992px) {
+  .admin-dashboard-component {
+    grid-template-columns: 1fr;
+  }
+}

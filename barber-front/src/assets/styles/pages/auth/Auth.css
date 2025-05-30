@@ -1,0 +1,89 @@
+@import '/src/assets/styles/variables.css';
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--light);
+  padding: var(--spacing-xl) 0;
+}
+
+.auth-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  max-width: 1000px;
+  width: 100%;
+  background-color: var(--white);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--box-shadow);
+}
+
+.auth-image {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/assets/images/barber-auth.jpg');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: var(--white);
+  padding: var(--spacing-xl);
+  text-align: center;
+}
+
+.auth-image h2 {
+  font-size: var(--text-2xl);
+  margin-bottom: var(--spacing-md);
+}
+
+.auth-image p {
+  max-width: 300px;
+  margin-bottom: var(--spacing-lg);
+}
+
+.auth-form-container {
+  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth-header {
+  margin-bottom: var(--spacing-xl);
+  text-align: center;
+}
+
+.auth-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.auth-logo img {
+  height: 40px;
+  margin-right: var(--spacing-sm);
+}
+
+.auth-title {
+  font-size: var(--text-2xl);
+  color: var(--primary-color);
+}
+
+.auth-subtitle {
+  color: var(--medium);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .auth-container {
+    grid-template-columns: 1fr;
+    max-width: 450px;
+  }
+  
+  .auth-image {
+    display: none;
+  }
+}

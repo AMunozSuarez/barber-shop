@@ -1,0 +1,129 @@
+@import '/src/assets/styles/variables.css';
+
+.auth-form {
+  background-color: var(--white);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--box-shadow);
+  padding: var(--spacing-xl);
+  max-width: 450px;
+  width: 100%;
+}
+
+.auth-form-title {
+  font-size: var(--text-2xl);
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+  color: var(--primary-color);
+}
+
+.form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.form-label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: var(--spacing-xs);
+  color: var(--dark);
+}
+
+.form-input {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 1px solid #ddd;
+  border-radius: var(--border-radius-sm);
+  font-family: var(--font-primary);
+  font-size: var(--text-md);
+  transition: border-color 0.3s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.form-input.error {
+  border-color: var(--secondary-color);
+}
+
+.form-error {
+  color: var(--secondary-color);
+  font-size: var(--text-sm);
+  margin-top: var(--spacing-xs);
+}
+
+.form-submit {
+  width: 100%;
+  padding: var(--spacing-md);
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-weight: 500;
+  font-size: var(--text-md);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: var(--spacing-md);
+}
+
+.form-submit:hover {
+  background-color: var(--secondary-color);
+}
+
+.form-footer {
+  text-align: center;
+  margin-top: var(--spacing-lg);
+  font-size: var(--text-sm);
+  color: var(--medium);
+}
+
+.form-footer a {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.social-login {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-xl);
+}
+
+.social-button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  background-color: var(--light);
+  border: 1px solid #ddd;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.social-button:hover {
+  background-color: #f1f1f1;
+}
+
+.social-button i {
+  margin-right: var(--spacing-sm);
+}
+
+.or-divider {
+  display: flex;
+  align-items: center;
+  margin: var(--spacing-lg) 0;
+  color: var(--medium);
+}
+
+.or-divider:before,
+.or-divider:after {
+  content: "";
+  flex-grow: 1;
+  height: 1px;
+  background-color: #ddd;
+}
+
+.or-divider span {
+  padding: 0 var(--spacing-md);
+}

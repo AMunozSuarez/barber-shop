@@ -1,0 +1,235 @@
+@import '/src/assets/styles/variables.css';
+
+.confirmation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.confirmation-card {
+  background-color: var(--white);
+  border-radius: var(--border-radius);
+  padding: 40px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 100%;
+  max-width: 600px;
+}
+
+.confirmation-card.error {
+  border-left: 4px solid #e74c3c;
+}
+
+.confirmation-header {
+  margin-bottom: 30px;
+}
+
+.confirmation-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  color: white;
+  font-size: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  font-weight: bold;
+}
+
+.confirmation h1 {
+  font-size: 28px;
+  color: var(--dark-text);
+  margin-bottom: 10px;
+}
+
+.confirmation-subtitle {
+  color: var(--gray-text);
+  margin-bottom: 30px;
+}
+
+.appointment-details {
+  background-color: var(--gray-light);
+  border-radius: var(--border-radius);
+  padding: 24px;
+  margin-bottom: 30px;
+  text-align: left;
+}
+
+.appointment-details h2 {
+  font-size: 18px;
+  margin-bottom: 16px;
+  color: var(--dark-text);
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--gray-medium);
+}
+
+.detail-label {
+  font-weight: 600;
+  color: var(--gray-text);
+}
+
+.detail-value {
+  color: var(--dark-text);
+}
+
+.confirmation-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.button {
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.button.primary {
+  background-color: var(--primary);
+  color: white;
+}
+
+.button.primary:hover {
+  background-color: #238a4e;
+}
+
+.button.secondary {
+  background-color: var(--white);
+  color: var(--primary);
+  border: 1px solid var(--primary);
+}
+
+.button.secondary:hover {
+  background-color: var(--primary-light);
+}
+
+@media (max-width: 600px) {
+  .confirmation-actions {
+    flex-direction: column;
+  }
+}
+
+.details-title {
+  font-weight: 600;
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 1px solid #ddd;
+}
+
+.detail-item {
+  display: flex;
+  margin-bottom: var(--spacing-sm);
+}
+
+.detail-label {
+  font-weight: 500;
+  width: 40%;
+  padding-right: var(--spacing-md);
+}
+
+.detail-value {
+  width: 60%;
+  color: var(--medium);
+}
+
+.confirmation-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+}
+
+.add-to-calendar {
+  background-color: var(--primary-color);
+  color: var(--white);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.calendar-dropdown {
+  position: relative;
+}
+
+.calendar-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: var(--white);
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--box-shadow);
+  width: 200px;
+  padding: var(--spacing-xs) 0;
+  z-index: 10;
+  margin-top: var(--spacing-xs);
+}
+
+.calendar-option {
+  padding: var(--spacing-sm) var(--spacing-md);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.calendar-option:hover {
+  background-color: var(--light);
+}
+
+.qr-code {
+  margin: var(--spacing-xl) auto;
+  width: 150px;
+  height: 150px;
+  border: 1px solid #ddd;
+  padding: var(--spacing-sm);
+}
+
+.qr-code img {
+  width: 100%;
+  height: 100%;
+}
+
+.confirmation-help {
+  color: var(--medium);
+  font-size: var(--text-sm);
+  margin-top: var(--spacing-lg);
+}
+
+.confirmation-help a {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .detail-item {
+    flex-direction: column;
+  }
+  
+  .detail-label, 
+  .detail-value {
+    width: 100%;
+  }
+  
+  .detail-label {
+    margin-bottom: var(--spacing-xs);
+  }
+  
+  .confirmation-actions {
+    flex-direction: column;
+  }
+}
