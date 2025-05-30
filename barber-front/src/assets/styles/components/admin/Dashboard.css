@@ -2,7 +2,6 @@
 
 .admin-dashboard-component {
   display: grid;
-  grid-template-columns: 2fr 1fr;
   gap: var(--spacing-xl);
 }
 

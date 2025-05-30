@@ -102,14 +102,6 @@ const Appointment = () => {
                   </div>
                   <p className="service-description">{service.description}</p>
                   
-                  {service.images.length > 0 && (
-                    <div className="service-images">
-                      {service.images.map((img, index) => (
-                        <img key={index} src={img} alt={`Estilo ${index + 1}`} className="service-image" />
-                      ))}
-                    </div>
-                  )}
-                  
                   {service.description.length > 50 && (
                     <a href="#" className="more-info">Más información</a>
                   )}

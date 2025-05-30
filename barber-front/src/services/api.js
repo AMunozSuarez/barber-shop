@@ -19,7 +19,7 @@ const mockBarbers = [
     id: 1, 
     name: 'Juan Martínez', 
     specialty: 'Cortes clásicos', 
-    image: '/images/barber1.jpg',
+    image: '../assets/icons/images.jpg',
     rating: 4.8,
     reviews: 120,
     availability: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']

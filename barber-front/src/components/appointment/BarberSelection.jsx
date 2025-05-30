@@ -8,14 +8,13 @@ const BarberSelection = ({ setSelectedBarber }) => {
   const [selectedBarberId, setSelectedBarberId] = useState(null);
 
   useEffect(() => {
-    // Simulamos una llamada a la API con un pequeño retraso
     setTimeout(() => {
       const mockBarbers = [
         { 
           id: 1, 
           name: 'Juan Martínez', 
           specialty: 'Cortes clásicos', 
-          image: '/images/barber1.jpg',
+          image: '../../../assets/icons/images.jpg',
           rating: 4.8,
           reviews: 120
         },

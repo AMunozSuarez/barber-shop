@@ -5,7 +5,6 @@ function Settings() {
     <div>
       <h1>Settings</h1>
       <p>Manage your settings here.</p>
-      {/* Add more settings options as needed */}
     </div>
   );
 }

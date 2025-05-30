@@ -72,7 +72,7 @@ function AppointmentForm({ selectedService, selectedBarber, selectedDate, select
 
     setIsSubmitting(true);
     
-    // Simular una llamada a la API con setTimeout ya que no hay backend real
+    // Simular una llamada a la API
     setTimeout(() => {
       try {
         // Simular un ID de cita generado por el servidor
@@ -86,7 +86,6 @@ function AppointmentForm({ selectedService, selectedBarber, selectedDate, select
         savedAppointments.push(newAppointment);
         localStorage.setItem('appointments', JSON.stringify(savedAppointments));
         
-        // Navegar a la página de confirmación
         navigate('/confirmation', { 
           state: { appointmentDetails: newAppointment } 
         });
