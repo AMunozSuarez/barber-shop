@@ -211,6 +211,7 @@
   padding: var(--spacing-xl);
   background-color: var(--light);
   min-height: calc(100vh - 72px);
+  color: var(--dark-text);
 }
 
 @media (max-width: 992px) {

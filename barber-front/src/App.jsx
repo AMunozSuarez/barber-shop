@@ -1,8 +1,7 @@
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import AuthLayout from './layouts/AuthLayout';
 import AdminLayout from './layouts/AdminLayout';
-import Home from './pages/Home';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import BarberManagement from './pages/admin/BarberManagement';
@@ -16,9 +15,8 @@ import PrivateRoute from './components/auth/PrivateRoute';
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<MainLayout />}>
-        <Route index element={<Home />} />
+    <Routes>      <Route path="/" element={<MainLayout />}>
+        <Route index element={<Navigate to="/appointment" replace />} />
         <Route path="appointment" element={<Appointment />} />
         <Route path="confirmation" element={<Confirmation />} />
         <Route path="profile" element={
