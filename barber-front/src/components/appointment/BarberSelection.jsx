@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { getBarbers } from '../../services/barber.service';
 import '../../assets/styles/components/appointment/BarberSelection.css';
 
 const BarberSelection = ({ setSelectedBarber }) => {
@@ -8,70 +9,93 @@ const BarberSelection = ({ setSelectedBarber }) => {
   const [selectedBarberId, setSelectedBarberId] = useState(null);
 
   useEffect(() => {
-    setTimeout(() => {
-      const mockBarbers = [
-        { 
-          id: 1, 
-          name: 'Juan Martínez', 
-          specialty: 'Cortes clásicos', 
-          image: '../../../assets/icons/images.jpg',
-          rating: 4.8,
-          reviews: 120
-        },
-        { 
-          id: 2, 
-          name: 'Carlos Rodríguez', 
-          specialty: 'Degradados y diseños', 
-          image: '/images/barber2.jpg',
-          rating: 4.9,
-          reviews: 95
-        },
-        { 
-          id: 3, 
-          name: 'Miguel Sánchez', 
-          specialty: 'Barbas y bigotes', 
-          image: '/images/barber3.jpg',
-          rating: 4.7,
-          reviews: 87
-        },
-      ];
-      setBarbers(mockBarbers);
-      setLoading(false);
-    }, 500);
+    const fetchBarbers = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await getBarbers();
+        
+        if (response.success && response.data) {
+          setBarbers(response.data);
+        } else {
+          setError('No se pudieron cargar los barberos');
+        }
+      } catch (err) {
+        console.error('Error al obtener barberos:', err);
+        setError(err.message || 'Error al cargar barberos');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBarbers();
   }, []);
 
   const handleSelectBarber = (barber) => {
-    setSelectedBarberId(barber.id);
+    setSelectedBarberId(barber._id || barber.id);
     setSelectedBarber(barber);
   };
 
   if (loading) {
-    return <div className="barber-selection"><div className="loading">Cargando barberos...</div></div>;
+    return (
+      <div className="barber-selection">
+        <div className="loading">Cargando barberos...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="barber-selection">
+        <div className="error">
+          <p>❌ {error}</p>
+          <button onClick={() => window.location.reload()}>
+            Intentar nuevamente
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="barber-selection">
-      <h2>Selecciona tu barbero</h2>
-      {error && <p className="error">{error}</p>}
-      <div className="barber-list">
+      <h3>Selecciona tu barbero</h3>
+      <div className="barbers-grid">
         {barbers.map((barber) => (
           <div 
-            key={barber.id} 
-            className={`barber-item ${selectedBarberId === barber.id ? 'selected' : ''}`}
+            key={barber._id || barber.id} 
+            className={`barber-card ${selectedBarberId === (barber._id || barber.id) ? 'selected' : ''}`}
             onClick={() => handleSelectBarber(barber)}
           >
-            <img src={barber.image} alt={barber.name} />
+            <div className="barber-image">
+              <img 
+                src={barber.image || '/images/default-barber.jpg'} 
+                alt={barber.name}
+                onError={(e) => {
+                  e.target.src = '/images/default-barber.jpg';
+                }}
+              />
+            </div>
             <div className="barber-info">
-              <div className="barber-name">{barber.name}</div>
-              <div className="barber-specialty">{barber.specialty}</div>
+              <h4>{barber.name}</h4>
+              <p className="specialty">{barber.specialty || 'Barbero profesional'}</p>
               <div className="barber-rating">
-                <div className="stars">★★★★★</div>
-                <div className="rating-count">{barber.rating} ({barber.reviews} reseñas)</div>
+                <span className="rating">⭐ {barber.rating || 4.5}</span>
+                <span className="reviews">({barber.reviewCount || 0} reseñas)</span>
               </div>
+              {barber.experience && (
+                <p className="experience">{barber.experience} años de experiencia</p>
+              )}
             </div>
           </div>
         ))}
       </div>
+      {barbers.length === 0 && (
+        <div className="no-barbers">
+          <p>No hay barberos disponibles en este momento.</p>
+        </div>
+      )}
     </div>
   );
 };

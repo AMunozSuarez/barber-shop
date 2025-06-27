@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Test: Corrección Bucle Infinito UserProfile</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #2980b9;
+            margin-top: 25px;
+        }
+        .error {
+            background: #f8d7da;
+            border-left: 5px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .success {
+            background: #d4edda;
+            border-left: 5px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .info {
+            background: #cce5ff;
+            border-left: 5px solid #0066cc;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .code {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .before, .after {
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .before {
+            background: #f8d7da;
+            border: 1px solid #dc3545;
+        }
+        .after {
+            background: #d4edda;
+            border: 1px solid #28a745;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 5px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #2980b9;
+        }
+        .btn-success {
+            background: #28a745;
+        }
+        .btn-success:hover {
+            background: #218838;
+        }
+        .test-step {
+            background: #f8f9fa;
+            border-left: 5px solid #28a745;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .log-example {
+            background: #2c3e50;
+            color: #e74c3c;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test: Corrección Bucle Infinito UserProfile</h1>
+        
+        <div class="error">
+            <strong>🚨 Problema Detectado:</strong>
+            <p>Bucle infinito en `/profile` causando requests constantes a `GET /appointments/me`</p>
+            <p><strong>Error:</strong> "Maximum update depth exceeded" en UserProfile.jsx</p>
+        </div>
+
+        <h2>🔍 Análisis del Problema</h2>
+
+        <h3>🔄 Síntomas del Bucle Infinito</h3>
+        <div class="log-example">
+GET /appointments/me 
+api.js:41 ✅ 200 /appointments/me {success: true, count: 4, data: Array(4)}
+useAppointment.js:22 Maximum update depth exceeded
+UserProfile.jsx:29 ✅ Citas del cliente actualizadas: (4) [{…}, {…}, {…}, {…}]
+UserProfile.jsx:26 🔄 Refrescando citas del cliente...
+api.js:25 🔄 GET /appointments/me 
+UserProfile.jsx:26 🔄 Refrescando citas del cliente...
+api.js:25 🔄 GET /appointments/me 
+UserProfile.jsx:26 🔄 Refrescando citas del cliente...
+api.js:25 🔄 GET /appointments/me 
+        </div>
+
+        <h3>🎯 Causa Raíz</h3>
+        <div class="info">
+            <strong>Problema:</strong> El hook <code>useAppointment</code> NO tenía las funciones memorizadas con <code>useCallback</code>, causando que las dependencias del <code>useEffect</code> en <code>UserProfile.jsx</code> cambien en cada render.
+        </div>
+
+        <h2>🔧 Corrección Implementada</h2>
+
+        <h3>Hook useAppointment.js - Funciones Memorizadas</h3>
+        <div class="comparison">
+            <div class="before">
+                <strong>❌ ANTES (SIN MEMOIZACIÓN):</strong>
+                <div class="code">
+import { useState, useEffect } from 'react';
+
+const fetchMyAppointments = async () => {
+  // ... lógica
+};
+
+const addAppointment = async (appointmentData) => {
+  // ... lógica  
+};
+
+const removeAppointment = async (appointmentId) => {
+  // ... lógica
+};
+
+// Todas las funciones se recrean en cada render
+                </div>
+            </div>
+            <div class="after">
+                <strong>✅ DESPUÉS (CON MEMOIZACIÓN):</strong>
+                <div class="code">
+import { useState, useEffect, useCallback } from 'react';
+
+const fetchMyAppointments = useCallback(async () => {
+  // ... lógica
+}, []);
+
+const addAppointment = useCallback(async (appointmentData) => {
+  // ... lógica  
+}, [addToContext]);
+
+const removeAppointment = useCallback(async (appointmentId) => {
+  // ... lógica
+}, [removeFromContext]);
+
+// Funciones memorizadas - no se recrean
+                </div>
+            </div>
+        </div>
+
+        <h3>Funciones Corregidas con useCallback</h3>
+        <div class="code">
+✅ fetchMyAppointments - useCallback(async () => {...}, [])
+✅ fetchAllAppointments - useCallback(async () => {...}, [])  
+✅ addAppointment - useCallback(async (data) => {...}, [addToContext])
+✅ removeAppointment - useCallback(async (id) => {...}, [removeFromContext])
+✅ updateAppointment - useCallback(async (id, data) => {...}, [updateInContext])
+✅ getAvailableSlots - useCallback(async (barberId, date) => {...}, [])
+✅ confirmAppointment - useCallback(async (id) => {...}, [updateInContext])
+✅ completeAppointment - useCallback(async (id) => {...}, [updateInContext])
+✅ clearError - useCallback(() => {...}, [])
+        </div>
+
+        <h2>🎯 Por Qué Ocurría el Bucle</h2>
+
+        <div class="warning">
+            <strong>⚠️ Cadena de Recreación:</strong>
+            <ol>
+                <li><strong>UserProfile se renderiza</strong> → useAppointment se ejecuta</li>
+                <li><strong>fetchMyAppointments se recrea</strong> → nueva referencia de función</li>
+                <li><strong>useEffect detecta cambio</strong> → dependencia cambió</li>
+                <li><strong>refreshAppointments se ejecuta</strong> → llama fetchMyAppointments</li>
+                <li><strong>Estado se actualiza</strong> → componente se re-renderiza</li>
+                <li><strong>Vuelta al paso 1</strong> → bucle infinito ♻️</li>
+            </ol>
+        </div>
+
+        <h2>🧪 Pasos de Prueba</h2>
+
+        <div class="test-step">
+            <strong>Paso 1:</strong> Verificar que ambos servicios estén ejecutándose
+            <div class="code">
+# Backend en puerto 5000
+cd barber-back && npm start
+
+# Frontend en puerto 3005  
+cd barber-front && npm run dev
+            </div>
+        </div>
+
+        <div class="test-step">
+            <strong>Paso 2:</strong> Login como cliente
+            <div class="code">
+Email: client@example.com
+Password: client123
+            </div>
+        </div>
+
+        <div class="test-step">
+            <strong>Paso 3:</strong> Navegar al perfil
+            <p>Click en el perfil del usuario en la navbar o ir directamente a <code>/profile</code></p>
+        </div>
+
+        <div class="test-step">
+            <strong>Paso 4:</strong> Abrir DevTools → Console
+            <p>Verificar que NO aparezcan logs repetitivos de requests</p>
+        </div>
+
+        <div class="test-step">
+            <strong>Paso 5:</strong> Verificar comportamiento normal
+            <ul>
+                <li>La página debe cargar una sola vez</li>
+                <li>Solo debe hacer 1 request inicial a <code>GET /appointments/me</code></li>
+                <li>No debe aparecer "Maximum update depth exceeded"</li>
+                <li>La pestaña "Mis Citas" debe mostrar las citas correctamente</li>
+            </ul>
+        </div>
+
+        <h2>🎯 Resultados Esperados</h2>
+
+        <div class="success">
+            <strong>✅ Comportamiento Correcto:</strong>
+            <ul>
+                <li><strong>Carga única:</strong> Solo 1 request inicial a <code>GET /appointments/me</code></li>
+                <li><strong>Sin bucles:</strong> No más logs repetitivos en consola</li>
+                <li><strong>Sin errores:</strong> No más "Maximum update depth exceeded"</li>
+                <li><strong>Performance:</strong> La página responde normalmente</li>
+                <li><strong>Funcionalidad:</strong> Los botones de actualizar y gestión funcionan</li>
+            </ul>
+        </div>
+
+        <h2>🔍 Logs Correctos vs Incorretos</h2>
+
+        <div class="comparison">
+            <div class="before">
+                <strong>❌ ANTES (BUCLE INFINITO):</strong>
+                <div class="log-example">
+🔄 GET /appointments/me 
+✅ 200 /appointments/me
+🔄 Refrescando citas del cliente...
+🔄 GET /appointments/me 
+✅ 200 /appointments/me  
+🔄 Refrescando citas del cliente...
+🔄 GET /appointments/me 
+✅ 200 /appointments/me
+🔄 Refrescando citas del cliente...
+[BUCLE INFINITO]
+                </div>
+            </div>
+            <div class="after">
+                <strong>✅ DESPUÉS (COMPORTAMIENTO NORMAL):</strong>
+                <div class="log-example">
+🔄 GET /appointments/me 
+✅ 200 /appointments/me {success: true, count: 4, data: Array(4)}
+✅ Citas del cliente actualizadas: (4) [{…}, {…}, {…}, {…}]
+[FIN - Solo 1 request inicial]
+                </div>
+            </div>
+        </div>
+
+        <h2>🛡️ Mecanismos de Actualización Mantenidos</h2>
+
+        <div class="info">
+            <strong>✅ Funcionalidades Preservadas:</strong>
+            <ul>
+                <li><strong>📡 Inmediato:</strong> Al crear/cancelar citas (contexto)</li>
+                <li><strong>🔄 Manual:</strong> Botón "Actualizar" en el perfil</li>
+                <li><strong>👀 Por foco:</strong> Al volver a la pestaña</li>
+                <li><strong>🎯 Inicial:</strong> Al cargar el perfil por primera vez</li>
+            </ul>
+        </div>
+
+        <h2>🔄 Comparación con BarberProfile</h2>
+
+        <div class="success">
+            <strong>🎉 Consistencia:</strong> Ahora tanto <code>useBarber</code> como <code>useAppointment</code> tienen todas sus funciones memorizadas con <code>useCallback</code>, evitando bucles infinitos en ambos perfiles.
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Lección Aprendida:</strong> Siempre memoizar funciones en custom hooks que se usan como dependencias en useEffect para evitar renders infinitos.
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="http://localhost:3005/profile" class="btn btn-success">🚀 Probar Perfil Corregido</a>
+            <a href="http://localhost:3005" class="btn">🏠 Ir al Inicio</a>
+        </div>
+    </div>
+</body>
+</html> 

@@ -3,6 +3,8 @@ import BarberSelection from '../../components/appointment/BarberSelection';
 import Calendar from '../../components/appointment/Calendar';
 import TimeSlots from '../../components/appointment/TimeSlots';
 import AppointmentForm from '../../components/appointment/AppointmentForm';
+import { getServices } from '../../services/service.service';
+import Loading from '../../components/common/Loading';
 import '../../assets/styles/pages/booking/Booking.css';
 
 const Appointment = () => {
@@ -12,42 +14,36 @@ const Appointment = () => {
   const [selectedTime, setSelectedTime] = useState(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Estados para servicios del backend
+  const [services, setServices] = useState([]);
+  const [servicesLoading, setServicesLoading] = useState(true);
+  const [servicesError, setServicesError] = useState(null);
 
-  // Datos simulados de servicios de barbería (similar a la imagen)
-  const services = [
-    {
-      id: 1,
-      name: "Corte Adulto",
-      duration: "45 min",
-      price: "$15.000",
-      description: "Corte de cabello en seco",
-      images: []
-    },
-    {
-      id: 2,
-      name: "Corte de pelo Niño (Hasta 10 años)",
-      duration: "40 min",
-      price: "$12.000",
-      description: "Corte de pelo en seco para niños",
-      images: ["/images/kid1.jpg", "/images/kid2.jpg"]
-    },
-    {
-      id: 3,
-      name: "Corte de cabello Largo Hombre (solo tijeras)",
-      duration: "50 min",
-      price: "$18.000",
-      description: "Este corte de cabello es un corte estilizado hecho solo a tijeras con terminaciones largas y personalizadas. El largo mínimo para esta...",
-      images: ["/images/long1.jpg", "/images/long2.jpg", "/images/long3.jpg"]
-    },
-    {
-      id: 4,
-      name: "Corte Adulto Premium (corte de cabello + limpieza facial)",
-      duration: "1 hrs 20 min",
-      price: "$23.000",
-      description: "Corte completo con limpieza facial incluida",
-      images: ["/images/premium1.jpg", "/images/premium2.jpg"]
-    }
-  ];
+  // Cargar servicios del backend
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        setServicesLoading(true);
+        setServicesError(null);
+        
+        const response = await getServices();
+        
+        if (response.success && response.data) {
+          setServices(response.data);
+        } else {
+          setServicesError('No se pudieron cargar los servicios');
+        }
+      } catch (err) {
+        console.error('Error al obtener servicios:', err);
+        setServicesError(err.message || 'Error al cargar servicios');
+      } finally {
+        setServicesLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
 
   const handleServiceSelect = (service) => {
     setSelectedService(service);
@@ -75,50 +71,100 @@ const Appointment = () => {
     service.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Agrupar servicios por categoría
+  const servicesByCategory = filteredServices.reduce((acc, service) => {
+    const category = service.category || 'general';
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(service);
+    return acc;
+  }, {});
+
   const renderStepContent = () => {
     switch (currentStep) {
       case 1: // Selección de servicio
+        if (servicesLoading) {
+          return <Loading />;
+        }
+        
+        if (servicesError) {
+          return (
+            <div className="services-error">
+              <p>❌ {servicesError}</p>
+              <button onClick={() => window.location.reload()}>
+                Intentar nuevamente
+              </button>
+            </div>
+          );
+        }
+        
         return (
           <>
-            {/* <div className="search-bar">
+            <div className="search-bar">
               <input 
                 type="text" 
                 placeholder="¿Qué servicio buscas?" 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-            </div> */}
-            <div className="service-category">
-              <h1>Cortes de cabello</h1>
-              <button className="collapse-button">-</button>
             </div>
-            <div className="appointment-container">
-              {filteredServices.map(service => (
-                <div key={service.id} className="service-card">
-                  <h2>{service.name}</h2>
-                  <div className="service-info">
-                    <span className="service-time">{service.duration}</span>
-                    <span className="service-price">{service.price}</span>
-                  </div>
-                  <p className="service-description">{service.description}</p>
-                  
-                  {service.description.length > 50 && (
-                    <a href="#" className="more-info">Más información</a>
-                  )}
-                  
-                  <button 
-                    className="service-button"
-                    onClick={() => handleServiceSelect(service)}
-                  >
-                    Agendar servicio
-                  </button>
+            
+            {Object.entries(servicesByCategory).map(([category, categoryServices]) => (
+              <div key={category}>
+                <div className="service-category">
+                  <h1>{category === 'haircut' ? 'Cortes de cabello' : 
+                       category === 'beard' ? 'Barbas y afeitado' :
+                       category === 'combo' ? 'Servicios combinados' :
+                       category === 'special' ? 'Servicios especiales' :
+                       'Servicios generales'}</h1>
+                  <button className="collapse-button">-</button>
                 </div>
-              ))}
-            </div>
+                <div className="appointment-container">
+                  {categoryServices.map(service => (
+                    <div key={service._id || service.id} className="service-card">
+                      <h2>{service.name}</h2>
+                      <div className="service-info">
+                        <span className="service-time">{service.duration} min</span>
+                        <span className="service-price">${service.price}</span>
+                      </div>
+                      <p className="service-description">{service.description}</p>
+                      
+                      {service.image && (
+                        <div className="service-image">
+                          <img src={service.image} alt={service.name} />
+                        </div>
+                      )}
+                      
+                      <button 
+                        className="service-button"
+                        onClick={() => handleServiceSelect(service)}
+                        disabled={!service.isActive}
+                      >
+                        {service.isActive ? 'Agendar servicio' : 'No disponible'}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+            
+            {filteredServices.length === 0 && !servicesLoading && (
+              <div className="no-services">
+                <p>No se encontraron servicios.</p>
+                {searchTerm && (
+                  <button onClick={() => setSearchTerm('')}>
+                    Limpiar búsqueda
+                  </button>
+                )}
+              </div>
+            )}
           </>
         );
+        
       case 2: // Selección de barbero
         return <BarberSelection setSelectedBarber={handleBarberSelect} />;
+        
       case 3: // Selección de fecha y hora
         return (
           <>
@@ -130,6 +176,7 @@ const Appointment = () => {
             />
           </>
         );
+        
       case 4: // Confirmación de detalles
         return (
           <AppointmentForm 
@@ -139,6 +186,7 @@ const Appointment = () => {
             selectedTime={selectedTime}
           />
         );
+        
       default:
         return <div>Error: Paso desconocido</div>;
     }

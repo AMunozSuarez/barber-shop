@@ -8,8 +8,9 @@ const Calendar = ({ setSelectedDate }) => {
 
   const handleDateChange = (newDate) => {
     setDate(newDate);
-    // Formatear la fecha como string para enviarla al componente padre
-    const formattedDate = newDate.toLocaleDateString();
+    // Formatear la fecha en formato ISO (YYYY-MM-DD) para el backend
+    const formattedDate = newDate.toISOString().split('T')[0];
+    console.log('📅 Fecha seleccionada:', formattedDate);
     setSelectedDate(formattedDate);
   };
 

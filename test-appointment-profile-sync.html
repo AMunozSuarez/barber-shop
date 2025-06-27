@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba - Sincronización Citas ↔ Perfil del Barbero</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background: #f5f5f5; 
+        }
+        .container { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        .problem { 
+            background: #ffe6e6; 
+            color: #d8000c; 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin: 15px 0; 
+            border-left: 4px solid #d8000c; 
+        }
+        .solution { 
+            background: #e8f5e8; 
+            color: #2e7d2e; 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin: 15px 0; 
+            border-left: 4px solid #2e7d2e; 
+        }
+        .section { 
+            margin: 25px 0; 
+            padding: 20px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+        }
+        code { 
+            background: #f8f8f8; 
+            padding: 2px 6px; 
+            border-radius: 3px; 
+            font-family: 'Courier New', monospace; 
+        }
+        .code-block { 
+            background: #f8f8f8; 
+            padding: 15px; 
+            border-radius: 5px; 
+            overflow-x: auto; 
+            margin: 10px 0; 
+            border-left: 4px solid #007bff; 
+        }
+        .test-step { 
+            background: #f9f9f9; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-left: 3px solid #007bff; 
+        }
+        .feature { 
+            background: #e3f2fd; 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin: 10px 0; 
+            border-left: 4px solid #2196f3; 
+        }
+        .highlight { 
+            background: #fff3cd; 
+            padding: 10px; 
+            border-radius: 5px; 
+            margin: 10px 0; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Sincronización: Citas ↔ Perfil del Barbero</h1>
+        
+        <div class="problem">
+            <h3>🚨 Problema Original</h3>
+            <p><strong>Descripción:</strong> Aunque las citas se guardaban en la base de datos, el perfil del barbero no se actualizaba automáticamente para mostrar las citas nuevas.</p>
+            <p><strong>Comportamiento:</strong> Era necesario recargar manualmente la página para ver las estadísticas actualizadas.</p>
+        </div>
+
+        <div class="section">
+            <h2>🔍 Análisis del Problema</h2>
+            
+            <h3>Flujo de Datos Original (Problemático):</h3>
+            <ol>
+                <li>Cliente crea una cita → Se guarda en base de datos ✅</li>
+                <li>Perfil del barbero → Muestra estadísticas obsoletas ❌</li>
+                <li>Usuario debe recargar página manualmente ❌</li>
+            </ol>
+
+            <h3>Causa Raíz:</h3>
+            <p>El perfil del barbero cargaba las estadísticas <strong>solo una vez</strong> al montar el componente y no tenía forma de saber cuándo se creaban nuevas citas.</p>
+        </div>
+
+        <div class="section">
+            <h2>✅ Soluciones Implementadas</h2>
+            
+            <div class="feature">
+                <h3>1. 🎯 Sistema de Notificaciones de Contexto</h3>
+                <p><strong>Archivo:</strong> <code>AppointmentContext.jsx</code></p>
+                <p>Agregado sistema de suscripción para notificar cambios en citas:</p>
+                <div class="code-block">
+// Función para suscribirse a actualizaciones
+const subscribeToUpdates = useCallback((listener) => {
+  setUpdateListeners(prev => [...prev, listener]);
+  return () => setUpdateListeners(prev => prev.filter(l => l !== listener));
+}, []);
+
+// Notificar cuando se agrega una cita
+const addAppointment = useCallback((appointment) => {
+  setAppointments((prev) => [...prev, appointment]);
+  setTimeout(() => notifyUpdate(), 100);
+}, [notifyUpdate]);
+                </div>
+            </div>
+
+            <div class="feature">
+                <h3>2. 🔄 Actualización Automática en Perfil</h3>
+                <p><strong>Archivo:</strong> <code>BarberProfile.jsx</code></p>
+                <p>El perfil se suscribe automáticamente a cambios de citas:</p>
+                <div class="code-block">
+// Suscribirse a actualizaciones de citas
+useEffect(() => {
+  if (subscribeToUpdates) {
+    const unsubscribe = subscribeToUpdates(() => {
+      console.log('📅 Nueva cita detectada, actualizando estadísticas...');
+      refreshStats();
+    });
+    return unsubscribe;
+  }
+}, [subscribeToUpdates, refreshStats]);
+                </div>
+            </div>
+
+            <div class="feature">
+                <h3>3. 🔄 Botón de Actualización Manual</h3>
+                <p>Agregado botón "🔄 Actualizar" para refrescar estadísticas manualmente</p>
+                <div class="code-block">
+&lt;button 
+  className="refresh-button" 
+  onClick={refreshStats}
+  title="Actualizar estadísticas"
+&gt;
+  🔄 Actualizar
+&lt;/button&gt;
+                </div>
+            </div>
+
+            <div class="feature">
+                <h3>4. ⏰ Actualización Periódica</h3>
+                <p>Actualización automática cada 30 segundos:</p>
+                <div class="code-block">
+useEffect(() => {
+  const interval = setInterval(() => {
+    console.log('⏰ Actualización automática de estadísticas...');
+    refreshStats();
+  }, 30000); // 30 segundos
+  return () => clearInterval(interval);
+}, [refreshStats]);
+                </div>
+            </div>
+
+            <div class="feature">
+                <h3>5. 👀 Actualización al Enfocar Ventana</h3>
+                <p>Estadísticas se actualizan cuando vuelves a la pestaña:</p>
+                <div class="code-block">
+useEffect(() => {
+  const handleFocus = () => {
+    console.log('🔄 Ventana enfocada, actualizando estadísticas...');
+    refreshStats();
+  };
+  window.addEventListener('focus', handleFocus);
+  return () => window.removeEventListener('focus', handleFocus);
+}, [refreshStats]);
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🧪 Pasos para Probar la Sincronización</h2>
+            
+            <div class="test-step">
+                <h4>Paso 1: Preparación del Sistema</h4>
+                <div class="code-block">
+# Terminal 1 - Backend
+cd barber-back
+npm start
+
+# Terminal 2 - Frontend  
+cd barber-front
+npm run dev
+                </div>
+            </div>
+
+            <div class="test-step">
+                <h4>Paso 2: Estado Inicial</h4>
+                <ol>
+                    <li>Ir a <code>http://localhost:3002</code></li>
+                    <li>Login como barbero: <code>barber1@example.com</code> / <code>barber123</code></li>
+                    <li>Ir a <strong>/profile</strong></li>
+                    <li>🔍 <strong>Anotar las estadísticas actuales</strong> (ej: "3 citas programadas")</li>
+                </ol>
+            </div>
+
+            <div class="test-step">
+                <h4>Paso 3: Crear Nueva Cita</h4>
+                <ol>
+                    <li>Abrir nueva pestaña o ventana en <code>http://localhost:3002</code></li>
+                    <li>Login como cliente: <code>client1@example.com</code> / <code>client123</code></li>
+                    <li>Ir a <strong>/appointment</strong></li>
+                    <li>Crear una nueva cita con el barbero</li>
+                    <li>✅ <strong>Completar el proceso de reserva</strong></li>
+                </ol>
+            </div>
+
+            <div class="test-step">
+                <h4>Paso 4: Verificar Actualización Automática</h4>
+                <ol>
+                    <li>🔄 <strong>Volver a la pestaña del perfil del barbero</strong></li>
+                    <li>✅ <strong>Las estadísticas deberían actualizarse automáticamente</strong></li>
+                    <li>🎯 El contador de "citas programadas" debe incrementar</li>
+                    <li>📊 El total de citas también debe actualizarse</li>
+                </ol>
+            </div>
+
+            <div class="test-step">
+                <h4>Paso 5: Verificar Botón Manual (Opcional)</h4>
+                <ol>
+                    <li>Si no se actualiza automáticamente, hacer clic en <strong>"🔄 Actualizar"</strong></li>
+                    <li>✅ <strong>Las estadísticas deben refrescarse inmediatamente</strong></li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="solution">
+            <h3>✅ Resultados Esperados</h3>
+            <ul>
+                <li>✅ <strong>Actualización automática inmediata</strong> cuando se crea una cita</li>
+                <li>✅ <strong>Sin necesidad de recargar página</strong> manualmente</li>
+                <li>✅ <strong>Estadísticas sincronizadas</strong> entre citas y perfil</li>
+                <li>✅ <strong>Múltiples mecanismos de actualización</strong> (automático, manual, periódico, por foco)</li>
+                <li>✅ <strong>Experiencia de usuario mejorada</strong> con datos en tiempo real</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🔧 Mecanismos de Sincronización</h2>
+            
+            <div class="highlight">
+                <h3>1. 📡 Inmediato (Contexto)</h3>
+                <p>Cuando se crea una cita → Notificación automática → Actualización de estadísticas</p>
+            </div>
+
+            <div class="highlight">
+                <h3>2. 🔄 Manual (Botón)</h3>
+                <p>Usuario hace clic en "🔄 Actualizar" → Refrescado manual de estadísticas</p>
+            </div>
+
+            <div class="highlight">
+                <h3>3. ⏰ Periódico (30s)</h3>
+                <p>Cada 30 segundos → Actualización automática de fondo</p>
+            </div>
+
+            <div class="highlight">
+                <h3>4. 👀 Por Foco (Ventana)</h3>
+                <p>Al volver a la pestaña → Actualización automática</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 Monitoreo en Consola del Navegador</h2>
+            <p>Para verificar que todo funciona, abre DevTools (F12) y busca estos logs:</p>
+            
+            <div class="code-block">
+// Al crear una cita:
+✅ Cita agregada y contexto notificado: {datos}
+
+// En el perfil del barbero:
+📅 Nueva cita detectada, actualizando estadísticas...
+🔄 Refrescando estadísticas...
+✅ Estadísticas actualizadas: {datos}
+
+// Actualización periódica:
+⏰ Actualización automática de estadísticas...
+
+// Al enfocar ventana:
+🔄 Ventana enfocada, actualizando estadísticas...
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🎯 Archivos Modificados</h2>
+            <ul>
+                <li><code>barber-front/src/context/AppointmentContext.jsx</code> - Sistema de notificaciones</li>
+                <li><code>barber-front/src/hooks/useAppointment.js</code> - Integración con contexto</li>
+                <li><code>barber-front/src/pages/profile/BarberProfile.jsx</code> - Suscripción a updates + botón manual</li>
+                <li><code>barber-front/src/assets/styles/pages/profile/BarberProfile.css</code> - Estilos para botón</li>
+            </ul>
+        </div>
+
+        <div class="highlight">
+            <h2>💡 Beneficios de la Solución</h2>
+            <ul>
+                <li><strong>Tiempo real:</strong> Los barberos ven inmediatamente sus nuevas citas</li>
+                <li><strong>Mejor UX:</strong> No necesidad de recargar páginas manualmente</li>
+                <li><strong>Redundancia:</strong> Múltiples mecanismos aseguran sincronización</li>
+                <li><strong>Escalabilidad:</strong> Sistema puede notificar otros cambios fácilmente</li>
+                <li><strong>Confiabilidad:</strong> Si falla un mecanismo, otros siguen funcionando</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html> 

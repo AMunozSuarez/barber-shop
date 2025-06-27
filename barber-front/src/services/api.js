@@ -1,94 +1,109 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api'; // Replace with your actual API URL
+// Configuración base de la API
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-// Create an axios instance with base configuration
+// Crear instancia de axios con configuración base
 const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 10000, // 10 segundos de timeout
 });
 
-// Export the axios instance as default
+// Interceptor para agregar token de autenticación a las peticiones
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('barber_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    
+    // Log para debugging en desarrollo
+    if (import.meta.env.DEV) {
+      console.log(`🔄 ${config.method?.toUpperCase()} ${config.url}`, config.data || '');
+    }
+    
+    return config;
+  },
+  (error) => {
+    console.error('❌ Request error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Interceptor para manejar respuestas y errores
+api.interceptors.response.use(
+  (response) => {
+    // Log para debugging en desarrollo
+    if (import.meta.env.DEV) {
+      console.log(`✅ ${response.status} ${response.config.url}`, response.data);
+    }
+    return response;
+  },
+  (error) => {
+    // Log del error
+    console.error('❌ Response error:', error);
+    
+    // Si es error 401, limpiar token y redirigir a login
+    if (error.response?.status === 401) {
+      localStorage.removeItem('barber_token');
+      localStorage.removeItem('barber_user');
+      
+      // Solo redirigir si no estamos ya en login/register
+      const currentPath = window.location.pathname;
+      if (!currentPath.includes('/login') && !currentPath.includes('/register')) {
+        window.location.href = '/login';
+      }
+    }
+    
+    // Formatear el error para mejor manejo
+    const formattedError = {
+      message: error.response?.data?.message || error.message || 'Error desconocido',
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data
+    };
+    
+    return Promise.reject(formattedError);
+  }
+);
+
 export default api;
 
-// Mock data para simular respuesta de API
-const mockBarbers = [
-  { 
-    id: 1, 
-    name: 'Juan Martínez', 
-    specialty: 'Cortes clásicos', 
-    image: '../assets/icons/images.jpg',
-    rating: 4.8,
-    reviews: 120,
-    availability: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
+// Funciones auxiliares para manejo de tokens
+export const authUtils = {
+  setToken: (token) => {
+    localStorage.setItem('barber_token', token);
   },
-  { 
-    id: 2, 
-    name: 'Carlos Rodríguez', 
-    specialty: 'Degradados y diseños', 
-    image: '/images/barber2.jpg',
-    rating: 4.9,
-    reviews: 95,
-    availability: ['monday', 'wednesday', 'friday', 'saturday']
+  
+  getToken: () => {
+    return localStorage.getItem('barber_token');
   },
-  { 
-    id: 3, 
-    name: 'Miguel Sánchez', 
-    specialty: 'Barbas y bigotes', 
-    image: '/images/barber3.jpg',
-    rating: 4.7,
-    reviews: 87,
-    availability: ['tuesday', 'thursday', 'saturday', 'sunday']
+  
+  removeToken: () => {
+    localStorage.removeItem('barber_token');
+    localStorage.removeItem('barber_user');
   },
-];
-
-// Function to get all barbers
-export const getBarbers = async () => {
-  // Simular demora de llamada a API
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(mockBarbers);
-    }, 300);
-  });
+  
+  isAuthenticated: () => {
+    return !!localStorage.getItem('barber_token');
+  }
 };
 
-// Function to get a specific barber by ID
-export const getBarberById = async (id) => {
-  // Simular demora de llamada a API
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const barber = mockBarbers.find(b => b.id === parseInt(id));
-      if (barber) {
-        resolve(barber);
-      } else {
-        reject(new Error(`Barber with ID ${id} not found`));
-      }
-    }, 300);
-  });
-};
-
-// Function to create a new appointment
-export const createAppointment = async (appointmentData) => {
-  const response = await api.post('/appointments', appointmentData);
-  return response.data;
-};
-
-// Function to get all appointments for a user
-export const getUserAppointments = async (userId) => {
-  const response = await api.get(`/appointments/user/${userId}`);
-  return response.data;
-};
-
-// Function to update an appointment
-export const updateAppointment = async (id, appointmentData) => {
-  const response = await api.put(`/appointments/${id}`, appointmentData);
-  return response.data;
-};
-
-// Function to delete an appointment
-export const deleteAppointment = async (id) => {
-  const response = await api.delete(`/appointments/${id}`);
-  return response.data;
+// Función para verificar conectividad con el backend
+export const checkBackendHealth = async () => {
+  try {
+    const response = await axios.get(API_URL.replace('/api', '/'));
+    return {
+      status: 'connected',
+      message: response.data.message || 'Backend conectado correctamente'
+    };
+  } catch (error) {
+    return {
+      status: 'disconnected',
+      message: 'No se puede conectar al backend. Verifica que esté ejecutándose.'
+    };
+  }
 };

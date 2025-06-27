@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useBarber } from '../../hooks/useBarber';
+import { useAppointment } from '../../hooks/useAppointment';
+import { useAppointment as useAppointmentContext } from '../../context/AppointmentContext';
+import AvailabilityManager from '../../components/barber/AvailabilityManager';
 import '../../assets/styles/pages/profile/BarberProfile.css';
 
 const BarberProfile = () => {
@@ -13,10 +16,12 @@ const BarberProfile = () => {
     updateBarberProfile,
     getBarberStats 
   } = useBarber();
+  const { completeAppointment, removeAppointment, loading: appointmentLoading } = useAppointment();
+  const { subscribeToUpdates } = useAppointmentContext();
   
   const [profileData, setProfileData] = useState(null);
   const [stats, setStats] = useState(null);
-  const [activeTab, setActiveTab] = useState('services');
+  const [activeTab, setActiveTab] = useState('appointments');
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -28,25 +33,51 @@ const BarberProfile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Función para refrescar solo las estadísticas
+  const refreshStats = useCallback(async () => {
+    try {
+      console.log('🔄 Refrescando estadísticas...');
+      const statsData = await getBarberStats();
+      console.log('✅ Estadísticas actualizadas:', statsData);
+      setStats(statsData.data);
+    } catch (statsError) {
+      console.warn('⚠️ No se pudieron actualizar estadísticas:', statsError.message);
+    }
+  }, [getBarberStats]);
+
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
+        console.log('🔍 Obteniendo perfil del barbero...');
         const data = await getBarberProfile();
+        console.log('✅ Perfil obtenido:', data);
         setProfileData(data);
         
         // Inicializar formData con datos del perfil
         setFormData({
-          name: data.name || '',
-          phone: data.phone || '',
+          name: data.user?.name || '',
+          phone: data.user?.phone || '',
           specialty: data.specialty || '',
           bio: data.bio || '',
           availability: data.availability || []
         });
         
-        // Obtener estadísticas
-        const statsData = await getBarberStats();
-        setStats(statsData);
+        // Obtener estadísticas del barbero
+        console.log('🔍 Obteniendo estadísticas...');
+        try {
+          const statsData = await getBarberStats();
+          console.log('✅ Estadísticas obtenidas:', statsData);
+          setStats(statsData.data);
+        } catch (statsError) {
+          console.warn('⚠️ No se pudieron obtener estadísticas:', statsError.message);
+          // Usar estadísticas por defecto
+          setStats({
+            appointments: { completed: 0, total: 0 },
+            revenue: { monthly: 0 }
+          });
+        }
       } catch (err) {
+        console.error('❌ Error al obtener datos del perfil:', err);
         setError(err.message || 'Error al obtener datos del perfil');
       } finally {
         setLoading(false);
@@ -54,7 +85,43 @@ const BarberProfile = () => {
     };
 
     fetchProfileData();
-  }, []);
+  }, [getBarberProfile, getBarberStats]);
+
+  // Efecto para actualizar estadísticas cuando la ventana vuelve a tener foco
+  useEffect(() => {
+    const handleFocus = () => {
+      console.log('🔄 Ventana enfocada, actualizando estadísticas...');
+      refreshStats();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [refreshStats]);
+
+  // Efecto para actualizar estadísticas cada 30 segundos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('⏰ Actualización automática de estadísticas...');
+      refreshStats();
+    }, 30000); // 30 segundos
+
+    return () => clearInterval(interval);
+  }, [refreshStats]);
+
+  // Suscribirse a actualizaciones de citas para refrescar estadísticas automáticamente
+  useEffect(() => {
+    if (subscribeToUpdates) {
+      const unsubscribe = subscribeToUpdates(() => {
+        console.log('📅 Nueva cita detectada, actualizando estadísticas...');
+        refreshStats();
+      });
+
+      return unsubscribe;
+    }
+  }, [subscribeToUpdates, refreshStats]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -88,6 +155,39 @@ const BarberProfile = () => {
     }
   };
 
+  // Funciones para gestionar citas
+  const handleCompleteAppointment = async (appointmentId) => {
+    try {
+      console.log('🟢 Completando cita:', appointmentId);
+      const response = await completeAppointment(appointmentId);
+      if (response.success) {
+        console.log('✅ Cita completada exitosamente');
+        // Refrescar estadísticas para mostrar cambios
+        await refreshStats();
+      }
+    } catch (err) {
+      console.error('❌ Error al completar cita:', err);
+      setError('Error al completar la cita');
+    }
+  };
+
+  const handleCancelAppointment = async (appointmentId) => {
+    if (window.confirm('¿Estás seguro de que quieres cancelar esta cita?')) {
+      try {
+        console.log('🔴 Cancelando cita:', appointmentId);
+        const response = await removeAppointment(appointmentId);
+        if (response.success) {
+          console.log('✅ Cita cancelada exitosamente');
+          // Refrescar estadísticas para mostrar cambios
+          await refreshStats();
+        }
+      } catch (err) {
+        console.error('❌ Error al cancelar cita:', err);
+        setError('Error al cancelar la cita');
+      }
+    }
+  };
+
   if (loading && !profileData) return <div className="loading">Cargando...</div>;
   if (error && !profileData) return <div className="error">{error}</div>;
   if (!profileData) return <div className="error">Perfil de barbero no encontrado</div>;
@@ -107,12 +207,12 @@ const BarberProfile = () => {
           
           <div className="barber-info-card">
             
-            <h1 className="barber-name">{profileData.name}</h1>
-            <p className="barber-title">{profileData.specialty}</p>
+            <h1 className="barber-name">{profileData.user?.name || 'Nombre no disponible'}</h1>
+            <p className="barber-title">{profileData.specialty || 'Especialidad no especificada'}</p>
             
             <div className="barber-rating">
               <div className="barber-stars">⭐⭐⭐⭐⭐</div>
-              <span className="barber-rating-count">{profileData.rating} ({profileData.reviews} reseñas)</span>
+              <span className="barber-rating-count">{profileData.rating || 0} ({profileData.reviewCount || 0} reseñas)</span>
             </div>
             
             <div className="barber-tags">
@@ -125,11 +225,11 @@ const BarberProfile = () => {
             
             <div className="barber-stats">
               <div className="barber-stat">
-                <div className="barber-stat-value">{profileData.experience}</div>
+                <div className="barber-stat-value">{profileData.experience || 0}</div>
                 <div className="barber-stat-label">Años de experiencia</div>
               </div>
               <div className="barber-stat">
-                <div className="barber-stat-value">{stats?.completedAppointments || 0}</div>
+                <div className="barber-stat-value">{stats?.appointments?.completed || 0}</div>
                 <div className="barber-stat-label">Citas completadas</div>
               </div>
               <div className="barber-stat">
@@ -146,7 +246,16 @@ const BarberProfile = () => {
                 {isEditing ? 'Cancelar Edición' : 'Editar Perfil'}
               </button>
               {!isEditing && (
-                <button className="contact-button">Contactar</button>
+                <>
+                  <button className="contact-button">Contactar</button>
+                  <button 
+                    className="refresh-button" 
+                    onClick={refreshStats}
+                    title="Actualizar estadísticas"
+                  >
+                    🔄 Actualizar
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -239,10 +348,22 @@ const BarberProfile = () => {
               <>
                 <div className="content-tabs">
                   <div 
+                    className={`content-tab ${activeTab === 'appointments' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('appointments')}
+                  >
+                    Mis Citas
+                  </div>
+                  <div 
                     className={`content-tab ${activeTab === 'info' ? 'active' : ''}`}
                     onClick={() => setActiveTab('info')}
                   >
                     Información
+                  </div>
+                  <div 
+                    className={`content-tab ${activeTab === 'availability' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('availability')}
+                  >
+                    Disponibilidad
                   </div>
                   <div 
                     className={`content-tab ${activeTab === 'reviews' ? 'active' : ''}`}
@@ -253,6 +374,129 @@ const BarberProfile = () => {
                 </div>
                 
                 
+                {activeTab === 'appointments' && (
+                  <div className="appointments-section">
+                    <h2 className="section-title">Mis Citas Próximas</h2>
+                    {stats?.upcomingAppointments && stats.upcomingAppointments.length > 0 ? (
+                      <div className="appointments-list">
+                        {stats.upcomingAppointments.map((appointment, index) => (
+                          <div key={appointment._id || index} className="appointment-card">
+                            <div className="appointment-header">
+                              <div className="appointment-date">
+                                <div className="date-day">
+                                  {new Date(appointment.date).toLocaleDateString('es-ES', { 
+                                    day: '2-digit',
+                                    month: 'short' 
+                                  })}
+                                </div>
+                                <div className="date-weekday">
+                                  {new Date(appointment.date).toLocaleDateString('es-ES', { 
+                                    weekday: 'short' 
+                                  })}
+                                </div>
+                              </div>
+                              <div className="appointment-time">
+                                <div className="time-value">{appointment.startTime}</div>
+                                <div className="time-duration">
+                                  {appointment.service?.duration || 30} min
+                                </div>
+                              </div>
+                              <div className={`appointment-status ${appointment.status}`}>
+                                {appointment.status === 'pending' ? 'Pendiente' :
+                                 appointment.status === 'confirmed' ? 'Confirmada' :
+                                 appointment.status === 'completed' ? 'Completada' : 
+                                 appointment.status}
+                              </div>
+                            </div>
+                            <div className="appointment-details">
+                              <div className="client-info">
+                                <div className="client-name">
+                                  👤 {appointment.client?.name || 'Cliente no especificado'}
+                                </div>
+                                {appointment.client?.phone && (
+                                  <div className="client-phone">
+                                    📱 {appointment.client.phone}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="service-info">
+                                <div className="service-name">
+                                  ✂️ {appointment.service?.name || 'Servicio no especificado'}
+                                </div>
+                                {appointment.service?.price && (
+                                  <div className="service-price">
+                                    💰 ${appointment.service.price}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            {appointment.notes && (
+                              <div className="appointment-notes">
+                                📝 <strong>Notas:</strong> {appointment.notes}
+                              </div>
+                            )}
+                            {/* Botones de acción para el barbero */}
+                            <div className="appointment-actions">
+                              {appointment.status === 'pending' && (
+                                <>
+                                  <button 
+                                    className="action-btn complete-btn"
+                                    onClick={() => handleCompleteAppointment(appointment._id)}
+                                    disabled={appointmentLoading}
+                                  >
+                                    🎯 Completar
+                                  </button>
+                                  <button 
+                                    className="action-btn cancel-btn"
+                                    onClick={() => handleCancelAppointment(appointment._id)}
+                                    disabled={appointmentLoading}
+                                  >
+                                    ❌ Cancelar
+                                  </button>
+                                </>
+                              )}
+                              {appointment.status === 'completed' && (
+                                <div className="completed-badge">
+                                  🎉 Cita completada
+                                </div>
+                              )}
+                              {appointment.status === 'cancelled' && (
+                                <div className="cancelled-badge">
+                                  🚫 Cita cancelada
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="no-appointments">
+                        <div className="no-appointments-icon">📅</div>
+                        <h3>No tienes citas próximas</h3>
+                        <p>Las citas que se programen contigo aparecerán aquí.</p>
+                        <button 
+                          className="refresh-button" 
+                          onClick={refreshStats}
+                        >
+                          🔄 Actualizar
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === 'availability' && (
+                  <div className="availability-section">
+                    <AvailabilityManager 
+                      currentAvailability={profileData.availability || []}
+                      onUpdate={(updatedBarber) => {
+                        setProfileData(updatedBarber);
+                        console.log('✅ Disponibilidad actualizada:', updatedBarber);
+                      }}
+                    />
+                  </div>
+                )}
+
                 {activeTab === 'reviews' && (
                   <div className="reviews-list">
                     {profileData.reviewsList && profileData.reviewsList.length > 0 ? (
@@ -421,13 +665,25 @@ const BarberProfile = () => {
                 <div className="contact-item">
                   <div className="contact-icon">📅</div>
                   <div className="contact-text">
-                    <strong>{stats.upcomingAppointments}</strong> citas programadas
+                    <strong>{stats.upcomingAppointments?.length || 0}</strong> citas programadas
                   </div>
                 </div>
                 <div className="contact-item">
                   <div className="contact-icon">✅</div>
                   <div className="contact-text">
-                    <strong>{stats.completedAppointments}</strong> citas completadas
+                    <strong>{stats.appointments?.completed || 0}</strong> citas completadas
+                  </div>
+                </div>
+                <div className="contact-item">
+                  <div className="contact-icon">📊</div>
+                  <div className="contact-text">
+                    <strong>{stats.appointments?.total || 0}</strong> citas totales
+                  </div>
+                </div>
+                <div className="contact-item">
+                  <div className="contact-icon">💰</div>
+                  <div className="contact-text">
+                    <strong>${stats.revenue?.monthly || 0}</strong> ingresos mensuales
                   </div>
                 </div>
               </div>

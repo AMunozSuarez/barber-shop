@@ -159,6 +159,23 @@
   background-color: var(--primary-light);
 }
 
+.refresh-button {
+  background-color: var(--white);
+  color: var(--gray-text);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--border-radius-md);
+  font-weight: 600;
+  border: 1px solid var(--gray-medium);
+  transition: all 0.3s ease;
+  font-size: var(--text-sm);
+}
+
+.refresh-button:hover {
+  background-color: var(--gray-light);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
 .barber-content {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -416,5 +433,262 @@
     overflow-x: auto;
     white-space: nowrap;
     padding-bottom: var(--spacing-xs);
+  }
+}
+
+/* Estilos para la sección de citas */
+.appointments-section {
+  padding: var(--spacing-lg);
+}
+
+.appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.appointment-card {
+  background: var(--white);
+  border: 1px solid var(--gray-medium);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.appointment-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.appointment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--gray-light);
+}
+
+.appointment-date {
+  text-align: center;
+  min-width: 80px;
+}
+
+.date-day {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+}
+
+.date-weekday {
+  font-size: var(--text-sm);
+  color: var(--gray-text);
+  text-transform: uppercase;
+}
+
+.appointment-time {
+  text-align: center;
+  min-width: 80px;
+}
+
+.time-value {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--dark-text);
+}
+
+.time-duration {
+  font-size: var(--text-sm);
+  color: var(--gray-text);
+}
+
+.appointment-status {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 20px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  min-width: 100px;
+  text-align: center;
+}
+
+.appointment-status.pending {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.appointment-status.confirmed {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.appointment-status.completed {
+  background-color: #cce5ff;
+  color: #0056b3;
+  border: 1px solid #99d3ff;
+}
+
+.appointment-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+}
+
+.client-info, .service-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.client-name, .service-name {
+  font-weight: 600;
+  color: var(--dark-text);
+  font-size: var(--text-base);
+}
+
+.client-phone, .service-price {
+  color: var(--gray-text);
+  font-size: var(--text-sm);
+}
+
+.appointment-notes {
+  background-color: var(--gray-light);
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--text-sm);
+  color: var(--gray-text);
+  border-left: 3px solid var(--primary);
+}
+
+.no-appointments {
+  text-align: center;
+  padding: var(--spacing-xl) var(--spacing-lg);
+  color: var(--gray-text);
+}
+
+.no-appointments-icon {
+  font-size: 4rem;
+  margin-bottom: var(--spacing-lg);
+  opacity: 0.5;
+}
+
+.no-appointments h3 {
+  color: var(--dark-text);
+  margin-bottom: var(--spacing-sm);
+}
+
+.no-appointments p {
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Responsive para las citas */
+@media (max-width: 768px) {
+  .appointment-header {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    text-align: center;
+  }
+
+  .appointment-date,
+  .appointment-time {
+    min-width: auto;
+  }
+
+  .appointment-details {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+}
+
+/* Estilos para botones de acción de citas del barbero */
+.appointment-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--gray-light);
+}
+
+.action-btn {
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+  min-width: 100px;
+}
+
+.action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.complete-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.complete-btn:hover:not(:disabled) {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+}
+
+.cancel-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background-color: #c82333;
+  transform: translateY(-1px);
+}
+
+.completed-badge,
+.cancelled-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 20px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.completed-badge {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.cancelled-badge {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Responsive para botones de acción */
+@media (max-width: 768px) {
+  .appointment-actions {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .completed-badge,
+  .cancelled-badge {
+    margin-left: 0;
+    align-self: center;
   }
 }

@@ -6,7 +6,7 @@ import '../../assets/styles/components/appointment/AppointmentForm.css';
 
 function AppointmentForm({ selectedService, selectedBarber, selectedDate, selectedTime }) {
   const navigate = useNavigate();
-  const { bookAppointment } = useAppointment();
+  const { addAppointment } = useAppointment();
   const { isAuthenticated, user } = useAuth();
   
   const [userDetails, setUserDetails] = useState({
@@ -46,9 +46,15 @@ function AppointmentForm({ selectedService, selectedBarber, selectedDate, select
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitError(null);
+    
+    // Verificar que el usuario esté autenticado
+    if (!isAuthenticated) {
+      setSubmitError('Debes iniciar sesión para agendar una cita. Por favor inicia sesión e intenta nuevamente.');
+      return;
+    }
     
     // Verificar que todos los campos necesarios estén completos
     if (!formData.service || !formData.barber || !formData.date || !formData.time) {
@@ -56,51 +62,90 @@ function AppointmentForm({ selectedService, selectedBarber, selectedDate, select
       return;
     }
     
+    // Preparar datos para el backend
     const appointmentData = {
-      serviceId: formData.service.id,
-      serviceName: formData.service.name,
-      servicePrice: formData.service.price,
-      serviceDuration: formData.service.duration,
-      barberId: formData.barber.id,
-      barberName: formData.barber.name,
+      serviceId: formData.service._id || formData.service.id,
+      barberId: formData.barber._id || formData.barber.id,
       date: formData.date,
-      time: formData.time,
-      status: 'confirmed',
-      customer: userDetails,
-      createdAt: new Date().toISOString()
+      startTime: formData.time,
+      notes: `Cita para ${user.name}`
     };
 
+    console.log('📅 Creando cita con datos:', appointmentData);
     setIsSubmitting(true);
     
-    // Simular una llamada a la API
-    setTimeout(() => {
-      try {
-        // Simular un ID de cita generado por el servidor
-        const newAppointment = {
-          ...appointmentData,
-          id: 'appt-' + Date.now()
+    try {
+      const response = await addAppointment(appointmentData);
+      
+      if (response.success) {
+        console.log('✅ Cita creada exitosamente:', response.data);
+        
+        // Preparar datos para la página de confirmación
+        const confirmationData = {
+          id: response.data._id || response.data.id,
+          service: formData.service,
+          barber: formData.barber,
+          date: formData.date,
+          time: formData.time,
+          customer: userDetails,
+          status: response.data.status || 'pending',
+          createdAt: response.data.createdAt || new Date().toISOString()
         };
         
-        // Guardar en localStorage para persistencia entre recargas de página
-        const savedAppointments = JSON.parse(localStorage.getItem('appointments') || '[]');
-        savedAppointments.push(newAppointment);
-        localStorage.setItem('appointments', JSON.stringify(savedAppointments));
-        
         navigate('/confirmation', { 
-          state: { appointmentDetails: newAppointment } 
+          state: { appointmentDetails: confirmationData } 
         });
-      } catch (error) {
-        console.error('Error booking appointment:', error);
-        setSubmitError('Ha ocurrido un error al agendar la cita. Por favor intenta nuevamente.');
-      } finally {
-        setIsSubmitting(false);
+      } else {
+        throw new Error(response.message || 'Error al crear la cita');
       }
-    }, 1500);
+    } catch (error) {
+      console.error('❌ Error al crear cita:', error);
+      setSubmitError(error.message || 'Ha ocurrido un error al agendar la cita. Por favor intenta nuevamente.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  // Si no está autenticado, mostrar mensaje de login
+  if (!isAuthenticated) {
+    return (
+      <div className="appointment-form">
+        <h2>Inicia sesión para agendar tu cita</h2>
+        <div className="auth-required">
+          <div className="auth-message">
+            <p>🔒 <strong>Autenticación requerida</strong></p>
+            <p>Para agendar una cita, necesitas tener una cuenta e iniciar sesión.</p>
+            <p>Esto nos permite:</p>
+            <ul>
+              <li>Gestionar tus citas de forma segura</li>
+              <li>Enviarte recordatorios por email</li>
+              <li>Mantener un historial de tus visitas</li>
+              <li>Ofrecerte una mejor experiencia personalizada</li>
+            </ul>
+          </div>
+          <div className="auth-actions">
+            <button 
+              className="service-button" 
+              onClick={() => navigate('/auth/login')}
+            >
+              🔑 Iniciar Sesión
+            </button>
+            <button 
+              className="service-button secondary" 
+              onClick={() => navigate('/auth/register')}
+            >
+              📝 Crear Cuenta
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <form className="appointment-form" onSubmit={handleSubmit}>
       <h2>Completa tu cita</h2>
+      
       <div className="appointment-summary">
         <h3 className="summary-title">Resumen de la reserva</h3>
         <div className="summary-item">
@@ -109,64 +154,52 @@ function AppointmentForm({ selectedService, selectedBarber, selectedDate, select
         </div>
         <div className="summary-item">
           <span className="summary-label">Precio:</span>
-          <span>{formData.service ? formData.service.price : '-'}</span>
+          <span>${formData.service ? formData.service.price : '-'}</span>
         </div>
         <div className="summary-item">
           <span className="summary-label">Duración:</span>
-          <span>{formData.service ? formData.service.duration : '-'}</span>
+          <span>{formData.service ? `${formData.service.duration} min` : '-'}</span>
         </div>
         <div className="summary-item">
           <span className="summary-label">Barbero:</span>
-          <span>{formData.barber ? formData.barber.name : 'No seleccionado'}</span>
+          <span>{formData.barber ? (formData.barber.user?.name || formData.barber.name) : 'No seleccionado'}</span>
         </div>
         <div className="summary-item">
           <span className="summary-label">Fecha:</span>
-          <span>{formData.date || 'No seleccionada'}</span>
+          <span>{formData.date ? new Date(formData.date).toLocaleDateString('es-ES', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          }) : 'No seleccionada'}</span>
         </div>
         <div className="summary-item">
           <span className="summary-label">Hora:</span>
           <span>{formData.time || 'No seleccionada'}</span>
         </div>
       </div>
-      <div className="form-group">
-        <label htmlFor="name">Nombre:</label>
-        <input
-          id="name"
-          type="text"
-          value={userDetails.name}
-          onChange={(e) => setUserDetails({ ...userDetails, name: e.target.value })}
-          required
-        />
+
+      <div className="customer-details">
+        <h3>Datos de contacto</h3>
+        <div className="customer-info">
+          <p><strong>Cliente:</strong> {user.name}</p>
+          <p><strong>Email:</strong> {user.email}</p>
+          <p><strong>Teléfono:</strong> {user.phone}</p>
+        </div>
       </div>
-      <div className="form-group">
-        <label htmlFor="email">Correo electrónico:</label>
-        <input
-          id="email"
-          type="email"
-          value={userDetails.email}
-          onChange={(e) => setUserDetails({ ...userDetails, email: e.target.value })}
-          required
-        />
-      </div>
-      <div className="form-group">
-        <label htmlFor="phone">Teléfono:</label>
-        <input
-          id="phone"
-          type="tel"
-          value={userDetails.phone}
-          onChange={(e) => setUserDetails({ ...userDetails, phone: e.target.value })}
-          required
-        />
-      </div>
+
       {submitError && (
-        <div className="form-error">{submitError}</div>
+        <div className="form-error">
+          ❌ {submitError}
+        </div>
       )}
+      
       <button 
         type="submit" 
         className="service-button"
         disabled={isSubmitting}
       >
-        {isSubmitting ? 'Procesando...' : 'Confirmar cita'}
+        {isSubmitting ? '⏳ Creando cita...' : '✅ Confirmar cita'}
       </button>
     </form>
   );

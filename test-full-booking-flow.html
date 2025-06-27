@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba Completa: Reserva de Citas con Autenticación</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        .step {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-left: 4px solid #007bff;
+            border-radius: 4px;
+        }
+        .step.completed {
+            border-left-color: #28a745;
+            background: #f8fff9;
+        }
+        .step-title {
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        .step.completed .step-title {
+            color: #28a745;
+        }
+        .test-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Prueba Completa: Reserva de Citas con Autenticación</h1>
+        <p>Esta prueba verifica el flujo completo de reserva incluyendo autenticación, disponibilidad del barbero y creación de citas.</p>
+    </div>
+
+    <div class="test-section">
+        <h2>🔧 Pasos de la Prueba</h2>
+        
+        <div class="step" id="step-1">
+            <div class="step-title">1. Login como Cliente</div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <select id="email" required>
+                        <option value="client1@example.com">Juan Pérez (client1@example.com)</option>
+                        <option value="client2@example.com">María García (client2@example.com)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña:</label>
+                    <input type="password" id="password" value="client123" required>
+                </div>
+                <button type="submit">🔐 Iniciar Sesión</button>
+            </form>
+        </div>
+
+        <div class="step" id="step-2">
+            <div class="step-title">2. Verificar Disponibilidad del Barbero</div>
+            <div class="form-group">
+                <label for="barberId">Barbero:</label>
+                <select id="barberId">
+                    <option value="685dc444f922ca2e48479398">Carlos Rodríguez</option>
+                    <option value="685dc444f922ca2e48479399">Luis García</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="testDate">Fecha para probar:</label>
+                <input type="date" id="testDate" min="2025-06-27">
+            </div>
+            <button id="checkAvailabilityBtn" disabled>📅 Verificar Disponibilidad</button>
+        </div>
+
+        <div class="step" id="step-3">
+            <div class="step-title">3. Crear Cita con Usuario Autenticado</div>
+            <div class="form-group">
+                <label for="serviceId">Servicio:</label>
+                <select id="serviceId">
+                    <option value="685dc444f922ca2e48479392">Corte de cabello ($15)</option>
+                    <option value="685dc444f922ca2e48479393">Afeitado clásico ($10)</option>
+                    <option value="685dc444f922ca2e48479394">Corte y barba ($22)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="selectedTime">Hora:</label>
+                <select id="selectedTime">
+                    <option value="">Selecciona un horario</option>
+                </select>
+            </div>
+            <button id="createAppointmentBtn" disabled>✅ Crear Cita</button>
+        </div>
+
+        <div class="step" id="step-4">
+            <div class="step-title">4. Verificar Cita Creada</div>
+            <button id="checkMyAppointmentsBtn" disabled>📋 Ver Mis Citas</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🎯 Solución del Problema</h2>
+        <div class="result info">
+✅ PROBLEMA RESUELTO: Error 400 en creación de citas
+
+CAUSA DEL PROBLEMA:
+- El frontend enviaba datos para usuarios no autenticados (customerName, customerEmail, etc.)
+- Pero el backend SIEMPRE requiere autenticación (req.user._id)
+- Esto causaba conflicto y error 400
+
+SOLUCIÓN IMPLEMENTADA:
+1. ✅ Componente AppointmentForm ahora REQUIERE autenticación
+2. ✅ Si no está autenticado, muestra mensaje para hacer login
+3. ✅ Solo usuarios autenticados pueden crear citas
+4. ✅ Datos simplificados enviados al backend: serviceId, barberId, date, startTime, notes
+
+BENEFICIOS:
+- ✅ Mayor seguridad en las citas
+- ✅ Mejor seguimiento del historial de usuario
+- ✅ Eliminación del error 400
+- ✅ Interfaz más clara y consistente
+        </div>
+    </div>
+
+    <div id="result"></div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        let authToken = null;
+        let currentUser = null;
+
+        // Set default test date to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('testDate').value = tomorrow.toISOString().split('T')[0];
+
+        function showResult(content, type = 'info') {
+            document.getElementById('result').innerHTML = `<div class="result ${type}">${content}</div>`;
+        }
+
+        function markStepCompleted(stepId) {
+            document.getElementById(stepId).classList.add('completed');
+        }
+
+        async function makeRequest(url, options = {}) {
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(authToken && { 'Authorization': `Bearer ${authToken}` })
+                }
+            };
+
+            const response = await fetch(`${API_BASE}${url}`, {
+                ...defaultOptions,
+                ...options,
+                headers: { ...defaultOptions.headers, ...options.headers }
+            });
+
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.message || data.error || `HTTP ${response.status}: ${data.error || 'Error desconocido'}`);
+            }
+            
+            return data;
+        }
+
+        // 1. Login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                showResult('🔄 Iniciando sesión...', 'info');
+                
+                const response = await makeRequest('/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+
+                authToken = response.token;
+                currentUser = response.user;
+                
+                showResult(`✅ Login exitoso como ${response.user.name}!\nToken: ${authToken.substring(0, 50)}...`, 'success');
+                markStepCompleted('step-1');
+                
+                // Habilitar siguiente paso
+                document.getElementById('checkAvailabilityBtn').disabled = false;
+                
+            } catch (error) {
+                showResult(`❌ Error en login: ${error.message}`, 'error');
+            }
+        });
+
+        // 2. Verificar disponibilidad
+        document.getElementById('checkAvailabilityBtn').addEventListener('click', async () => {
+            const barberId = document.getElementById('barberId').value;
+            const testDate = document.getElementById('testDate').value;
+
+            try {
+                showResult(`🔄 Verificando disponibilidad para ${testDate}...`, 'info');
+                
+                const response = await makeRequest(`/dashboard/barber/${barberId}/available-slots?date=${testDate}`);
+                const availableSlots = response.data;
+                
+                if (availableSlots.length === 0) {
+                    showResult(`⚠️ No hay horarios disponibles para ${testDate}. Intenta otra fecha.`, 'warning');
+                    return;
+                }
+                
+                showResult(`✅ ${availableSlots.length} horarios disponibles:\n${availableSlots.join(', ')}`, 'success');
+                markStepCompleted('step-2');
+                
+                // Llenar select de horarios
+                const timeSelect = document.getElementById('selectedTime');
+                timeSelect.innerHTML = '<option value="">Selecciona un horario</option>';
+                availableSlots.forEach(slot => {
+                    const option = document.createElement('option');
+                    option.value = slot;
+                    option.textContent = slot;
+                    timeSelect.appendChild(option);
+                });
+                
+                document.getElementById('createAppointmentBtn').disabled = false;
+                
+            } catch (error) {
+                showResult(`❌ Error al verificar disponibilidad: ${error.message}`, 'error');
+            }
+        });
+
+        // 3. Crear cita
+        document.getElementById('createAppointmentBtn').addEventListener('click', async () => {
+            const barberId = document.getElementById('barberId').value;
+            const serviceId = document.getElementById('serviceId').value;
+            const testDate = document.getElementById('testDate').value;
+            const selectedTime = document.getElementById('selectedTime').value;
+
+            if (!selectedTime) {
+                showResult('❌ Por favor selecciona un horario', 'error');
+                return;
+            }
+
+            try {
+                showResult('🔄 Creando cita...', 'info');
+                
+                const appointmentData = {
+                    serviceId: serviceId,
+                    barberId: barberId,
+                    date: testDate,
+                    startTime: selectedTime,
+                    notes: `Cita de prueba creada por ${currentUser.name}`
+                };
+
+                console.log('📅 Datos de la cita:', appointmentData);
+                
+                const response = await makeRequest('/appointments', {
+                    method: 'POST',
+                    body: JSON.stringify(appointmentData)
+                });
+                
+                showResult(`✅ ¡Cita creada exitosamente!\n\nID: ${response.data._id}\nCliente: ${response.data.client.name}\nBarbero: ${response.data.barber.user.name}\nServicio: ${response.data.service.name}\nFecha: ${response.data.date}\nHora: ${response.data.startTime}\nEstado: ${response.data.status}\nPrecio: $${response.data.price}`, 'success');
+                markStepCompleted('step-3');
+                
+                document.getElementById('checkMyAppointmentsBtn').disabled = false;
+                
+            } catch (error) {
+                showResult(`❌ Error al crear cita: ${error.message}`, 'error');
+            }
+        });
+
+        // 4. Verificar citas del usuario
+        document.getElementById('checkMyAppointmentsBtn').addEventListener('click', async () => {
+            try {
+                showResult('🔄 Obteniendo mis citas...', 'info');
+                
+                const response = await makeRequest('/appointments/me');
+                const appointments = response.data;
+                
+                if (appointments.length === 0) {
+                    showResult('📋 No tienes citas programadas', 'info');
+                } else {
+                    const appointmentsList = appointments.map(apt => 
+                        `📅 ${apt.date} a las ${apt.startTime} - ${apt.service.name} con ${apt.barber.user.name} (${apt.status})`
+                    ).join('\n');
+                    
+                    showResult(`✅ Tus citas (${appointments.length}):\n\n${appointmentsList}`, 'success');
+                }
+                
+                markStepCompleted('step-4');
+                
+            } catch (error) {
+                showResult(`❌ Error al obtener citas: ${error.message}`, 'error');
+            }
+        });
+
+        showResult('👋 ¡Bienvenido a la prueba completa!\n\nEsta prueba verifica que el problema del error 400 esté solucionado.\n\n🔧 Asegúrate de que el backend esté funcionando en http://localhost:5000', 'info');
+    </script>
+</body>
+</html> 

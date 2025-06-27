@@ -1,46 +1,51 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useBarberAppointment } from '../../hooks/useBarberAppointment';
+import { getAvailableTimeSlots } from '../../services/appointment.service';
 import '../../assets/styles/components/appointment/TimeSlots.css';
 
 const TimeSlots = ({ onSelect, selectedDate, selectedBarber }) => {
   const [availableSlots, setAvailableSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { getAvailableTimeSlots } = useBarberAppointment();
+  const [error, setError] = useState(null);
 
-  // Extraer la función de obtención de horarios a un useCallback para estabilizar la referencia
-  const fetchTimeSlots = useCallback(() => {
+  // Obtener horarios disponibles del backend
+  const fetchTimeSlots = useCallback(async () => {
     if (!selectedDate || !selectedBarber) {
       setAvailableSlots([]);
       return;
     }
     
     setIsLoading(true);
+    setError(null);
     
-    // Simular una pequeña demora como si fuera una llamada a API
-    const timeoutId = setTimeout(() => {
-      // Usar el método del hook para obtener horarios disponibles
-      let slots = [];
+    try {
+      console.log(`🕐 Obteniendo horarios para barbero ${selectedBarber._id || selectedBarber.id} en fecha ${selectedDate}`);
       
-      try {
-        slots = getAvailableTimeSlots(selectedBarber.id, selectedDate);
-        
-        // Si no hay horarios disponibles por alguna razón, generamos algunos predeterminados
-        if (!slots || slots.length === 0) {
-          slots = generateDefaultTimeSlots();
-        }
-      } catch (error) {
-        console.error("Error al obtener horarios disponibles:", error);
-        slots = generateDefaultTimeSlots();
+      const response = await getAvailableTimeSlots(
+        selectedBarber._id || selectedBarber.id, 
+        selectedDate
+      );
+      
+      if (response.success && response.data) {
+        console.log('✅ Horarios obtenidos:', response.data);
+        // El endpoint devuelve los slots directamente en response.data
+        setAvailableSlots(Array.isArray(response.data) ? response.data : []);
+      } else {
+        console.warn('⚠️ No se encontraron horarios:', response);
+        setAvailableSlots([]);
+        setError('No hay horarios disponibles para esta fecha');
       }
+    } catch (err) {
+      console.error('❌ Error al obtener horarios:', err);
+      setError(err.message || 'Error al cargar horarios disponibles');
       
-      setAvailableSlots(slots);
+      // Como fallback, generar algunos horarios predeterminados
+      const defaultSlots = generateDefaultTimeSlots();
+      setAvailableSlots(defaultSlots);
+    } finally {
       setIsLoading(false);
-    }, 500);
-    
-    // Limpieza del timeout si el componente se desmonta
-    return () => clearTimeout(timeoutId);
-  }, [selectedDate, selectedBarber, getAvailableTimeSlots]);
+    }
+  }, [selectedDate, selectedBarber]);
 
   useEffect(() => {
     fetchTimeSlots();
@@ -49,15 +54,19 @@ const TimeSlots = ({ onSelect, selectedDate, selectedBarber }) => {
   // Función de respaldo para generar horarios predeterminados
   const generateDefaultTimeSlots = useCallback(() => {
     const slots = [];
-    for (let hour = 9; hour <= 17; hour++) {
-      // Aleatoriamente marcar algunos horarios como no disponibles
-      const morning = Math.random() > 0.3;
-      const afternoon = Math.random() > 0.3;
-      
-      if (morning) slots.push(`${hour}:00`);
-      if (hour < 17 && afternoon) slots.push(`${hour}:30`);
+    const startHour = 9;
+    const endHour = 17;
+    
+    for (let hour = startHour; hour < endHour; hour++) {
+      // Generar horarios cada 30 minutos
+      slots.push(`${hour.toString().padStart(2, '0')}:00`);
+      if (hour < endHour - 1) {
+        slots.push(`${hour.toString().padStart(2, '0')}:30`);
+      }
     }
-    return slots;
+    
+    // Filtrar algunos horarios aleatoriamente para simular disponibilidad
+    return slots.filter(() => Math.random() > 0.3);
   }, []);
 
   const handleSelectSlot = (slot) => {
@@ -65,12 +74,16 @@ const TimeSlots = ({ onSelect, selectedDate, selectedBarber }) => {
     onSelect(slot);
   };
 
+  const handleRetry = () => {
+    fetchTimeSlots();
+  };
+
   if (!selectedDate || !selectedBarber) {
     return (
       <div className="time-slots">
         <h2>Selecciona una hora</h2>
         <div className="time-slots-message">
-          Por favor, selecciona un barbero y una fecha primero.
+          <p>📅 Por favor, selecciona un barbero y una fecha primero.</p>
         </div>
       </div>
     );
@@ -81,7 +94,7 @@ const TimeSlots = ({ onSelect, selectedDate, selectedBarber }) => {
       <div className="time-slots">
         <h2>Selecciona una hora</h2>
         <div className="time-slots-message">
-          Cargando horarios disponibles...
+          <p>⏳ Cargando horarios disponibles...</p>
         </div>
       </div>
     );
@@ -90,22 +103,47 @@ const TimeSlots = ({ onSelect, selectedDate, selectedBarber }) => {
   return (
     <div className="time-slots">
       <h2>Selecciona una hora</h2>
+      <div className="time-slots-info">
+        <p>📅 <strong>Fecha:</strong> {new Date(selectedDate).toLocaleDateString('es-ES', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        })}</p>
+        <p>💇‍♂️ <strong>Barbero:</strong> {selectedBarber.user?.name || selectedBarber.name}</p>
+      </div>
+      
+      {error && (
+        <div className="time-slots-error">
+          <p>❌ {error}</p>
+          <button onClick={handleRetry} className="retry-button">
+            Intentar nuevamente
+          </button>
+        </div>
+      )}
+      
       {availableSlots.length > 0 ? (
-        <ul>
+        <div className="time-slots-grid">
           {availableSlots.map((slot, index) => (
-            <li key={index}>
-              <button 
-                className={selectedSlot === slot ? 'selected' : ''}
-                onClick={() => handleSelectSlot(slot)}
-              >
-                {slot}
-              </button>
-            </li>
+            <button
+              key={index}
+              className={`time-slot ${selectedSlot === slot ? 'selected' : ''}`}
+              onClick={() => handleSelectSlot(slot)}
+            >
+              {slot}
+            </button>
           ))}
-        </ul>
-      ) : (
+        </div>
+      ) : !error && (
         <div className="time-slots-message">
-          No hay horarios disponibles para la fecha seleccionada.
+          <p>⚠️ No hay horarios disponibles para la fecha seleccionada.</p>
+          <p>💡 Intenta seleccionar otra fecha.</p>
+        </div>
+      )}
+      
+      {selectedSlot && (
+        <div className="selected-time-info">
+          <p>✅ <strong>Hora seleccionada:</strong> {selectedSlot}</p>
         </div>
       )}
     </div>

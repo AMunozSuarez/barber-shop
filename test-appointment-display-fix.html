@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba - Visualización de Citas en Perfil del Barbero</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background: #f5f5f5; 
+        }
+        .container { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        .problem { 
+            background: #ffe6e6; 
+            color: #d8000c; 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin: 15px 0; 
+            border-left: 4px solid #d8000c; 
+        }
+        .solution { 
+            background: #e8f5e8; 
+            color: #2e7d2e; 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin: 15px 0; 
+            border-left: 4px solid #2e7d2e; 
+        }
+        .section { 
+            margin: 25px 0; 
+            padding: 20px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+        }
+        code { 
+            background: #f8f8f8; 
+            padding: 2px 6px; 
+            border-radius: 3px; 
+            font-family: 'Courier New', monospace; 
+        }
+        .code-block { 
+            background: #f8f8f8; 
+            padding: 15px; 
+            border-radius: 5px; 
+            overflow-x: auto; 
+            margin: 10px 0; 
+            border-left: 4px solid #007bff; 
+        }
+        .test-step { 
+            background: #f9f9f9; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-left: 3px solid #007bff; 
+        }
+        .feature { 
+            background: #e3f2fd; 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin: 10px 0; 
+            border-left: 4px solid #2196f3; 
+        }
+        .highlight { 
+            background: #fff3cd; 
+            padding: 10px; 
+            border-radius: 5px; 
+            margin: 10px 0; 
+        }
+        .data-structure {
+            background: #f0f8ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #0066cc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📅 Visualización de Citas en Perfil del Barbero</h1>
+        
+        <div class="problem">
+            <h3>🚨 Problema Reportado</h3>
+            <p><strong>Síntoma:</strong> El perfil del barbero muestra las estadísticas numéricas correctas (ej: "3 citas programadas"), pero no muestra la lista detallada de las citas individuales.</p>
+            <p><strong>Comportamiento:</strong> Los números se actualizan, pero no se ven las tarjetas de citas con detalles del cliente y servicio.</p>
+        </div>
+
+        <div class="section">
+            <h2>🔍 Análisis del Problema</h2>
+            
+            <h3>Situación Actual:</h3>
+            <ul>
+                <li>✅ Backend calcula estadísticas correctamente</li>
+                <li>✅ Panel admin muestra números actualizados</li>
+                <li>✅ Backend envía array <code>upcomingAppointments</code></li>
+                <li>❌ Frontend no mostraba la lista detallada de citas</li>
+            </ul>
+
+            <h3>Estructura de Datos del Backend:</h3>
+            <div class="data-structure">
+                <h4>Endpoint: <code>GET /api/dashboard/barber/stats</code></h4>
+                <div class="code-block">
+{
+  "success": true,
+  "data": {
+    "appointments": {
+      "total": 3,
+      "pending": 3,
+      "confirmed": 0,
+      "completed": 0,
+      "today": 3
+    },
+    "upcomingAppointments": [
+      {
+        "_id": "675dc444f922ca2e48479398",
+        "client": {
+          "_id": "675dc444f922ca2e48479390",
+          "name": "Juan Cliente",
+          "phone": "+123456789"
+        },
+        "service": {
+          "_id": "675dc444f922ca2e48479394",
+          "name": "Corte de Cabello",
+          "duration": 30
+        },
+        "date": "2024-12-15T00:00:00.000Z",
+        "startTime": "10:00",
+        "status": "pending",
+        "notes": "Cita para Juan Cliente"
+      }
+    ],
+    "revenue": { "monthly": 0 },
+    "rating": { "average": 0, "totalReviews": 0 }
+  }
+}
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>✅ Solución Implementada</h2>
+            
+            <div class="feature">
+                <h3>1. 📋 Nueva Pestaña "Mis Citas"</h3>
+                <p><strong>Archivo:</strong> <code>BarberProfile.jsx</code></p>
+                <p>Agregada pestaña dedicada que se abre por defecto:</p>
+                <div class="code-block">
+&lt;div className="content-tabs"&gt;
+  &lt;div className={`content-tab ${activeTab === 'appointments' ? 'active' : ''}`}&gt;
+    Mis Citas
+  &lt;/div&gt;
+  // ... otras pestañas
+&lt;/div&gt;
+                </div>
+            </div>
+
+            <div class="feature">
+                <h3>2. 🎴 Tarjetas de Citas Detalladas</h3>
+                <p>Cada cita se muestra en una tarjeta con:</p>
+                <ul>
+                    <li><strong>📅 Fecha:</strong> Día de la semana y fecha</li>
+                    <li><strong>🕐 Hora:</strong> Hora de inicio y duración</li>
+                    <li><strong>🏷️ Estado:</strong> Pendiente/Confirmada/Completada con colores</li>
+                    <li><strong>👤 Cliente:</strong> Nombre y teléfono</li>
+                    <li><strong>✂️ Servicio:</strong> Nombre y precio</li>
+                    <li><strong>📝 Notas:</strong> Observaciones de la cita</li>
+                </ul>
+            </div>
+
+            <div class="feature">
+                <h3>3. 🎨 Estilos Visuales Mejorados</h3>
+                <p><strong>Archivo:</strong> <code>BarberProfile.css</code></p>
+                <ul>
+                    <li>Tarjetas con hover effect</li>
+                    <li>Estados con colores distintivos</li>
+                    <li>Layout responsivo para móviles</li>
+                    <li>Iconos para mejor identificación visual</li>
+                </ul>
+            </div>
+
+            <div class="feature">
+                <h3>4. 🔄 Sincronización Automática</h3>
+                <p>Las citas se actualizan automáticamente cuando:</p>
+                <ul>
+                    <li>Se crea una nueva cita</li>
+                    <li>Se hace clic en "🔄 Actualizar"</li>
+                    <li>Cada 30 segundos automáticamente</li>
+                    <li>Al enfocar la ventana del navegador</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🧪 Pasos para Probar la Visualización</h2>
+            
+            <div class="test-step">
+                <h4>Paso 1: Preparación</h4>
+                <div class="code-block">
+# Terminal 1 - Backend
+cd barber-back
+npm start
+
+# Terminal 2 - Frontend  
+cd barber-front
+npm run dev
+                </div>
+                <p>Frontend estará en: <code>http://localhost:3005</code> (según el output mostrado)</p>
+            </div>
+
+            <div class="test-step">
+                <h4>Paso 2: Acceso al Perfil del Barbero</h4>
+                <ol>
+                    <li>Ir a <code>http://localhost:3005</code></li>
+                    <li>Login como barbero: <code>barber1@example.com</code> / <code>barber123</code></li>
+                    <li>Navegar a <strong>/profile</strong></li>
+                    <li>✅ <strong>Verificar que se abre la pestaña "Mis Citas" por defecto</strong></li>
+                </ol>
+            </div>
+
+            <div class="test-step">
+                <h4>Paso 3: Verificar Citas Existentes</h4>
+                <p><strong>Si hay citas programadas:</strong></p>
+                <ul>
+                    <li>✅ Deberían aparecer tarjetas detalladas</li>
+                    <li>✅ Cada tarjeta muestra fecha, hora, cliente, servicio</li>
+                    <li>✅ Estados con colores (Pendiente=amarillo, Confirmada=verde)</li>
+                </ul>
+                
+                <p><strong>Si no hay citas:</strong></p>
+                <ul>
+                    <li>✅ Aparece mensaje "No tienes citas próximas"</li>
+                    <li>✅ Icono de calendario grande</li>
+                    <li>✅ Botón "🔄 Actualizar" disponible</li>
+                </ul>
+            </div>
+
+            <div class="test-step">
+                <h4>Paso 4: Crear Nueva Cita para Probar</h4>
+                <ol>
+                    <li>Nueva pestaña → Login como cliente: <code>client1@example.com</code> / <code>client123</code></li>
+                    <li>Ir a <strong>/appointment</strong></li>
+                    <li>Crear nueva cita con el barbero</li>
+                    <li>Volver a la pestaña del perfil del barbero</li>
+                    <li>✅ <strong>La nueva cita debe aparecer automáticamente</strong></li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="solution">
+            <h3>✅ Resultados Esperados</h3>
+            <ul>
+                <li>✅ <strong>Pestaña "Mis Citas" como primera opción</strong></li>
+                <li>✅ <strong>Tarjetas visuales para cada cita</strong> con toda la información</li>
+                <li>✅ <strong>Actualización automática</strong> cuando se agregan citas</li>
+                <li>✅ <strong>Estados con colores</strong> fáciles de identificar</li>
+                <li>✅ <strong>Información completa:</strong> cliente, servicio, fecha, hora, notas</li>
+                <li>✅ <strong>Diseño responsivo</strong> que funciona en móviles</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🎨 Diseño de las Tarjetas de Citas</h2>
+            
+            <div class="highlight">
+                <h3>Estructura Visual de cada Cita:</h3>
+                <div class="code-block">
+┌─────────────────────────────────────────────┐
+│  15 DIC    │    10:00    │   PENDIENTE     │
+│   DOM      │   30 min    │     🟡          │
+├─────────────────────────────────────────────┤
+│ 👤 Juan Cliente                             │
+│ 📱 +123456789                              │
+│                                             │
+│ ✂️ Corte de Cabello                         │
+│ 💰 $25                                      │
+├─────────────────────────────────────────────┤
+│ 📝 Notas: Cliente regular, prefiere corte   │
+│           clásico                           │
+└─────────────────────────────────────────────┘
+                </div>
+            </div>
+
+            <h3>Estados con Colores:</h3>
+            <ul>
+                <li><strong>🟡 Pendiente:</strong> Fondo amarillo claro</li>
+                <li><strong>🟢 Confirmada:</strong> Fondo verde claro</li>
+                <li><strong>🔵 Completada:</strong> Fondo azul claro</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🐛 Troubleshooting</h2>
+            
+            <h3>Si no aparecen las citas:</h3>
+            <ol>
+                <li><strong>Verificar en consola del navegador (F12):</strong>
+                    <div class="code-block">
+✅ Estadísticas obtenidas: {data: {upcomingAppointments: [...]}}
+                    </div>
+                </li>
+                <li><strong>Si aparece array vacío:</strong> No hay citas en los próximos 7 días</li>
+                <li><strong>Si hay error 500:</strong> Problema con el backend o base de datos</li>
+                <li><strong>Probar botón "🔄 Actualizar"</strong> para refrescar datos</li>
+            </ol>
+
+            <h3>Si los números aparecen pero no las tarjetas:</h3>
+            <p>Esto indicaría un problema en el renderizado del frontend. Verificar que:</p>
+            <ul>
+                <li>La pestaña "Mis Citas" está seleccionada</li>
+                <li>No hay errores JavaScript en la consola</li>
+                <li>Los estilos CSS se cargan correctamente</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🎯 Archivos Modificados</h2>
+            <ul>
+                <li><code>barber-front/src/pages/profile/BarberProfile.jsx</code>
+                    <ul>
+                        <li>➕ Nueva pestaña "Mis Citas"</li>
+                        <li>➕ Renderizado de tarjetas de citas</li>
+                        <li>➕ Mensaje cuando no hay citas</li>
+                    </ul>
+                </li>
+                <li><code>barber-front/src/assets/styles/pages/profile/BarberProfile.css</code>
+                    <ul>
+                        <li>➕ Estilos para tarjetas de citas</li>
+                        <li>➕ Estados con colores</li>
+                        <li>➕ Responsive design</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="highlight">
+            <h2>💡 Valor Agregado de la Solución</h2>
+            <ul>
+                <li><strong>UX Mejorada:</strong> Los barberos ven sus citas de forma visual y organizada</li>
+                <li><strong>Información Completa:</strong> Todos los datos necesarios en una vista</li>
+                <li><strong>Actualización en Tiempo Real:</strong> Sin necesidad de recargar páginas</li>
+                <li><strong>Diseño Profesional:</strong> Interfaz moderna y fácil de usar</li>
+                <li><strong>Gestión Eficiente:</strong> Facilita la planificación del día de trabajo</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html> 

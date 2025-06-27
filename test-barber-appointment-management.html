@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Test: Gestión Simplificada de Citas del Barbero</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #2980b9;
+            margin-top: 25px;
+        }
+        .test-step {
+            background: #f8f9fa;
+            border-left: 5px solid #28a745;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .error {
+            background: #f8d7da;
+            border-left: 5px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .success {
+            background: #d4edda;
+            border-left: 5px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .info {
+            background: #cce5ff;
+            border-left: 5px solid #0066cc;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .code {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .endpoint {
+            background: #e8f5e8;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            border: 1px solid #28a745;
+            margin: 5px 0;
+        }
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .feature-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+        }
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .before, .after {
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .before {
+            background: #f8d7da;
+            border: 1px solid #dc3545;
+        }
+        .after {
+            background: #d4edda;
+            border: 1px solid #28a745;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 5px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #2980b9;
+        }
+        .btn-success {
+            background: #28a745;
+        }
+        .btn-success:hover {
+            background: #218838;
+        }
+        .btn-complete {
+            background: #007bff;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            margin: 2px;
+        }
+        .btn-cancel {
+            background: #dc3545;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            margin: 2px;
+        }
+        .workflow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #dee2e6;
+        }
+        .workflow-step {
+            text-align: center;
+            flex: 1;
+        }
+        .workflow-arrow {
+            font-size: 24px;
+            color: #6c757d;
+            margin: 0 10px;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 2px;
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-completed {
+            background: #cce5ff;
+            color: #0056b3;
+        }
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .highlight {
+            background: #e7f3ff;
+            border: 2px solid #0066cc;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test: Gestión Simplificada de Citas del Barbero</h1>
+        
+        <div class="info">
+            <strong>🎯 Objetivo:</strong> Verificar que los barberos puedan gestionar sus citas con un flujo simplificado: las citas van directamente de "pendiente" a "completada" o "cancelada", eliminando el estado intermedio "confirmada".
+        </div>
+
+        <div class="highlight">
+            <h3>🔄 Flujo Simplificado Implementado</h3>
+            <p><strong>ANTES:</strong> Pendiente → Confirmada → Completada/Cancelada</p>
+            <p><strong>AHORA:</strong> Pendiente → Completada/Cancelada</p>
+            <p>✨ <strong>Beneficio:</strong> Flujo más directo y eficiente para el barbero</p>
+        </div>
+
+        <h2>📋 Funcionalidades Simplificadas</h2>
+        
+        <div class="feature-list">
+            <div class="feature-card">
+                <h3>🎯 Completar Citas</h3>
+                <p>Los barberos pueden marcar citas pendientes directamente como completadas.</p>
+                <div class="btn btn-complete">🎯 Completar</div>
+                <div class="endpoint">PUT /api/appointments/:id/complete</div>
+            </div>
+            
+            <div class="feature-card">
+                <h3>❌ Cancelar Citas</h3>
+                <p>Los barberos pueden cancelar citas pendientes directamente.</p>
+                <div class="btn btn-cancel">❌ Cancelar</div>
+                <div class="endpoint">DELETE /api/appointments/:id</div>
+            </div>
+            
+            <div class="feature-card">
+                <h3>🔄 Actualización Automática</h3>
+                <p>El perfil se actualiza automáticamente después de cada acción.</p>
+                <p>Sincronización en tiempo real con el contexto de citas.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>⚡ Flujo Optimizado</h3>
+                <p>Eliminado el paso intermedio "confirmar" para mayor eficiencia.</p>
+                <p>Menos clics, proceso más directo.</p>
+            </div>
+        </div>
+
+        <h2>🔄 Flujo Simplificado de Estados</h2>
+
+        <div class="workflow">
+            <div class="workflow-step">
+                <div class="status-badge status-pending">Pendiente</div>
+                <p>Cita creada por cliente</p>
+                <div class="btn btn-complete">🎯 Completar</div>
+                <div class="btn btn-cancel">❌ Cancelar</div>
+            </div>
+            <div class="workflow-arrow">→</div>
+            <div class="workflow-step">
+                <div class="status-badge status-completed">Completada</div>
+                <p>Servicio terminado</p>
+                <div style="padding: 8px; color: #666;">🎉 Cita completada</div>
+            </div>
+        </div>
+
+        <div class="workflow">
+            <div class="workflow-step">
+                <div class="status-badge status-pending">Pendiente</div>
+                <p>O directamente</p>
+            </div>
+            <div class="workflow-arrow">→</div>
+            <div class="workflow-step">
+                <div class="status-badge status-cancelled">Cancelada</div>
+                <p>Barbero canceló</p>
+                <div style="padding: 8px; color: #666;">🚫 Cita cancelada</div>
+            </div>
+        </div>
+
+        <h2>🔧 Cambios Técnicos Realizados</h2>
+
+        <h3>1. Hooks Simplificados</h3>
+        <div class="comparison">
+            <div class="before">
+                <strong>❌ ANTES:</strong><br>
+                • <code>confirmAppointment</code><br>
+                • <code>completeAppointment</code><br>
+                • <code>removeAppointment</code><br>
+                • 3 funciones, flujo de 3 pasos
+            </div>
+            <div class="after">
+                <strong>✅ DESPUÉS:</strong><br>
+                • <code>completeAppointment</code><br>
+                • <code>removeAppointment</code><br>
+                • 2 funciones, flujo de 2 pasos<br>
+                • Proceso más directo
+            </div>
+        </div>
+
+        <div class="code">
+// Hook simplificado - eliminada confirmAppointment
+const { completeAppointment, removeAppointment, loading: appointmentLoading } = useAppointment();
+
+// Solo dos funciones de gestión
+const handleCompleteAppointment = async (appointmentId) => {
+  try {
+    console.log('🟢 Completando cita:', appointmentId);
+    const response = await completeAppointment(appointmentId);
+    if (response.success) {
+      console.log('✅ Cita completada exitosamente');
+      await refreshStats();
+    }
+  } catch (err) {
+    console.error('❌ Error al completar cita:', err);
+    setError('Error al completar la cita');
+  }
+};
+
+const handleCancelAppointment = async (appointmentId) => {
+  if (window.confirm('¿Estás seguro de que quieres cancelar esta cita?')) {
+    try {
+      console.log('🔴 Cancelando cita:', appointmentId);
+      const response = await removeAppointment(appointmentId);
+      if (response.success) {
+        console.log('✅ Cita cancelada exitosamente');
+        await refreshStats();
+      }
+    } catch (err) {
+      console.error('❌ Error al cancelar cita:', err);
+      setError('Error al cancelar la cita');
+    }
+  }
+};
+        </div>
+
+        <h3>2. Botones Simplificados</h3>
+        <div class="code">
+{/* Botones simplificados - solo para estado pending */}
+&lt;div className="appointment-actions"&gt;
+  {appointment.status === 'pending' && (
+    &lt;&gt;
+      &lt;button 
+        className="action-btn complete-btn"
+        onClick={() => handleCompleteAppointment(appointment._id)}
+        disabled={appointmentLoading}
+      &gt;
+        🎯 Completar
+      &lt;/button&gt;
+      &lt;button 
+        className="action-btn cancel-btn"
+        onClick={() => handleCancelAppointment(appointment._id)}
+        disabled={appointmentLoading}
+      &gt;
+        ❌ Cancelar
+      &lt;/button&gt;
+    &lt;/&gt;
+  )}
+  {appointment.status === 'completed' && (
+    &lt;div className="completed-badge"&gt;
+      🎉 Cita completada
+    &lt;/div&gt;
+  )}
+  {appointment.status === 'cancelled' && (
+    &lt;div className="cancelled-badge"&gt;
+      🚫 Cita cancelada
+    &lt;/div&gt;
+  )}
+&lt;/div&gt;
+        </div>
+
+        <h3>3. CSS Optimizado</h3>
+        <div class="code">
+/* Eliminados estilos innecesarios */
+// ❌ Removido: .confirm-btn
+// ✅ Mantenido: .complete-btn, .cancel-btn
+
+.complete-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.cancel-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.completed-badge {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.cancelled-badge {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+        </div>
+
+        <h2>🧪 Pasos de Prueba</h2>
+
+        <div class="test-step">
+            <strong>Paso 1:</strong> Asegurar que los servicios estén corriendo
+            <div class="code">
+# Backend en puerto 5000
+cd barber-back && npm start
+
+# Frontend en puerto 3005
+cd barber-front && npm run dev
+            </div>
+        </div>
+
+        <div class="test-step">
+            <strong>Paso 2:</strong> Login como barbero
+            <div class="code">
+URL: http://localhost:3005
+Email: barber1@example.com
+Password: barber123
+            </div>
+        </div>
+
+        <div class="test-step">
+            <strong>Paso 3:</strong> Ir al perfil del barbero
+            <p>Click en avatar → "Perfil" → Pestaña "Mis Citas" (por defecto)</p>
+        </div>
+
+        <div class="test-step">
+            <strong>Paso 4:</strong> Verificar citas con estado "pendiente"
+            <p>Debe mostrar solo dos botones: <span class="btn btn-complete">🎯 Completar</span> <span class="btn btn-cancel">❌ Cancelar</span></p>
+            <p><strong>✅ Verificar:</strong> NO debe aparecer botón "Confirmar"</p>
+        </div>
+
+        <div class="test-step">
+            <strong>Paso 5:</strong> Probar completar una cita directamente
+            <ul>
+                <li>Click en "🎯 Completar" en una cita pendiente</li>
+                <li>La cita debe cambiar <strong>directamente</strong> a estado "completada"</li>
+                <li>Debe mostrar badge: <span style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 12px;">🎉 Cita completada</span></li>
+                <li>Las estadísticas deben actualizarse automáticamente</li>
+                <li><strong>✅ Verificar:</strong> No pasó por estado intermedio "confirmada"</li>
+            </ul>
+        </div>
+
+        <div class="test-step">
+            <strong>Paso 6:</strong> Probar cancelar una cita directamente
+            <ul>
+                <li>Click en "❌ Cancelar" en una cita pendiente</li>
+                <li>Debe aparecer confirmación: "¿Estás seguro de que quieres cancelar esta cita?"</li>
+                <li>Al confirmar, la cita debe cambiar <strong>directamente</strong> a estado "cancelada"</li>
+                <li>Debe mostrar badge: <span style="background: #f8d7da; color: #721c24; padding: 4px 8px; border-radius: 12px;">🚫 Cita cancelada</span></li>
+                <li><strong>✅ Verificar:</strong> No pasó por estado intermedio "confirmada"</li>
+            </ul>
+        </div>
+
+        <div class="test-step">
+            <strong>Paso 7:</strong> Verificar sincronización automática
+            <p>En otra pestaña, crear una nueva cita → volver al perfil del barbero → debe aparecer automáticamente con solo los dos botones de acción</p>
+        </div>
+
+        <h2>✅ Resultados Esperados</h2>
+
+        <div class="success">
+            <strong>🎯 Gestión Simplificada de Citas:</strong>
+            <ul>
+                <li>✅ <strong>Citas Pendientes:</strong> Mostrar solo botones "Completar" y "Cancelar"</li>
+                <li>✅ <strong>Flujo Directo:</strong> Pendiente → Completada (sin pasos intermedios)</li>
+                <li>✅ <strong>Flujo Directo:</strong> Pendiente → Cancelada (sin pasos intermedios)</li>
+                <li>✅ <strong>Citas Completadas:</strong> Mostrar badge "🎉 Cita completada"</li>
+                <li>✅ <strong>Citas Canceladas:</strong> Mostrar badge "🚫 Cita cancelada"</li>
+                <li>✅ <strong>Actualización Automática:</strong> Estadísticas y UI se actualizan inmediatamente</li>
+                <li>✅ <strong>Confirmación de Cancelación:</strong> Previene cancelaciones accidentales</li>
+                <li>✅ <strong>Estados de Carga:</strong> Botones deshabilitados durante operaciones</li>
+                <li>✅ <strong>NO debe aparecer:</strong> Estado "confirmed" ni botón "Confirmar"</li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Verificaciones Importantes:</strong>
+            <ul>
+                <li><strong>Estado Confirmed:</strong> Verificar que NO aparezca nunca el estado "confirmed"</li>
+                <li><strong>Botón Confirmar:</strong> Verificar que NO aparezca nunca el botón "Confirmar"</li>
+                <li><strong>Flujo Directo:</strong> Las citas deben ir directo de pending a completed/cancelled</li>
+                <li><strong>Base de Datos:</strong> Verificar que en la BD las citas tengan solo estados: pending, completed, cancelled</li>
+            </ul>
+        </div>
+
+        <h2>🌟 Beneficios del Flujo Simplificado</h2>
+
+        <div class="feature-list">
+            <div class="feature-card">
+                <h3>💼 Para Barberos</h3>
+                <ul>
+                    <li>Proceso más rápido y directo</li>
+                    <li>Menos clics para gestionar citas</li>
+                    <li>Workflow más intuitivo</li>
+                    <li>Menos estados para recordar</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h3>👥 Para Clientes</h3>
+                <ul>
+                    <li>Estados más claros: pendiente o resuelto</li>
+                    <li>Menos confusión sobre el estado de la cita</li>
+                    <li>Respuesta más rápida del barbero</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h3>🏢 Para el Negocio</h3>
+                <ul>
+                    <li>Gestión más eficiente</li>
+                    <li>Menos pasos en el proceso</li>
+                    <li>Reducción de complejidad operativa</li>
+                    <li>Métricas más simples y claras</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h3>🛠️ Técnicos</h3>
+                <ul>
+                    <li>Código más simple y mantenible</li>
+                    <li>Menos estados en la base de datos</li>
+                    <li>Lógica de negocio simplificada</li>
+                    <li>Menos bugs potenciales</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="success">
+            <strong>🎉 Estado Final:</strong> Los barberos ahora tienen un sistema de gestión de citas simplificado y más eficiente, con flujo directo de pendiente a completada/cancelada, eliminando pasos innecesarios.
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="http://localhost:3005" class="btn btn-success">🚀 Probar Flujo Simplificado</a>
+            <a href="http://localhost:5000/api/appointments" class="btn">📡 Ver API</a>
+        </div>
+    </div>
+</body>
+</html> 

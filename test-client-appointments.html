@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Test: Visualización de Citas del Cliente</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #2980b9;
+            margin-top: 25px;
+        }
+        .test-step {
+            background: #f8f9fa;
+            border-left: 5px solid #28a745;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .error {
+            background: #f8d7da;
+            border-left: 5px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .success {
+            background: #d4edda;
+            border-left: 5px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .info {
+            background: #cce5ff;
+            border-left: 5px solid #0066cc;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .code {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .endpoint {
+            background: #e8f5e8;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            border: 1px solid #28a745;
+            margin: 5px 0;
+        }
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .feature-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+        }
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .before, .after {
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .before {
+            background: #f8d7da;
+            border: 1px solid #dc3545;
+        }
+        .after {
+            background: #d4edda;
+            border: 1px solid #28a745;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 5px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #2980b9;
+        }
+        .btn-success {
+            background: #28a745;
+        }
+        .btn-success:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test: Visualización de Citas del Cliente</h1>
+        
+        <div class="info">
+            <strong>🎯 Objetivo:</strong> Verificar que los clientes puedan ver todas sus citas en su perfil con el mismo diseño visual que el perfil del barbero, y que se sincronice automáticamente cuando se crean nuevas citas.
+        </div>
+
+        <h2>📋 Funcionalidades Implementadas</h2>
+        
+        <div class="feature-list">
+            <div class="feature-card">
+                <h3>🔄 Servicio Real del Backend</h3>
+                <p>Cambió de usar <code>useBarberAppointment</code> (mock) a <code>useAppointment</code> (servicio real).</p>
+                <div class="endpoint">GET /api/appointments/me</div>
+            </div>
+            
+            <div class="feature-card">
+                <h3>📱 Interfaz con Pestañas</h3>
+                <p>Nueva interfaz con pestañas: "Mis Citas" (por defecto) e "Información Personal".</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>💳 Tarjetas Visuales</h3>
+                <p>Citas mostradas en tarjetas elegantes con fecha, hora, barbero, servicio y estado.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>🔄 Sincronización Automática</h3>
+                <p>4 mecanismos de actualización: inmediato, manual, periódico y por foco.</p>
+            </div>
+        </div>
+
+        <h2>🔧 Cambios Técnicos Realizados</h2>
+
+        <h3>1. Actualización del Component Principal</h3>
+        <div class="comparison">
+            <div class="before">
+                <strong>❌ ANTES:</strong><br>
+                • Usaba <code>useBarberAppointment</code> (mock)<br>
+                • Solo estadísticas simples<br>
+                • Lista básica de citas<br>
+                • Sin sincronización automática
+            </div>
+            <div class="after">
+                <strong>✅ DESPUÉS:</strong><br>
+                • Usa <code>useAppointment</code> (servicio real)<br>
+                • Interfaz con pestañas<br>
+                • Tarjetas visuales detalladas<br>
+                • Sincronización automática completa
+            </div>
+        </div>
+
+        <h3>2. Nuevos Imports y Hooks</h3>
+        <div class="code">
+import { useAppointment } from '../../hooks/useAppointment';
+import { useAppointment as useAppointmentContext } from '../../context/AppointmentContext';
+
+const { fetchMyAppointments, removeAppointment } = useAppointment();
+const { subscribeToUpdates } = useAppointmentContext();
+        </div>
+
+        <h3>3. Sistema de Sincronización</h3>
+        <div class="code">
+// 🔄 Función para refrescar citas
+const refreshAppointments = useCallback(async () => {
+  const response = await fetchMyAppointments();
+  if (response.success && response.data) {
+    setAppointments(response.data);
+  }
+}, [fetchMyAppointments]);
+
+// 📡 Suscripción a actualizaciones de contexto
+useEffect(() => {
+  if (subscribeToUpdates) {
+    const unsubscribe = subscribeToUpdates(() => {
+      refreshAppointments();
+    });
+    return unsubscribe;
+  }
+}, [subscribeToUpdates, refreshAppointments]);
+        </div>
+
+        <h2>🎨 Nuevos Estilos CSS</h2>
+
+        <div class="feature-list">
+            <div class="feature-card">
+                <h3>📑 Pestañas de Navegación</h3>
+                <div class="code">
+.content-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--gray-medium);
+}
+.content-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <h3>💳 Tarjetas de Citas</h3>
+                <div class="code">
+.appointment-card {
+  border: 1px solid var(--gray-medium);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <h3>🏷️ Estados de Citas</h3>
+                <div class="code">
+.appointment-status.pending { background: #fff3cd; }
+.appointment-status.confirmed { background: #d4edda; }
+.appointment-status.completed { background: #cce5ff; }
+.appointment-status.cancelled { background: #f8d7da; }
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <h3>📱 Diseño Responsive</h3>
+                <div class="code">
+@media (max-width: 768px) {
+  .appointment-header { flex-direction: column; }
+  .appointment-details { grid-template-columns: 1fr; }
+  .content-tabs { overflow-x: auto; }
+}
+                </div>
+            </div>
+        </div>
+
+        <h2>🧪 Pasos de Prueba</h2>
+
+        <div class="test-step">
+            <strong>Paso 1:</strong> Iniciar los servicios
+            <div class="code">
+# Terminal 1 - Backend
+cd barber-back && npm start
+
+# Terminal 2 - Frontend  
+cd barber-front && npm run dev
+            </div>
+        </div>
+
+        <div class="test-step">
+            <strong>Paso 2:</strong> Navegar al frontend
+            <div class="endpoint">http://localhost:3005</div>
+        </div>
+
+        <div class="test-step">
+            <strong>Paso 3:</strong> Hacer login como cliente
+            <div class="code">
+Email: client1@example.com
+Password: client123
+            </div>
+        </div>
+
+        <div class="test-step">
+            <strong>Paso 4:</strong> Ir al perfil del cliente
+            <p>Click en el avatar o menú → "Perfil"</p>
+        </div>
+
+        <div class="test-step">
+            <strong>Paso 5:</strong> Verificar la pestaña "Mis Citas" (activa por defecto)
+            <p>Debe mostrar todas las citas del cliente en tarjetas visuales.</p>
+        </div>
+
+        <div class="test-step">
+            <strong>Paso 6:</strong> Probar sincronización automática
+            <p>En otra pestaña, crear una nueva cita → volver al perfil → debe actualizarse automáticamente.</p>
+        </div>
+
+        <div class="test-step">
+            <strong>Paso 7:</strong> Probar funcionalidades de citas
+            <ul>
+                <li>Verificar información detallada de cada cita</li>
+                <li>Probar botón "Cancelar Cita" en citas pendientes/confirmadas</li>
+                <li>Probar botón "🔄 Actualizar" para refrescar manualmente</li>
+                <li>Cambiar a pestaña "Información Personal"</li>
+            </ul>
+        </div>
+
+        <h2>✅ Resultados Esperados</h2>
+
+        <div class="success">
+            <strong>🎯 Perfil del Cliente Actualizado:</strong>
+            <ul>
+                <li>✅ Muestra citas reales desde la base de datos</li>
+                <li>✅ Interfaz visual idéntica al perfil del barbero</li>
+                <li>✅ Tarjetas elegantes con toda la información</li>
+                <li>✅ Estados visuales (pendiente, confirmada, completada, cancelada)</li>
+                <li>✅ Sincronización automática en tiempo real</li>
+                <li>✅ Botones funcionales para cancelar citas</li>
+                <li>✅ Diseño responsive para móviles</li>
+                <li>✅ Navegación por pestañas</li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Casos de Prueba Adicionales:</strong>
+            <ul>
+                <li>Cliente sin citas → debe mostrar mensaje elegante "No tienes citas programadas"</li>
+                <li>Cliente con múltiples citas → debe mostrar todas ordenadas por fecha</li>
+                <li>Cancelar una cita → debe actualizarse inmediatamente la lista</li>
+                <li>Crear cita en otra pestaña → debe aparecer automáticamente</li>
+            </ul>
+        </div>
+
+        <h2>🔄 Sistema de Sincronización Implementado</h2>
+
+        <div class="info">
+            <strong>📡 Mecanismos de Actualización:</strong>
+            <ol>
+                <li><strong>Inmediato:</strong> Notificación de contexto cuando se crea/actualiza cita</li>
+                <li><strong>Manual:</strong> Botón "🔄 Actualizar"</li>
+                <li><strong>Por foco:</strong> Al volver a la pestaña del navegador</li>
+                <li><strong>Inicial:</strong> Al cargar el componente</li>
+            </ol>
+        </div>
+
+        <h2>🌟 Beneficios de la Implementación</h2>
+
+        <div class="feature-list">
+            <div class="feature-card">
+                <h3>👥 Para Clientes</h3>
+                <ul>
+                    <li>Visión completa de todas sus citas</li>
+                    <li>Información detallada del barbero y servicio</li>
+                    <li>Posibilidad de cancelar citas fácilmente</li>
+                    <li>Actualizaciones automáticas en tiempo real</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h3>💼 Para el Negocio</h3>
+                <ul>
+                    <li>Interfaz consistente entre barberos y clientes</li>
+                    <li>Menos consultas de soporte ("¿dónde veo mis citas?")</li>
+                    <li>Mayor autonomía del cliente</li>
+                    <li>Mejor experiencia de usuario</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h3>🛠️ Técnicos</h3>
+                <ul>
+                    <li>Reutilización de componentes y estilos</li>
+                    <li>API consistente entre roles</li>
+                    <li>Sistema de sincronización robusto</li>
+                    <li>Código mantenible y escalable</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="success">
+            <strong>🎉 Estado Final:</strong> Los clientes ahora tienen acceso completo a visualizar todas sus citas con la misma calidad visual y funcionalidad que los barberos, incluida sincronización automática en tiempo real.
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="http://localhost:3005" class="btn btn-success">🚀 Probar Funcionalidad</a>
+            <a href="http://localhost:5000/api/appointments/me" class="btn">📡 Ver API</a>
+        </div>
+    </div>
+</body>
+</html> 

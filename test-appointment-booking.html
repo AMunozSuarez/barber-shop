@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Selección de Citas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .time-slots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .time-slot {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        .time-slot:hover {
+            background: #bbdefb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+        }
+        .time-slot.selected {
+            background: #4caf50;
+            border-color: #4caf50;
+            color: white;
+        }
+        .barber-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .barber-card:hover {
+            border-color: #007bff;
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+        }
+        .barber-card.selected {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        .barber-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .barber-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .flow-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .step {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-left: 4px solid #007bff;
+            border-radius: 4px;
+        }
+        .step-title {
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        .step.completed {
+            border-left-color: #28a745;
+            background: #f8fff9;
+        }
+        .step.completed .step-title {
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗓️ Prueba de Selección de Citas</h1>
+        <p>Prueba el flujo completo de selección de fecha y hora para citas con la nueva disponibilidad del barbero</p>
+    </div>
+
+    <div class="flow-section">
+        <h2>📋 Flujo de Reserva de Cita</h2>
+        
+        <div class="step" id="step-login">
+            <div class="step-title">1. Login como Cliente</div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <select id="email" required>
+                        <option value="client1@example.com">Juan Pérez (client1@example.com)</option>
+                        <option value="client2@example.com">María García (client2@example.com)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña:</label>
+                    <input type="password" id="password" value="client123" required>
+                </div>
+                <button type="submit">🔐 Iniciar Sesión</button>
+            </form>
+        </div>
+
+        <div class="step" id="step-service">
+            <div class="step-title">2. Seleccionar Servicio</div>
+            <div id="servicesList"></div>
+        </div>
+
+        <div class="step" id="step-barber">
+            <div class="step-title">3. Seleccionar Barbero</div>
+            <div id="barbersList"></div>
+        </div>
+
+        <div class="step" id="step-date">
+            <div class="step-title">4. Seleccionar Fecha</div>
+            <div class="form-group">
+                <label for="selectedDate">Fecha:</label>
+                <input type="date" id="selectedDate" min="2025-06-27">
+                <button id="checkAvailabilityBtn" disabled>📅 Verificar Disponibilidad</button>
+            </div>
+        </div>
+
+        <div class="step" id="step-time">
+            <div class="step-title">5. Seleccionar Hora</div>
+            <div id="timeSlotsList"></div>
+        </div>
+
+        <div class="step" id="step-confirm">
+            <div class="step-title">6. Confirmar Cita</div>
+            <div id="appointmentSummary"></div>
+            <button id="confirmAppointmentBtn" disabled>✅ Confirmar Cita</button>
+        </div>
+    </div>
+
+    <div id="result"></div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        let authToken = null;
+        let currentUser = null;
+        let selectedService = null;
+        let selectedBarber = null;
+        let selectedDate = null;
+        let selectedTimeSlot = null;
+
+        // Set default test date to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('selectedDate').value = tomorrow.toISOString().split('T')[0];
+
+        function showResult(content, type = 'info') {
+            document.getElementById('result').innerHTML = `<div class="result ${type}">${content}</div>`;
+        }
+
+        function markStepCompleted(stepId) {
+            document.getElementById(stepId).classList.add('completed');
+        }
+
+        async function makeRequest(url, options = {}) {
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(authToken && { 'Authorization': `Bearer ${authToken}` })
+                }
+            };
+
+            const response = await fetch(`${API_BASE}${url}`, {
+                ...defaultOptions,
+                ...options,
+                headers: { ...defaultOptions.headers, ...options.headers }
+            });
+
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.message || data.error || `HTTP ${response.status}`);
+            }
+            
+            return data;
+        }
+
+        // 1. Login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                showResult('🔄 Iniciando sesión...', 'info');
+                
+                const response = await makeRequest('/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+
+                authToken = response.token;
+                currentUser = response.user;
+                
+                showResult(`✅ Login exitoso como ${response.user.name}!`, 'success');
+                markStepCompleted('step-login');
+                
+                // Cargar servicios
+                await loadServices();
+                
+            } catch (error) {
+                showResult(`❌ Error en login: ${error.message}`, 'error');
+            }
+        });
+
+        // 2. Cargar servicios
+        async function loadServices() {
+            try {
+                const response = await makeRequest('/services');
+                const services = response.data;
+                
+                const servicesList = document.getElementById('servicesList');
+                servicesList.innerHTML = services.map(service => `
+                    <div class="barber-card" onclick="selectService('${service._id}', '${service.name}', ${service.price})">
+                        <div class="barber-info">
+                            <div>
+                                <strong>${service.name}</strong><br>
+                                <small>${service.description}</small><br>
+                                <strong>$${service.price} - ${service.duration} min</strong>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                showResult(`❌ Error al cargar servicios: ${error.message}`, 'error');
+            }
+        }
+
+        function selectService(serviceId, serviceName, servicePrice) {
+            selectedService = { _id: serviceId, name: serviceName, price: servicePrice };
+            
+            // Marcar como seleccionado
+            document.querySelectorAll('#servicesList .barber-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.barber-card').classList.add('selected');
+            
+            showResult(`✅ Servicio seleccionado: ${serviceName}`, 'success');
+            markStepCompleted('step-service');
+            
+            // Cargar barberos
+            loadBarbers();
+        }
+
+        // 3. Cargar barberos
+        async function loadBarbers() {
+            try {
+                const response = await makeRequest('/barbers');
+                const barbers = response.data;
+                
+                const barbersList = document.getElementById('barbersList');
+                barbersList.innerHTML = barbers.map(barber => `
+                    <div class="barber-card" onclick="selectBarber('${barber._id}', '${barber.user.name}')">
+                        <div class="barber-info">
+                            <img class="barber-avatar" src="https://ui-avatars.com/api/?name=${barber.user.name}&background=007bff&color=fff" alt="${barber.user.name}">
+                            <div>
+                                <strong>${barber.user.name}</strong><br>
+                                <small>${barber.specialty}</small><br>
+                                <small>⭐ ${barber.rating || 5} (${barber.reviewCount || 0} reseñas)</small>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                showResult(`❌ Error al cargar barberos: ${error.message}`, 'error');
+            }
+        }
+
+        function selectBarber(barberId, barberName) {
+            selectedBarber = { _id: barberId, name: barberName };
+            
+            // Marcar como seleccionado
+            document.querySelectorAll('#barbersList .barber-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.barber-card').classList.add('selected');
+            
+            showResult(`✅ Barbero seleccionado: ${barberName}`, 'success');
+            markStepCompleted('step-barber');
+            
+            // Habilitar verificación de disponibilidad
+            document.getElementById('checkAvailabilityBtn').disabled = false;
+        }
+
+        // 4. Verificar disponibilidad
+        document.getElementById('checkAvailabilityBtn').addEventListener('click', async () => {
+            selectedDate = document.getElementById('selectedDate').value;
+            
+            if (!selectedBarber || !selectedDate) {
+                showResult('❌ Selecciona barbero y fecha primero', 'error');
+                return;
+            }
+
+            try {
+                showResult(`🔄 Verificando disponibilidad para ${selectedDate}...`, 'info');
+                
+                const response = await makeRequest(`/dashboard/barber/${selectedBarber._id}/available-slots?date=${selectedDate}`);
+                const availableSlots = response.data;
+                
+                if (availableSlots.length === 0) {
+                    showResult(`⚠️ No hay horarios disponibles para ${selectedDate}. Intenta otra fecha.`, 'error');
+                    document.getElementById('timeSlotsList').innerHTML = '<p>No hay horarios disponibles</p>';
+                    return;
+                }
+                
+                showResult(`✅ ${availableSlots.length} horarios disponibles encontrados!`, 'success');
+                markStepCompleted('step-date');
+                
+                // Mostrar horarios
+                const timeSlotsList = document.getElementById('timeSlotsList');
+                timeSlotsList.innerHTML = `
+                    <div class="time-slots-grid">
+                        ${availableSlots.map(slot => `
+                            <div class="time-slot" onclick="selectTimeSlot('${slot}')">
+                                ${slot}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+            } catch (error) {
+                showResult(`❌ Error al verificar disponibilidad: ${error.message}`, 'error');
+            }
+        });
+
+        function selectTimeSlot(timeSlot) {
+            selectedTimeSlot = timeSlot;
+            
+            // Marcar como seleccionado
+            document.querySelectorAll('.time-slot').forEach(slot => {
+                slot.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+            
+            showResult(`✅ Hora seleccionada: ${timeSlot}`, 'success');
+            markStepCompleted('step-time');
+            
+            // Mostrar resumen
+            showAppointmentSummary();
+        }
+
+        function showAppointmentSummary() {
+            const summary = `
+                <h4>📋 Resumen de la Cita</h4>
+                <p><strong>Cliente:</strong> ${currentUser.name}</p>
+                <p><strong>Servicio:</strong> ${selectedService.name} - $${selectedService.price}</p>
+                <p><strong>Barbero:</strong> ${selectedBarber.name}</p>
+                <p><strong>Fecha:</strong> ${new Date(selectedDate).toLocaleDateString('es-ES', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                })}</p>
+                <p><strong>Hora:</strong> ${selectedTimeSlot}</p>
+            `;
+            
+            document.getElementById('appointmentSummary').innerHTML = summary;
+            document.getElementById('confirmAppointmentBtn').disabled = false;
+        }
+
+        // 6. Confirmar cita
+        document.getElementById('confirmAppointmentBtn').addEventListener('click', async () => {
+            try {
+                showResult('🔄 Creando cita...', 'info');
+                
+                const appointmentData = {
+                    serviceId: selectedService._id,
+                    barberId: selectedBarber._id,
+                    date: selectedDate,
+                    startTime: selectedTimeSlot,
+                    notes: 'Cita creada desde prueba de selección'
+                };
+                
+                const response = await makeRequest('/appointments', {
+                    method: 'POST',
+                    body: JSON.stringify(appointmentData)
+                });
+                
+                showResult(`✅ ¡Cita creada exitosamente!\n\nID: ${response.data._id}\nEstado: ${response.data.status}\n\n${JSON.stringify(response.data, null, 2)}`, 'success');
+                markStepCompleted('step-confirm');
+                
+            } catch (error) {
+                showResult(`❌ Error al crear cita: ${error.message}`, 'error');
+            }
+        });
+
+        showResult('👋 ¡Bienvenido al probador de citas!\n\nSigue los pasos del flujo para probar la selección de fechas y horarios.\n\n🔧 Backend en http://localhost:5000\n💡 Asegúrate de que el barbero tenga configurada su disponibilidad primero.', 'info');
+    </script>
+</body>
+</html> 

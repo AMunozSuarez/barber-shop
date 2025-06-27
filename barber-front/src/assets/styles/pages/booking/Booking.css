@@ -1,3 +1,5 @@
+@import '/src/assets/styles/variables.css';
+
 :root {
   --primary: #2b9b5c;
   --primary-light: #e5f6ee;
@@ -8,8 +10,6 @@
   --white: #ffffff;
   --border-radius: 12px;
 }
-
-@import '/src/assets/styles/variables.css';
 
 .appointment-page {
   max-width: 1200px;

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba API Barber Shop</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 10px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            border-color: #28a745;
+            background-color: #d4edda;
+        }
+        .error {
+            border-color: #dc3545;
+            background-color: #f8d7da;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .auth-section {
+            border-left: 4px solid #007bff;
+            padding-left: 15px;
+        }
+        .token-display {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 Prueba API Barber Shop</h1>
+    
+    <div class="container auth-section">
+        <h2>🔐 Autenticación</h2>
+        <div>
+            <label>Email:</label>
+            <input type="email" id="email" value="admin@example.com" placeholder="Email">
+        </div>
+        <div>
+            <label>Contraseña:</label>
+            <input type="password" id="password" value="admin123" placeholder="Contraseña">
+        </div>
+        <button onclick="login()">Iniciar Sesión</button>
+        <button onclick="register()">Registrar (cliente)</button>
+        
+        <div id="token-container" style="display: none;">
+            <h3>Token Actual:</h3>
+            <div id="current-token" class="token-display"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🔍 Diagnósticos</h2>
+        <button onclick="testConnectivity()">🌐 Probar Conectividad</button>
+        <button onclick="testCORS()">🔐 Probar CORS</button>
+    </div>
+
+    <div class="container">
+        <h2>📊 Datos Públicos</h2>
+        <button onclick="getServices()">Ver Servicios</button>
+        <button onclick="getBarbers()">Ver Barberos</button>
+        <button onclick="getAvailableSlots()">Ver Horarios Disponibles</button>
+    </div>
+
+    <div class="container">
+        <h2>🔒 Datos Protegidos (requiere login)</h2>
+        <button onclick="getProfile()">Mi Perfil</button>
+        <button onclick="getDashboardStats()">Estadísticas Dashboard</button>
+        <button onclick="getMyAppointments()">Mis Citas</button>
+        <button onclick="createAppointment()">Crear Cita de Prueba</button>
+    </div>
+
+    <div class="container">
+        <h2>📈 Pruebas de Base de Datos</h2>
+        <button onclick="showDatabaseStats()">Estadísticas DB</button>
+        <button onclick="showUsersData()">Datos de Usuarios</button>
+    </div>
+
+    <div class="container">
+        <h2>📝 Resultados</h2>
+        <div id="results" class="result">
+            Haz clic en algún botón para ver los resultados aquí...
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        let currentToken = null;
+
+        function displayResult(data, isSuccess = true) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.className = `result ${isSuccess ? 'success' : 'error'}`;
+            resultsDiv.textContent = JSON.stringify(data, null, 2);
+        }
+
+        function updateTokenDisplay() {
+            const tokenContainer = document.getElementById('token-container');
+            const tokenDiv = document.getElementById('current-token');
+            
+            if (currentToken) {
+                tokenContainer.style.display = 'block';
+                tokenDiv.textContent = currentToken;
+            } else {
+                tokenContainer.style.display = 'none';
+            }
+        }
+
+        async function makeRequest(endpoint, options = {}) {
+            try {
+                const config = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                };
+
+                if (currentToken && !config.headers.Authorization) {
+                    config.headers.Authorization = `Bearer ${currentToken}`;
+                }
+
+                console.log(`🔄 Haciendo petición a: ${API_BASE}${endpoint}`);
+                
+                const response = await fetch(`${API_BASE}${endpoint}`, config);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                displayResult({
+                    status: response.status,
+                    statusText: response.statusText,
+                    data: data,
+                    timestamp: new Date().toLocaleString()
+                }, true);
+
+                return data;
+            } catch (error) {
+                console.error('Error en makeRequest:', error);
+                
+                if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    displayResult({
+                        error: "❌ Error de conectividad",
+                        message: "No se puede conectar al servidor. Verifica que:",
+                        checklist: [
+                            "✓ El servidor backend esté ejecutándose en http://localhost:5000",
+                            "✓ No hay bloqueos de firewall",
+                            "✓ El puerto 5000 no esté ocupado por otra aplicación"
+                        ],
+                        endpoint: endpoint,
+                        originalError: error.message,
+                        timestamp: new Date().toLocaleString()
+                    }, false);
+                } else {
+                    displayResult({
+                        error: error.message,
+                        endpoint: endpoint,
+                        timestamp: new Date().toLocaleString()
+                    }, false);
+                }
+                throw error;
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const result = await makeRequest('/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (result.success && result.token) {
+                    currentToken = result.token;
+                    updateTokenDisplay();
+                    displayResult({
+                        message: '✅ Login exitoso!',
+                        user: result.user,
+                        token: result.token.substring(0, 50) + '...'
+                    });
+                }
+            } catch (error) {
+                console.error('Error en login:', error);
+            }
+        }
+
+        async function register() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                await makeRequest('/auth/register', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        name: "Usuario Prueba",
+                        email,
+                        password,
+                        phone: "123456789"
+                    })
+                });
+            } catch (error) {
+                console.error('Error en registro:', error);
+            }
+        }
+
+        async function getServices() {
+            await makeRequest('/services');
+        }
+
+        async function getBarbers() {
+            await makeRequest('/barbers');
+        }
+
+        async function getAvailableSlots() {
+            // Usar el primer barbero y fecha de mañana
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const dateStr = tomorrow.toISOString().split('T')[0];
+            
+            await makeRequest(`/dashboard/barber/685dbe98d058afadfba258f3/available-slots?date=${dateStr}`);
+        }
+
+        async function getProfile() {
+            await makeRequest('/auth/me');
+        }
+
+        async function getDashboardStats() {
+            await makeRequest('/dashboard/stats');
+        }
+
+        async function getMyAppointments() {
+            await makeRequest('/appointments/me');
+        }
+
+        async function createAppointment() {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            try {
+                await makeRequest('/appointments', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        barberId: "685dbe98d058afadfba258f3",
+                        serviceId: "685dbe98d058afadfba258ed",
+                        date: tomorrow.toISOString().split('T')[0],
+                        startTime: "10:00",
+                        notes: "Cita de prueba desde la web"
+                    })
+                });
+            } catch (error) {
+                console.error('Error al crear cita:', error);
+            }
+        }
+
+        async function showDatabaseStats() {
+            try {
+                const stats = await makeRequest('/dashboard/stats');
+                if (stats.success) {
+                    displayResult({
+                        message: '📊 Estadísticas de la Base de Datos',
+                        totalUsuarios: stats.data.users.total,
+                        clientes: stats.data.users.clients,
+                        barberos: stats.data.users.barbers,
+                        administradores: stats.data.users.admins,
+                        totalCitas: stats.data.appointments.total,
+                        citasPendientes: stats.data.appointments.pending,
+                        citasConfirmadas: stats.data.appointments.confirmed,
+                        serviciosActivos: stats.data.services.total,
+                        ingresosMensuales: stats.data.revenue.monthly
+                    });
+                }
+            } catch (error) {
+                console.error('Error al obtener estadísticas:', error);
+            }
+        }
+
+        async function showUsersData() {
+            displayResult({
+                message: '👥 Usuarios de Prueba Disponibles',
+                usuarios: [
+                    {
+                        rol: 'Administrador',
+                        email: 'admin@example.com',
+                        password: 'admin123',
+                        permisos: 'Acceso completo al sistema'
+                    },
+                    {
+                        rol: 'Barbero 1',
+                        email: 'barber1@example.com',
+                        password: 'barber123',
+                        especialidad: 'Cortes clásicos'
+                    },
+                    {
+                        rol: 'Barbero 2',
+                        email: 'barber2@example.com',
+                        password: 'barber123',
+                        especialidad: 'Degradados y diseños'
+                    },
+                    {
+                        rol: 'Cliente',
+                        email: 'client1@example.com',
+                        password: 'client123',
+                        permisos: 'Crear y gestionar citas'
+                    }
+                ],
+                instrucciones: 'Usa estas credenciales para probar diferentes roles en el sistema'
+            });
+        }
+
+        // Cargar token guardado si existe
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedToken = localStorage.getItem('barber_token');
+            if (savedToken) {
+                currentToken = savedToken;
+                updateTokenDisplay();
+            }
+        });
+
+        // Guardar token en localStorage
+        function saveToken() {
+            if (currentToken) {
+                localStorage.setItem('barber_token', currentToken);
+            }
+        }
+
+        // Limpiar token
+        function clearToken() {
+            currentToken = null;
+            localStorage.removeItem('barber_token');
+            updateTokenDisplay();
+        }
+
+        // Función de diagnóstico de conectividad
+        async function testConnectivity() {
+            displayResult({
+                message: "🔍 Iniciando pruebas de conectividad...",
+                timestamp: new Date().toLocaleString()
+            });
+
+            const tests = [
+                {
+                    name: "Servidor Base",
+                    url: "http://localhost:5000/",
+                    expected: "mensaje de bienvenida"
+                },
+                {
+                    name: "Servicios (Sin Auth)",
+                    url: "http://localhost:5000/api/services",
+                    expected: "lista de servicios"
+                },
+                {
+                    name: "Barberos (Sin Auth)",
+                    url: "http://localhost:5000/api/barbers",
+                    expected: "lista de barberos"
+                }
+            ];
+
+            let results = [];
+
+            for (let test of tests) {
+                try {
+                    const response = await fetch(test.url);
+                    const data = await response.json();
+                    
+                    results.push({
+                        test: test.name,
+                        status: response.status,
+                        success: response.ok,
+                        data: typeof data === 'object' ? 'Datos recibidos ✅' : data
+                    });
+                } catch (error) {
+                    results.push({
+                        test: test.name,
+                        status: 'ERROR',
+                        success: false,
+                        error: error.message
+                    });
+                }
+            }
+
+            displayResult({
+                message: "📋 Resultados de Conectividad",
+                tests: results,
+                allPassed: results.every(r => r.success),
+                timestamp: new Date().toLocaleString()
+            }, results.every(r => r.success));
+        }
+
+        // Función de prueba CORS
+        async function testCORS() {
+            displayResult({
+                message: "🔐 Probando configuración CORS...",
+                info: "Esta prueba verifica si el navegador permite las peticiones al servidor",
+                timestamp: new Date().toLocaleString()
+            });
+
+            try {
+                const response = await fetch('http://localhost:5000/', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                displayResult({
+                    message: "✅ CORS configurado correctamente",
+                    status: response.status,
+                    headers: {
+                        'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+                        'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
+                        'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers')
+                    },
+                    data: data,
+                    timestamp: new Date().toLocaleString()
+                }, true);
+
+            } catch (error) {
+                displayResult({
+                    message: "❌ Error de CORS",
+                    error: error.message,
+                    solutions: [
+                        "Verificar que el servidor esté ejecutándose",
+                        "Revisar configuración CORS en server.js",
+                        "Usar servidor HTTP local en lugar de file://"
+                    ],
+                    timestamp: new Date().toLocaleString()
+                }, false);
+            }
+        }
+    </script>
+</body>
+</html> 

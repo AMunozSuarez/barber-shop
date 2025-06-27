@@ -5,45 +5,61 @@ import AdminLayout from './layouts/AdminLayout';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import BarberManagement from './pages/admin/BarberManagement';
+import ServiceManagement from './pages/admin/ServiceManagement';
+import Reports from './pages/admin/Reports';
 import Dashboard from './pages/admin/Dashboard';
+import TestPage from './pages/admin/TestPage';
 import Appointment from './pages/booking/Appointment';
 import Confirmation from './pages/booking/Confirmation';
 import NotFound from './pages/NotFound';
 import UserProfile from './pages/profile/UserProfile';
 import BarberProfile from './pages/profile/BarberProfile';
 import PrivateRoute from './components/auth/PrivateRoute';
+// import ConnectionTest from './components/common/ConnectionTest';
 
 function App() {
   return (
-    <Routes>      <Route path="/" element={<MainLayout />}>
-        <Route index element={<Navigate to="/appointment" replace />} />
-        <Route path="appointment" element={<Appointment />} />
-        <Route path="confirmation" element={<Confirmation />} />
-        <Route path="profile" element={
+    <>
+      {/* Componente temporal para probar la conexión */}
+      {/* <ConnectionTest /> */}
+      
+      <Routes>
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<Navigate to="/appointment" replace />} />
+          <Route path="appointment" element={<Appointment />} />
+          <Route path="confirmation" element={<Confirmation />} />
+          <Route path="profile" element={
+            <PrivateRoute>
+              <UserProfile />
+            </PrivateRoute>
+          } />
+          <Route path="barber-profile" element={
+            <PrivateRoute>
+              <BarberProfile />
+            </PrivateRoute>
+          } />
+        </Route>
+        <Route path="/auth" element={<AuthLayout />}>
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
+        </Route>
+        <Route path="/admin" element={
           <PrivateRoute>
-            <UserProfile />
+            <AdminLayout />
           </PrivateRoute>
-        } />
-        <Route path="barber-profile" element={
-          <PrivateRoute>
-            <BarberProfile />
-          </PrivateRoute>
-        } />
-      </Route>
-      <Route path="/auth" element={<AuthLayout />}>
-        <Route path="login" element={<Login />} />
-        <Route path="register" element={<Register />} />
-      </Route>
-      <Route path="/admin" element={
-        <PrivateRoute>
-          <AdminLayout />
-        </PrivateRoute>
-      }>
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="barber-management" element={<BarberManagement />} />
-      </Route>
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        }>
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="test" element={<TestPage />} />
+          <Route path="barbers" element={<BarberManagement />} />
+          <Route path="services" element={<ServiceManagement />} />
+          <Route path="reports" element={<Reports />} />
+          <Route path="appointments" element={<Reports />} />
+          {/* Ruta legacy para compatibilidad */}
+          <Route path="barber-management" element={<BarberManagement />} />
+        </Route>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </>
   );
 }
 

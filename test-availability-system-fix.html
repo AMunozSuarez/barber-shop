@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Test: Sistema de Disponibilidad Mejorado</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #2980b9;
+            margin-top: 25px;
+        }
+        .success {
+            background: #d4edda;
+            border-left: 5px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .info {
+            background: #cce5ff;
+            border-left: 5px solid #0066cc;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .error {
+            background: #f8d7da;
+            border-left: 5px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        .test-section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn-success {
+            background: #28a745;
+        }
+        .btn-success:hover {
+            background: #218838;
+        }
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+        .slots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .slot {
+            background: #e9ecef;
+            padding: 8px;
+            text-align: center;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        .slot.available {
+            background: #d4edda;
+            color: #155724;
+        }
+        .slot.occupied {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group select, .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        #result {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .step-completed {
+            background: #d4edda !important;
+            border-color: #28a745 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test: Sistema de Disponibilidad Mejorado</h1>
+        
+        <div class="success">
+            <strong>🎯 Objetivo:</strong> Verificar que cuando se agrega una cita, esa hora ya no esté disponible para otros clientes.
+        </div>
+
+        <h2>🔧 Mejoras Implementadas</h2>
+
+        <div class="info">
+            <strong>✅ Lógica de Conflictos Mejorada:</strong>
+            <ul>
+                <li><strong>Solapamiento inteligente:</strong> Verifica si hay solapamiento entre slots y citas</li>
+                <li><strong>Estados correctos:</strong> Solo considera citas 'pending' y 'confirmed' como ocupadas</li>
+                <li><strong>Duración de servicios:</strong> Calcula correctamente las horas de fin según duración</li>
+                <li><strong>Consistencia:</strong> Ambos endpoints usan la misma lógica</li>
+            </ul>
+        </div>
+
+        <h2>🧪 Pruebas del Sistema</h2>
+
+        <div class="test-section">
+            <h3>📋 Configuración de Prueba</h3>
+            <div class="form-group">
+                <label for="barberId">Barbero:</label>
+                <select id="barberId">
+                    <option value="">Seleccionar barbero...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="serviceId">Servicio:</label>
+                <select id="serviceId">
+                    <option value="">Seleccionar servicio...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="testDate">Fecha de prueba:</label>
+                <input type="date" id="testDate" value="">
+            </div>
+            <button id="loadDataBtn" class="btn">🔄 Cargar Datos Iniciales</button>
+        </div>
+
+        <div class="test-section">
+            <h3>🕐 Paso 1: Verificar Disponibilidad Inicial</h3>
+            <button id="checkInitialBtn" class="btn">🔍 Ver Horarios Disponibles</button>
+            <div id="initialSlots"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 Paso 2: Crear Nueva Cita</h3>
+            <div class="form-group">
+                <label for="selectedTime">Hora para la cita:</label>
+                <select id="selectedTime">
+                    <option value="">Primero verifica disponibilidad...</option>
+                </select>
+            </div>
+            <button id="createAppointmentBtn" class="btn btn-warning">➕ Crear Cita</button>
+        </div>
+
+        <div class="test-section">
+            <h3>✅ Paso 3: Verificar Que La Hora Ya No Está Disponible</h3>
+            <button id="checkAfterBtn" class="btn btn-success">🔍 Ver Horarios Después de Crear Cita</button>
+            <div id="afterSlots"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🗑️ Paso 4: Cancelar Cita y Verificar Que Vuelve a Estar Disponible</h3>
+            <button id="cancelAppointmentBtn" class="btn">❌ Cancelar Última Cita</button>
+            <button id="checkAfterCancelBtn" class="btn">🔍 Ver Horarios Después de Cancelar</button>
+            <div id="cancelSlots"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Resultado de las Pruebas</h3>
+            <div id="result">Ejecuta las pruebas para ver los resultados...</div>
+        </div>
+
+        <h2>🎯 Resultados Esperados</h2>
+
+        <div class="success">
+            <strong>✅ Sistema Funcionando Correctamente:</strong>
+            <ul>
+                <li><strong>Inicial:</strong> Debe mostrar todos los horarios disponibles del barbero</li>
+                <li><strong>Después de crear:</strong> El horario seleccionado NO debe aparecer</li>
+                <li><strong>Después de cancelar:</strong> El horario debe volver a aparecer disponible</li>
+                <li><strong>Consistencia:</strong> Ambos endpoints deben devolver los mismos horarios</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let testData = {
+            token: null,
+            barberId: null,
+            serviceId: null,
+            testDate: null,
+            lastAppointmentId: null
+        };
+
+        // Configurar fecha por defecto (mañana)
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('testDate').value = tomorrow.toISOString().split('T')[0];
+
+        async function makeRequest(endpoint, options = {}) {
+            const baseURL = 'http://localhost:5000/api';
+            const config = {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                },
+                ...options
+            };
+
+            if (testData.token) {
+                config.headers['Authorization'] = `Bearer ${testData.token}`;
+            }
+
+            const response = await fetch(`${baseURL}${endpoint}`, config);
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || `HTTP ${response.status}`);
+            }
+            
+            return data;
+        }
+
+        function showResult(message, type = 'info') {
+            const result = document.getElementById('result');
+            const timestamp = new Date().toLocaleTimeString();
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️';
+            
+            result.textContent += `[${timestamp}] ${icon} ${message}\n`;
+            result.scrollTop = result.scrollHeight;
+
+            // Log to console as well
+            console.log(message);
+        }
+
+        function renderSlots(slots, containerId, title) {
+            const container = document.getElementById(containerId);
+            
+            if (slots.length === 0) {
+                container.innerHTML = `<div class="warning"><strong>${title}</strong><br>No hay horarios disponibles</div>`;
+                return;
+            }
+
+            const slotsHtml = slots.map(slot => 
+                `<div class="slot available">${slot}</div>`
+            ).join('');
+
+            container.innerHTML = `
+                <div class="info">
+                    <strong>${title}</strong><br>
+                    Horarios disponibles: ${slots.length}
+                </div>
+                <div class="slots-grid">${slotsHtml}</div>
+            `;
+        }
+
+        // Cargar datos iniciales
+        document.getElementById('loadDataBtn').addEventListener('click', async () => {
+            try {
+                showResult('🔄 Cargando datos iniciales...', 'info');
+
+                // Login automático
+                const loginResponse = await makeRequest('/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        email: 'client@example.com',
+                        password: 'client123'
+                    })
+                });
+
+                testData.token = loginResponse.token;
+                showResult('✅ Login exitoso', 'success');
+
+                // Cargar barberos
+                const barbersResponse = await makeRequest('/barbers');
+                const barberSelect = document.getElementById('barberId');
+                barberSelect.innerHTML = '<option value="">Seleccionar barbero...</option>';
+                
+                barbersResponse.data.forEach(barber => {
+                    const option = document.createElement('option');
+                    option.value = barber._id;
+                    option.textContent = barber.user?.name || 'Barbero';
+                    barberSelect.appendChild(option);
+                });
+
+                // Cargar servicios
+                const servicesResponse = await makeRequest('/services');
+                const serviceSelect = document.getElementById('serviceId');
+                serviceSelect.innerHTML = '<option value="">Seleccionar servicio...</option>';
+                
+                servicesResponse.data.forEach(service => {
+                    const option = document.createElement('option');
+                    option.value = service._id;
+                    option.textContent = `${service.name} (${service.duration}min - $${service.price})`;
+                    serviceSelect.appendChild(option);
+                });
+
+                showResult(`✅ Datos cargados: ${barbersResponse.data.length} barberos, ${servicesResponse.data.length} servicios`, 'success');
+
+            } catch (error) {
+                showResult(`❌ Error cargando datos: ${error.message}`, 'error');
+            }
+        });
+
+        // Verificar disponibilidad inicial
+        document.getElementById('checkInitialBtn').addEventListener('click', async () => {
+            try {
+                testData.barberId = document.getElementById('barberId').value;
+                testData.testDate = document.getElementById('testDate').value;
+
+                if (!testData.barberId || !testData.testDate) {
+                    showResult('❌ Selecciona barbero y fecha primero', 'error');
+                    return;
+                }
+
+                showResult(`🔍 Verificando disponibilidad inicial para ${testData.testDate}...`, 'info');
+
+                const response = await makeRequest(`/dashboard/barber/${testData.barberId}/available-slots?date=${testData.testDate}`);
+                const slots = response.data;
+
+                renderSlots(slots, 'initialSlots', '📅 Horarios Disponibles Inicialmente');
+                
+                // Llenar selector de horas
+                const timeSelect = document.getElementById('selectedTime');
+                timeSelect.innerHTML = '<option value="">Seleccionar hora...</option>';
+                slots.forEach(slot => {
+                    const option = document.createElement('option');
+                    option.value = slot;
+                    option.textContent = slot;
+                    timeSelect.appendChild(option);
+                });
+
+                showResult(`✅ ${slots.length} horarios disponibles encontrados`, 'success');
+
+            } catch (error) {
+                showResult(`❌ Error verificando disponibilidad: ${error.message}`, 'error');
+            }
+        });
+
+        // Crear cita
+        document.getElementById('createAppointmentBtn').addEventListener('click', async () => {
+            try {
+                testData.serviceId = document.getElementById('serviceId').value;
+                const selectedTime = document.getElementById('selectedTime').value;
+
+                if (!testData.barberId || !testData.serviceId || !testData.testDate || !selectedTime) {
+                    showResult('❌ Completa todos los campos primero', 'error');
+                    return;
+                }
+
+                showResult(`📝 Creando cita para ${selectedTime}...`, 'info');
+
+                const appointmentData = {
+                    barberId: testData.barberId,
+                    serviceId: testData.serviceId,
+                    date: testData.testDate,
+                    startTime: selectedTime,
+                    notes: 'Cita de prueba del sistema'
+                };
+
+                const response = await makeRequest('/appointments', {
+                    method: 'POST',
+                    body: JSON.stringify(appointmentData)
+                });
+
+                testData.lastAppointmentId = response.data._id;
+                showResult(`✅ Cita creada exitosamente: ${response.data._id}`, 'success');
+                showResult(`📋 Detalles: ${selectedTime} - ${response.data.service?.name}`, 'info');
+
+            } catch (error) {
+                showResult(`❌ Error creando cita: ${error.message}`, 'error');
+            }
+        });
+
+        // Verificar disponibilidad después de crear
+        document.getElementById('checkAfterBtn').addEventListener('click', async () => {
+            try {
+                if (!testData.barberId || !testData.testDate) {
+                    showResult('❌ Crea una cita primero', 'error');
+                    return;
+                }
+
+                showResult(`🔍 Verificando disponibilidad después de crear cita...`, 'info');
+
+                const response = await makeRequest(`/dashboard/barber/${testData.barberId}/available-slots?date=${testData.testDate}`);
+                const slots = response.data;
+
+                renderSlots(slots, 'afterSlots', '📅 Horarios Disponibles Después de Crear Cita');
+                showResult(`✅ ${slots.length} horarios disponibles después de crear cita`, 'success');
+
+            } catch (error) {
+                showResult(`❌ Error verificando disponibilidad: ${error.message}`, 'error');
+            }
+        });
+
+        // Cancelar cita
+        document.getElementById('cancelAppointmentBtn').addEventListener('click', async () => {
+            try {
+                if (!testData.lastAppointmentId) {
+                    showResult('❌ No hay cita para cancelar', 'error');
+                    return;
+                }
+
+                showResult(`🗑️ Cancelando cita ${testData.lastAppointmentId}...`, 'info');
+
+                const response = await makeRequest(`/appointments/${testData.lastAppointmentId}/status`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ status: 'cancelled' })
+                });
+
+                showResult(`✅ Cita cancelada exitosamente`, 'success');
+
+            } catch (error) {
+                showResult(`❌ Error cancelando cita: ${error.message}`, 'error');
+            }
+        });
+
+        // Verificar disponibilidad después de cancelar
+        document.getElementById('checkAfterCancelBtn').addEventListener('click', async () => {
+            try {
+                if (!testData.barberId || !testData.testDate) {
+                    showResult('❌ Cancela una cita primero', 'error');
+                    return;
+                }
+
+                showResult(`🔍 Verificando disponibilidad después de cancelar...`, 'info');
+
+                const response = await makeRequest(`/dashboard/barber/${testData.barberId}/available-slots?date=${testData.testDate}`);
+                const slots = response.data;
+
+                renderSlots(slots, 'cancelSlots', '📅 Horarios Disponibles Después de Cancelar');
+                showResult(`✅ ${slots.length} horarios disponibles después de cancelar`, 'success');
+
+            } catch (error) {
+                showResult(`❌ Error verificando disponibilidad: ${error.message}`, 'error');
+            }
+        });
+
+        showResult('🚀 Sistema de pruebas cargado. Haz click en "Cargar Datos Iniciales" para empezar.', 'info');
+    </script>
+</body>
+</html> 

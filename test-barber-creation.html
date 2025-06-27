@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Barber Creation</title>
+</head>
+<body>
+    <h1>Test Creación de Barbero</h1>
+    <button onclick="testCreateBarber()">Crear Barbero de Prueba</button>
+    <div id="result"></div>
+
+    <script>
+        async function testCreateBarber() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Enviando solicitud...';
+            
+            try {
+                // Primero hacer login como admin
+                const loginResponse = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@barbershop.com',
+                        password: 'admin123'
+                    })
+                });
+
+                if (!loginResponse.ok) {
+                    throw new Error('Error en login: ' + loginResponse.status);
+                }
+
+                const loginData = await loginResponse.json();
+                console.log('Login successful:', loginData);
+
+                // Crear barbero
+                const barberData = {
+                    name: 'Carlos Test',
+                    email: 'carlos.test@test.com',
+                    phone: '123456789',
+                    specialties: ['Corte clásico', 'Barba'],
+                    isActive: true
+                };
+
+                const response = await fetch('http://localhost:5000/api/barbers', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${loginData.token}`
+                    },
+                    body: JSON.stringify(barberData)
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <h3>✅ Barbero creado exitosamente!</h3>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <h3>❌ Error al crear barbero:</h3>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <h3>❌ Error de conexión:</h3>
+                    <pre>${error.message}</pre>
+                `;
+            }
+        }
+    </script>
+</body>
+</html> 

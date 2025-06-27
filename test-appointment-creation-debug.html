@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Creación de Citas</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .result.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐛 Debug Creación de Citas</h1>
+        
+        <!-- Login Form -->
+        <form id="loginForm">
+            <h3>1. 🔐 Iniciar Sesión</h3>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" value="client1@example.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" value="client123" required>
+            </div>
+            <button type="submit">🔑 Iniciar Sesión</button>
+        </form>
+
+        <!-- Appointment Form -->
+        <form id="appointmentForm">
+            <h3>2. 📅 Crear Cita</h3>
+            <div class="form-group">
+                <label for="serviceId">ID del Servicio:</label>
+                <select id="serviceId" required>
+                    <option value="">Seleccionar servicio...</option>
+                    <option value="685dc444f922ca2e48479392">Corte de cabello</option>
+                    <option value="685dc444f922ca2e48479393">Afeitado clásico</option>
+                    <option value="685dc444f922ca2e48479394">Corte y barba</option>
+                    <option value="685dc444f922ca2e48479395">Degradado</option>
+                    <option value="685dc444f922ca2e48479396">Tratamiento facial</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="barberId">ID del Barbero:</label>
+                <select id="barberId" required>
+                    <option value="">Seleccionar barbero...</option>
+                    <option value="685dc444f922ca2e48479398">Carlos Rodríguez</option>
+                    <option value="685dc444f922ca2e48479399">Miguel Sánchez</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="date">Fecha:</label>
+                <input type="date" id="date" required>
+            </div>
+            <div class="form-group">
+                <label for="startTime">Hora:</label>
+                <select id="startTime" required>
+                    <option value="">Seleccionar hora...</option>
+                    <option value="09:00">09:00</option>
+                    <option value="09:30">09:30</option>
+                    <option value="10:00">10:00</option>
+                    <option value="10:30">10:30</option>
+                    <option value="11:00">11:00</option>
+                    <option value="11:30">11:30</option>
+                    <option value="12:00">12:00</option>
+                    <option value="12:30">12:30</option>
+                    <option value="14:00">14:00</option>
+                    <option value="14:30">14:30</option>
+                    <option value="15:00">15:00</option>
+                    <option value="15:30">15:30</option>
+                    <option value="16:00">16:00</option>
+                    <option value="16:30">16:30</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="notes">Notas (opcional):</label>
+                <textarea id="notes" rows="3" placeholder="Notas adicionales..."></textarea>
+            </div>
+            <button type="submit" id="createBtn">➕ Crear Cita</button>
+            <button type="button" id="getAvailabilityBtn">🕐 Ver Disponibilidad</button>
+            <button type="button" id="getMyAppointmentsBtn">📋 Ver Mis Citas</button>
+        </form>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        let authToken = null;
+
+        const loginForm = document.getElementById('loginForm');
+        const appointmentForm = document.getElementById('appointmentForm');
+        const resultDiv = document.getElementById('result');
+        const createBtn = document.getElementById('createBtn');
+
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('date').value = tomorrow.toISOString().split('T')[0];
+
+        function showResult(content, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            resultDiv.innerHTML = `<div class="result ${type}">[${timestamp}] ${content}</div>`;
+        }
+
+        async function makeRequest(url, options = {}) {
+            console.log(`🌐 ${options.method || 'GET'} ${API_BASE}${url}`);
+            console.log('📤 Body:', options.body);
+            
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(authToken && { 'Authorization': `Bearer ${authToken}` })
+                }
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}${url}`, {
+                    ...defaultOptions,
+                    ...options,
+                    headers: { ...defaultOptions.headers, ...options.headers }
+                });
+
+                console.log(`📥 Response status: ${response.status} ${response.statusText}`);
+                
+                const data = await response.json();
+                console.log('📥 Response data:', data);
+                
+                if (!response.ok) {
+                    throw new Error(JSON.stringify(data, null, 2));
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('❌ Request failed:', error);
+                throw error;
+            }
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                showResult('🔄 Iniciando sesión...', 'info');
+                
+                const response = await makeRequest('/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password })
+                });
+
+                authToken = response.token;
+                showResult(`✅ Login exitoso! Usuario: ${response.user.name}`, 'success');
+                
+                appointmentForm.querySelectorAll('input, select, textarea, button').forEach(el => {
+                    el.disabled = false;
+                });
+                
+            } catch (error) {
+                showResult(`❌ Error en login: ${error.message}`, 'error');
+            }
+        });
+
+        appointmentForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!authToken) {
+                showResult('❌ Debe iniciar sesión primero', 'error');
+                return;
+            }
+
+            const appointmentData = {
+                serviceId: document.getElementById('serviceId').value,
+                barberId: document.getElementById('barberId').value,
+                date: document.getElementById('date').value,
+                startTime: document.getElementById('startTime').value,
+                notes: document.getElementById('notes').value || 'Cita creada desde debug'
+            };
+
+            try {
+                createBtn.disabled = true;
+                createBtn.textContent = '⏳ Creando...';
+                showResult(`🔄 Creando cita con datos: ${JSON.stringify(appointmentData, null, 2)}`, 'info');
+                
+                const response = await makeRequest('/appointments', {
+                    method: 'POST',
+                    body: JSON.stringify(appointmentData)
+                });
+
+                showResult(`✅ ¡Cita creada exitosamente!\n${JSON.stringify(response, null, 2)}`, 'success');
+                
+            } catch (error) {
+                showResult(`❌ Error al crear cita: ${error.message}`, 'error');
+            } finally {
+                createBtn.disabled = false;
+                createBtn.textContent = '➕ Crear Cita';
+            }
+        });
+
+        document.getElementById('getAvailabilityBtn').addEventListener('click', async () => {
+            if (!authToken) {
+                showResult('❌ Debe iniciar sesión primero', 'error');
+                return;
+            }
+
+            const barberId = document.getElementById('barberId').value;
+            const date = document.getElementById('date').value;
+
+            if (!barberId || !date) {
+                showResult('❌ Selecciona barbero y fecha primero', 'error');
+                return;
+            }
+
+            try {
+                showResult('🔄 Obteniendo disponibilidad...', 'info');
+                
+                const response = await makeRequest(`/dashboard/barber/${barberId}/available-slots?date=${date}`);
+                
+                showResult(`🕐 Disponibilidad para ${date}:\n${JSON.stringify(response, null, 2)}`, 'success');
+                
+            } catch (error) {
+                showResult(`❌ Error al obtener disponibilidad: ${error.message}`, 'error');
+            }
+        });
+
+        document.getElementById('getMyAppointmentsBtn').addEventListener('click', async () => {
+            if (!authToken) {
+                showResult('❌ Debe iniciar sesión primero', 'error');
+                return;
+            }
+
+            try {
+                showResult('🔄 Obteniendo mis citas...', 'info');
+                
+                const response = await makeRequest('/appointments/me');
+                
+                showResult(`📋 Mis citas:\n${JSON.stringify(response, null, 2)}`, 'success');
+                
+            } catch (error) {
+                showResult(`❌ Error al obtener citas: ${error.message}`, 'error');
+            }
+        });
+
+        appointmentForm.querySelectorAll('input, select, textarea, button').forEach(el => {
+            el.disabled = true;
+        });
+    </script>
+</body>
+</html> 
