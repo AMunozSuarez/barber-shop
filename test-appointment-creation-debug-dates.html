@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug: Creación de Citas - Fechas</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .log {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .error { color: #dc3545; }
+        .success { color: #28a745; }
+        .info { color: #007bff; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Debug: Creación de Citas - Problema de Fechas</h1>
+        
+        <div class="test-section">
+            <h2>📅 Información de Fechas</h2>
+            <div id="dateInfo" class="log"></div>
+            <button onclick="showDateInfo()">Ver Info de Fechas</button>
+        </div>
+
+        <div class="test-section">
+            <h2>🧪 Pruebas de Creación de Citas</h2>
+            
+            <div class="form-group">
+                <label>Token de Autenticación:</label>
+                <input type="text" id="authToken" placeholder="Pega aquí tu token de autenticación" />
+                <button onclick="getTokenFromStorage()">Obtener de localStorage</button>
+            </div>
+
+            <div class="form-group">
+                <label>ID del Barbero:</label>
+                <input type="text" id="barberId" value="675e2b8f9b6c1a4e3f8d9a2b" />
+            </div>
+
+            <div class="form-group">
+                <label>ID del Servicio:</label>
+                <input type="text" id="serviceId" value="675e2b8f9b6c1a4e3f8d9a2c" />
+            </div>
+
+            <div class="form-group">
+                <label>Fecha (YYYY-MM-DD):</label>
+                <input type="date" id="testDate" />
+                <button onclick="setToday()">Hoy</button>
+                <button onclick="setTomorrow()">Mañana</button>
+                <button onclick="setNextWeek()">Próxima Semana</button>
+            </div>
+
+            <div class="form-group">
+                <label>Hora:</label>
+                <select id="testTime">
+                    <option value="09:00">09:00</option>
+                    <option value="10:00">10:00</option>
+                    <option value="11:00">11:00</option>
+                    <option value="14:00">14:00</option>
+                    <option value="15:00">15:00</option>
+                    <option value="16:00">16:00</option>
+                </select>
+            </div>
+
+            <div id="testResults" class="log"></div>
+            
+            <button onclick="testCreateAppointment()">🧪 Probar Creación de Cita</button>
+            <button onclick="clearResults()">🧹 Limpiar Resultados</button>
+        </div>
+
+        <div class="test-section">
+            <h2>📝 Diferentes Formatos de Fecha</h2>
+            <div id="formatTests" class="log"></div>
+            <button onclick="testDateFormats()">Probar Diferentes Formatos</button>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 Validaciones del Middleware</h2>
+            <div id="validationTests" class="log"></div>
+            <button onclick="testValidations()">Probar Validaciones</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            return `[${timestamp}] ${message}`;
+        }
+
+        function appendToLog(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const logEntry = log(message, type);
+            element.innerHTML += logEntry + '\n';
+            element.scrollTop = element.scrollHeight;
+        }
+
+        function clearResults() {
+            document.getElementById('testResults').innerHTML = '';
+        }
+
+        function getTokenFromStorage() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                document.getElementById('authToken').value = token;
+                appendToLog('testResults', '✅ Token obtenido del localStorage', 'success');
+            } else {
+                appendToLog('testResults', '❌ No se encontró token en localStorage', 'error');
+            }
+        }
+
+        function setToday() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('testDate').value = today;
+        }
+
+        function setTomorrow() {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('testDate').value = tomorrow.toISOString().split('T')[0];
+        }
+
+        function setNextWeek() {
+            const nextWeek = new Date();
+            nextWeek.setDate(nextWeek.getDate() + 7);
+            document.getElementById('testDate').value = nextWeek.toISOString().split('T')[0];
+        }
+
+        function showDateInfo() {
+            const infoElement = document.getElementById('dateInfo');
+            const now = new Date();
+            
+            infoElement.innerHTML = 
+'📅 INFORMACIÓN DE FECHAS:\n' +
+'- Fecha/hora actual: ' + now.toString() + '\n' +
+'- ISO String: ' + now.toISOString() + '\n' +
+'- Fecha local (YYYY-MM-DD): ' + now.toISOString().split('T')[0] + '\n' +
+'- Timezone offset: ' + now.getTimezoneOffset() + ' minutos\n' +
+'- UTC vs Local: ' + now.toUTCString() + ' vs ' + now.toString() + '\n\n' +
+'🌍 ZONA HORARIA:\n' +
+'- Timezone: ' + Intl.DateTimeFormat().resolvedOptions().timeZone + '\n\n' +
+'🧪 PRUEBAS DE FORMATO:\n' +
+'- new Date("2024-12-25"): ' + new Date('2024-12-25') + '\n' +
+'- new Date("2024-12-25T12:00:00Z"): ' + new Date('2024-12-25T12:00:00Z') + '\n' +
+'- new Date("2024-12-25T12:00:00.000Z"): ' + new Date('2024-12-25T12:00:00.000Z');
+        }
+
+        async function testCreateAppointment() {
+            const token = document.getElementById('authToken').value;
+            const barberId = document.getElementById('barberId').value;
+            const serviceId = document.getElementById('serviceId').value;
+            const date = document.getElementById('testDate').value;
+            const startTime = document.getElementById('testTime').value;
+
+            if (!token) {
+                appendToLog('testResults', '❌ Por favor proporciona un token de autenticación', 'error');
+                return;
+            }
+
+            if (!date) {
+                appendToLog('testResults', '❌ Por favor selecciona una fecha', 'error');
+                return;
+            }
+
+            const appointmentData = {
+                barberId,
+                serviceId,
+                date,
+                startTime,
+                notes: 'Cita de prueba desde debug'
+            };
+
+            appendToLog('testResults', '🚀 INICIANDO PRUEBA DE CREACIÓN DE CITA:', 'info');
+            appendToLog('testResults', '📊 Datos a enviar: ' + JSON.stringify(appointmentData, null, 2), 'info');
+            
+            // Información adicional sobre la fecha
+            const dateObj = new Date(date);
+            appendToLog('testResults', '📅 Análisis de fecha:', 'info');
+            appendToLog('testResults', '   - Fecha original: ' + date, 'info');
+            appendToLog('testResults', '   - Objeto Date: ' + dateObj, 'info');
+            appendToLog('testResults', '   - ISO String: ' + dateObj.toISOString(), 'info');
+            appendToLog('testResults', '   - Es válida: ' + !isNaN(dateObj.getTime()), 'info');
+
+            try {
+                const response = await axios.post(API_BASE + '/appointments', appointmentData, {
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                appendToLog('testResults', '✅ ÉXITO: Cita creada', 'success');
+                appendToLog('testResults', '📋 Respuesta: ' + JSON.stringify(response.data, null, 2), 'success');
+                
+            } catch (error) {
+                appendToLog('testResults', '❌ ERROR: ' + error.message, 'error');
+                
+                if (error.response) {
+                    appendToLog('testResults', '📊 Status: ' + error.response.status, 'error');
+                    appendToLog('testResults', '📋 Data: ' + JSON.stringify(error.response.data, null, 2), 'error');
+                    appendToLog('testResults', '🔍 Headers: ' + JSON.stringify(error.response.headers, null, 2), 'error');
+                }
+                
+                if (error.request) {
+                    appendToLog('testResults', '📡 Request: ' + JSON.stringify(error.request, null, 2), 'error');
+                }
+            }
+        }
+
+        async function testDateFormats() {
+            const element = document.getElementById('formatTests');
+            element.innerHTML = '';
+            
+            const testDates = [
+                '2024-12-25',
+                '2024-12-25T00:00:00Z',
+                '2024-12-25T12:00:00Z',
+                '2024-12-25T23:59:59Z',
+                new Date().toISOString().split('T')[0],
+                new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+            ];
+
+            appendToLog('formatTests', '🧪 PROBANDO DIFERENTES FORMATOS DE FECHA:', 'info');
+            
+            for (const dateStr of testDates) {
+                try {
+                    const dateObj = new Date(dateStr);
+                    const isValid = !isNaN(dateObj.getTime());
+                    
+                    appendToLog('formatTests', '📅 "' + dateStr + '":');
+                    appendToLog('formatTests', '   - Válida: ' + isValid);
+                    appendToLog('formatTests', '   - Date object: ' + dateObj);
+                    appendToLog('formatTests', '   - ISO: ' + (isValid ? dateObj.toISOString() : 'N/A'));
+                    appendToLog('formatTests', '   - Timestamp: ' + (isValid ? dateObj.getTime() : 'N/A'));
+                    appendToLog('formatTests', '');
+                } catch (error) {
+                    appendToLog('formatTests', '❌ Error con "' + dateStr + '": ' + error.message, 'error');
+                }
+            }
+        }
+
+        async function testValidations() {
+            const element = document.getElementById('validationTests');
+            element.innerHTML = '';
+            
+            const token = document.getElementById('authToken').value;
+            if (!token) {
+                appendToLog('validationTests', '❌ Necesitas un token para probar validaciones', 'error');
+                return;
+            }
+
+            const testCases = [
+                {
+                    name: 'Fecha faltante',
+                    data: {
+                        barberId: '675e2b8f9b6c1a4e3f8d9a2b',
+                        serviceId: '675e2b8f9b6c1a4e3f8d9a2c',
+                        startTime: '10:00'
+                    }
+                },
+                {
+                    name: 'Fecha en el pasado',
+                    data: {
+                        barberId: '675e2b8f9b6c1a4e3f8d9a2b',
+                        serviceId: '675e2b8f9b6c1a4e3f8d9a2c',
+                        date: '2023-01-01',
+                        startTime: '10:00'
+                    }
+                },
+                {
+                    name: 'Hora inválida',
+                    data: {
+                        barberId: '675e2b8f9b6c1a4e3f8d9a2b',
+                        serviceId: '675e2b8f9b6c1a4e3f8d9a2c',
+                        date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        startTime: '25:00'
+                    }
+                },
+                {
+                    name: 'Datos válidos (fecha mañana)',
+                    data: {
+                        barberId: '675e2b8f9b6c1a4e3f8d9a2b',
+                        serviceId: '675e2b8f9b6c1a4e3f8d9a2c',
+                        date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        startTime: '10:00',
+                        notes: 'Test de validación'
+                    }
+                }
+            ];
+
+            for (const testCase of testCases) {
+                appendToLog('validationTests', '\n🧪 PROBANDO: ' + testCase.name, 'info');
+                appendToLog('validationTests', '📊 Datos: ' + JSON.stringify(testCase.data, null, 2), 'info');
+                
+                try {
+                    const response = await axios.post(API_BASE + '/appointments', testCase.data, {
+                        headers: {
+                            'Authorization': 'Bearer ' + token,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    appendToLog('validationTests', '✅ Respuesta exitosa (código ' + response.status + ')', 'success');
+                    appendToLog('validationTests', '📋 Data: ' + JSON.stringify(response.data, null, 2), 'success');
+                    
+                } catch (error) {
+                    appendToLog('validationTests', '❌ Error esperado (código ' + (error.response?.status || 'desconocido') + ')', 'error');
+                    if (error.response?.data) {
+                        appendToLog('validationTests', '📋 Error data: ' + JSON.stringify(error.response.data, null, 2), 'error');
+                    }
+                }
+                
+                appendToLog('validationTests', '----------------------------------------');
+            }
+        }
+
+        // Inicializar con fecha de mañana
+        window.onload = function() {
+            setTomorrow();
+            showDateInfo();
+        };
+    </script>
+</body>
+</html> 

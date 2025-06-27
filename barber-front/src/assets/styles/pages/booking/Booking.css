@@ -15,9 +15,6 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  font-family: 'Roboto', 'Segoe UI', sans-serif;
-  color: var(--dark-text);
-  background-color: var(--white);
 }
 
 /* Estilos para la barra de búsqueda */
@@ -171,7 +168,7 @@
 }
 
 .service-button:hover {
-  background-color: #238a4e;
+  background-color: var(--primary-dark);
 }
 
 .service-images {
@@ -224,9 +221,65 @@
   background-color: var(--primary-light);
 }
 
+.step-container {
+  padding: 20px;
+  background: var(--white);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  margin-bottom: 20px;
+}
+
+.step-container h3 {
+  color: var(--primary);
+  font-size: 1.8em;
+  margin-bottom: 10px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.step-description {
+  color: var(--gray-text);
+  font-size: 1.1em;
+  text-align: center;
+  margin-bottom: 25px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.date-time-selection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
 @media (max-width: 768px) {
   .booking-steps {
     flex-direction: column;
     gap: 12px;
+  }
+
+  .date-time-selection {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .appointment-page {
+    padding: 10px;
+  }
+
+  .step-container {
+    padding: 15px;
+  }
+
+  .service-card {
+    padding: 15px;
+  }
+
+  .service-info {
+    flex-direction: column;
+    gap: 5px;
   }
 }

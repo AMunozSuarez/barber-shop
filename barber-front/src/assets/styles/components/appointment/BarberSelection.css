@@ -1,92 +1,238 @@
 @import '/src/assets/styles/variables.css';
 
 .barber-selection {
-  background-color: var(--white);
-  border-radius: var(--border-radius);
-  border: 1px solid var(--gray-medium);
-  padding: 24px;
-  margin-bottom: 20px;
+  padding: 20px;
 }
 
-.barber-selection h2 {
-  font-size: 18px;
+.barber-selection h3 {
+  color: var(--primary);
+  font-size: 1.5em;
+  margin-bottom: 20px;
+  text-align: center;
   font-weight: 600;
-  margin-bottom: 20px;
-  color: var(--dark-text);
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--gray-medium);
 }
 
-.barber-list {
+.barbers-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px;
 }
 
-.barber-item {
-  border: 1px solid var(--gray-medium);
-  border-radius: var(--border-radius);
-  overflow: hidden;
-  transition: all 0.2s ease;
+.barber-card {
+  background: var(--white);
+  border: 2px solid var(--gray-medium);
+  border-radius: 12px;
+  padding: 20px;
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-}
-
-.barber-item:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.barber-item.selected {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px var(--primary);
-}
-
-.barber-item img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-}
-
-.barber-info {
-  padding: 16px;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.barber-name {
-  font-weight: 600;
-  font-size: 16px;
-  margin-bottom: 6px;
+  transition: all 0.3s ease;
+  position: relative;
   color: var(--dark-text);
 }
 
-.barber-specialty {
-  color: var(--gray-text);
+.barber-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  border-color: var(--primary);
+}
+
+.barber-card.selected {
+  border-color: var(--primary);
+  background-color: var(--primary-light);
+}
+
+.barber-card.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  background: var(--primary);
+  color: var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 14px;
-  margin-bottom: 16px;
+  font-weight: bold;
+}
+
+.barber-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.barber-info h4 {
+  margin: 0;
+  color: var(--dark-text);
+  font-size: 1.2em;
+  font-weight: 600;
+}
+
+.specialty {
+  color: var(--gray-text);
+  font-size: 0.9em;
+  background: var(--gray-light);
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
 }
 
 .barber-rating {
-  margin-top: auto;
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
 .stars {
-  color: #F9A825;
-  margin-right: 8px;
+  display: flex;
+  gap: 2px;
 }
 
-.rating-count {
-  font-size: 12px;
+.star {
+  color: #ffc107;
+  font-size: 1.1em;
+}
+
+.star.empty {
+  color: #e0e0e0;
+}
+
+.star.half {
+  position: relative;
+  color: #e0e0e0;
+}
+
+.star.half::before {
+  content: '★';
+  position: absolute;
+  color: #ffc107;
+  width: 50%;
+  overflow: hidden;
+}
+
+.reviews {
+  color: var(--gray-text);
+  font-size: 0.85em;
+}
+
+.experience {
+  color: var(--primary);
+  font-size: 0.9em;
+  background: var(--primary-light);
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  font-weight: 500;
+}
+
+.availability-info {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.availability-info h5 {
+  color: var(--dark-text);
+  margin: 0 0 10px;
+  font-size: 1em;
+  font-weight: 600;
+}
+
+.availability-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.availability-day {
+  background: var(--gray-light);
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 0.85em;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid var(--gray-medium);
+}
+
+.availability-day .day-name {
+  color: var(--dark-text);
+  font-weight: 500;
+}
+
+.availability-day .day-hours {
+  color: var(--gray-text);
+  font-size: 0.9em;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
   color: var(--gray-text);
 }
 
+.loading p {
+  margin: 0;
+  font-size: 1.1em;
+}
+
+.error {
+  text-align: center;
+  padding: 20px;
+  background: #ffebee;
+  border-radius: 8px;
+  color: #d32f2f;
+}
+
+.error p {
+  margin: 0 0 15px;
+}
+
+.error button {
+  background: #d32f2f;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.error button:hover {
+  background: #b71c1c;
+}
+
+.no-barbers {
+  text-align: center;
+  padding: 40px;
+  color: var(--gray-text);
+  background: var(--gray-light);
+  border-radius: 8px;
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .barber-list {
+  .barbers-grid {
     grid-template-columns: 1fr;
+  }
+
+  .availability-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .barber-selection {
+    padding: 10px;
+  }
+
+  .barber-card {
+    padding: 15px;
+  }
+
+  .availability-day {
+    font-size: 0.8em;
   }
 }

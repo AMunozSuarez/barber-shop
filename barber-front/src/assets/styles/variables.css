@@ -1,13 +1,18 @@
 :root {
   /* Colores principales */
   --primary: #2b9b5c;
+  --primary-color: #2b9b5c; /* Alias para compatibilidad */
   --primary-light: #e5f6ee;
   --primary-dark: #1e6b3e;
   --secondary: #c0392b;
+  --secondary-color: #c0392b; /* Alias para compatibilidad */
   --accent: #f1c40f;
+  --accent-color: #f1c40f; /* Alias para compatibilidad */
   
   /* Tonos neutros */
+  --dark: #333333; /* Alias para --dark-text */
   --dark-text: #333333;
+  --medium: #666666; /* Alias para --gray-text */
   --gray-text: #666666;
   --gray-light: #f5f5f5;
   --gray-medium: #e0e0e0;

@@ -231,7 +231,7 @@ export const getRecentAppointments = async (req, res) => {
 export const getAvailableTimeSlots = async (req, res) => {
   try {
     const { barberId } = req.params;
-    const { date } = req.query;
+    const { date, serviceId } = req.query;
 
     if (!date) {
       return res.status(400).json({
@@ -240,11 +240,27 @@ export const getAvailableTimeSlots = async (req, res) => {
       });
     }
 
+    if (!serviceId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Por favor selecciona un servicio'
+      });
+    }
+
     const barber = await Barber.findById(barberId);
     if (!barber) {
       return res.status(404).json({
         success: false,
         error: 'Barbero no encontrado'
+      });
+    }
+
+    // Obtener información del servicio para conocer su duración
+    const service = await Service.findById(serviceId);
+    if (!service) {
+      return res.status(404).json({
+        success: false,
+        error: 'Servicio no encontrado'
       });
     }
 
@@ -267,9 +283,50 @@ export const getAvailableTimeSlots = async (req, res) => {
     const availability = barber.availability.find(av => av.day === dayName);
 
     if (!availability || !availability.isAvailable) {
+      console.log(`❌ Barbero no disponible en ${dayName}`);
       return res.status(200).json({
         success: true,
         data: []
+      });
+    }
+
+    // Crear fechas más precisas para la consulta usando UTC
+    // Asegurar que la fecha esté en formato YYYY-MM-DD
+    const dateString = date.includes('T') ? date.split('T')[0] : date;
+    const requestedDateObj = new Date(dateString + 'T00:00:00.000Z');
+    
+    console.log(`📅 Fecha recibida: "${date}"`);
+    console.log(`📅 Fecha parseada: "${dateString}"`);
+    console.log(`📅 Objeto Date: ${requestedDateObj.toISOString()}`);
+    
+    // Asegurar que la fecha sea válida
+    if (isNaN(requestedDateObj.getTime())) {
+      return res.status(400).json({
+        success: false,
+        error: 'Fecha inválida proporcionada'
+      });
+    }
+    
+    // Usar UTC para evitar problemas de zona horaria
+    const startOfDay = new Date(dateString + 'T00:00:00.000Z');
+    const endOfDay = new Date(dateString + 'T23:59:59.999Z');
+    
+    console.log(`📅 Rango de búsqueda (UTC):`);
+    console.log(`   - Inicio: ${startOfDay.toISOString()}`);
+    console.log(`   - Fin: ${endOfDay.toISOString()}`);
+    
+    // Verificar que no sea una fecha pasada (comparar solo las fechas, no las horas)
+    const today = new Date();
+    const todayDateString = today.toISOString().split('T')[0];
+    const requestedDateString = requestedDateObj.toISOString().split('T')[0];
+    
+    console.log(`📅 Hoy: ${todayDateString}`);
+    console.log(`📅 Fecha solicitada: ${requestedDateString}`);
+    
+    if (requestedDateString < todayDateString) {
+      return res.status(400).json({
+        success: false,
+        error: 'No se pueden agendar citas en fechas pasadas'
       });
     }
 
@@ -277,14 +334,27 @@ export const getAvailableTimeSlots = async (req, res) => {
     const existingAppointments = await Appointment.find({
       barber: barberId,
       date: {
-        $gte: new Date(date),
-        $lt: new Date(new Date(date).getTime() + 24 * 60 * 60 * 1000)
+        $gte: startOfDay,
+        $lte: endOfDay
       },
       status: { $in: ['pending', 'confirmed'] }
-    }).select('startTime endTime');
+    }).select('startTime endTime status date')
+    .populate('service', 'name duration')
+    .populate('client', 'name');
 
-    console.log(`🔍 Verificando disponibilidad para ${barberId} en ${date}`);
-    console.log(`📅 Citas existentes:`, existingAppointments.map(apt => `${apt.startTime}-${apt.endTime}`));
+    console.log(`🔍 Verificando disponibilidad para barbero ${barberId} en ${date}`);
+    console.log(`📅 Fecha consulta - desde:`, startOfDay.toISOString(), 'hasta:', endOfDay.toISOString());
+    console.log(`📅 Total citas existentes:`, existingAppointments.length);
+    console.log(`📅 Citas existentes:`, existingAppointments.map(apt => ({
+      id: apt._id,
+      horario: `${apt.startTime}-${apt.endTime}`,
+      estado: apt.status,
+      fecha: apt.date,
+      cliente: apt.client?.name,
+      servicio: apt.service?.name
+    })));
+    console.log(`⏱️ Duración del servicio:`, service.duration, 'minutos');
+    console.log(`🕐 Horario de trabajo: ${availability.startTime} - ${availability.endTime}`);
 
     // Generar slots de tiempo disponibles (cada 30 minutos)
     const slots = [];
@@ -294,40 +364,85 @@ export const getAvailableTimeSlots = async (req, res) => {
     let current = new Date(`2000-01-01T${startTime}:00`);
     const end = new Date(`2000-01-01T${endTime}:00`);
 
-    while (current < end) {
+    // Restar la duración del servicio al tiempo final para asegurar que la cita quepa
+    end.setMinutes(end.getMinutes() - service.duration);
+
+    while (current <= end) {
       const timeString = current.toTimeString().slice(0, 5);
       
+      // Verificar si hay espacio suficiente para el servicio
+      const slotStart = timeToMinutes(timeString);
+      const slotEnd = slotStart + service.duration;
+      
+      console.log(`🔍 Verificando slot ${timeString} (${slotStart}-${slotEnd} minutos)`);
+      
       // Verificar si este slot está ocupado por alguna cita existente
-      const isOccupied = existingAppointments.some(apt => {
-        // Convertir horarios a minutos para comparación más precisa
-        const slotStart = timeToMinutes(timeString);
-        const slotEnd = slotStart + 30; // Cada slot dura 30 minutos
-        
+      let isOccupied = false;
+      let conflictingAppointment = null;
+      
+      for (const apt of existingAppointments) {
         const appointmentStart = timeToMinutes(apt.startTime);
         const appointmentEnd = timeToMinutes(apt.endTime);
         
-        // Verificar si hay solapamiento entre el slot y la cita
+        // Verificar si hay solapamiento entre el slot propuesto y la cita existente
+        // Un slot está ocupado si:
+        // 1. El slot comienza antes de que termine la cita Y
+        // 2. El slot termina después de que comience la cita
         const hasOverlap = slotStart < appointmentEnd && slotEnd > appointmentStart;
         
         if (hasOverlap) {
-          console.log(`⏰ Slot ${timeString} ocupado por cita ${apt.startTime}-${apt.endTime}`);
+          console.log(`⏰ Slot ${timeString} OCUPADO por cita existente:`);
+          console.log(`   - Slot propuesto: ${slotStart}-${slotEnd} minutos (${timeString} - ${Math.floor(slotEnd/60)}:${String(slotEnd%60).padStart(2,'0')})`);
+          console.log(`   - Cita existente: ${appointmentStart}-${appointmentEnd} minutos (${apt.startTime}-${apt.endTime})`);
+          console.log(`   - Cliente: ${apt.client?.name || 'N/A'}`);
+          console.log(`   - Estado: ${apt.status}`);
+          console.log(`   - ID: ${apt._id}`);
+          isOccupied = true;
+          conflictingAppointment = apt;
+          break;
         }
-        
-        return hasOverlap;
-      });
+      }
 
-      if (!isOccupied) {
+      // Verificar que el slot completo esté dentro del horario de trabajo
+      const isWithinWorkHours = slotEnd <= timeToMinutes(endTime);
+
+      if (!isOccupied && isWithinWorkHours) {
+        console.log(`✅ Slot ${timeString} DISPONIBLE`);
         slots.push(timeString);
+      } else if (!isWithinWorkHours) {
+        console.log(`❌ Slot ${timeString} fuera del horario de trabajo`);
       }
 
       current.setMinutes(current.getMinutes() + 30);
     }
 
-    console.log(`✅ Slots disponibles:`, slots);
+    console.log(`✅ RESUMEN FINAL:`);
+    console.log(`   - Barbero: ${barberId}`);
+    console.log(`   - Fecha: ${date}`);
+    console.log(`   - Servicio: ${service.name} (${service.duration} min)`);
+    console.log(`   - Horario de trabajo: ${availability.startTime} - ${availability.endTime}`);
+    console.log(`   - Citas existentes que bloquean: ${existingAppointments.length}`);
+    console.log(`   - Total slots disponibles: ${slots.length}`);
+    console.log(`   - Slots: [${slots.join(', ')}]`);
 
     res.status(200).json({
       success: true,
-      data: slots
+      data: slots,
+      meta: {
+        barberId,
+        date,
+        service: {
+          id: service._id,
+          name: service.name,
+          duration: service.duration
+        },
+        workingHours: {
+          start: availability.startTime,
+          end: availability.endTime
+        },
+        existingAppointments: existingAppointments.length,
+        totalSlotsAvailable: slots.length
+      }
     });
   } catch (error) {
     console.error('❌ Error en getAvailableTimeSlots:', error);

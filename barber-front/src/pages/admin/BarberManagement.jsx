@@ -5,8 +5,6 @@ import Loading from '../../components/common/Loading';
 import { useAuth } from '../../context/AuthContext';
 import '../../assets/styles/pages/admin/BarberManagement.css';
 
-const DEFAULT_AVATAR = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
-
 const BarberManagement = () => {
   const { user, isAuthenticated, isAdmin } = useAuth();
   const navigate = useNavigate();
@@ -240,14 +238,6 @@ const BarberManagement = () => {
         {filteredBarbers.map(barber => (
           <div key={barber._id} className="barber-card">
             <div className="card-header">
-              <img
-                src={barber.image || DEFAULT_AVATAR}
-                alt={barber.user?.name || 'Barbero'}
-                className="barber-avatar"
-                onError={(e) => {
-                  e.target.src = DEFAULT_AVATAR;
-                }}
-              />
               <div className="barber-status">
                 <span className={barber.isActive ? 'status-active' : 'status-inactive'}>
                   {barber.isActive ? 'Activo' : 'Inactivo'}
@@ -257,37 +247,17 @@ const BarberManagement = () => {
             
             <div className="card-body">
               <h3>{barber.user?.name || 'Sin nombre'}</h3>
-              <p className="email">{barber.user?.email || 'Sin email'}</p>
-              <p className="phone">{barber.user?.phone || 'Sin teléfono'}</p>
-              
               <div className="info-section">
-                <h4>Especialidades:</h4>
-                <p>{Array.isArray(barber.specialty) && barber.specialty.length > 0 
-                    ? barber.specialty.join(', ') 
-                    : 'Sin especialidades'}
-                </p>
-              </div>
-              
-              <div className="info-section">
-                <h4>Calificación:</h4>
-                <p>{barber.rating?.toFixed(1) || '0.0'} ({barber.reviewCount || 0} reseñas)</p>
-              </div>
-              
-              <div className="info-section">
-                <h4>Citas Pendientes:</h4>
-                <div className="appointments-info">
-                  <span className="appointments-count">
-                    {barber.appointmentsCount || 0}
-                  </span>
-                  <span className="appointments-label">
-                    {barber.appointmentsCount === 1 ? 'cita programada' : 'citas programadas'}
-                  </span>
-                  {barber.totalAppointments !== undefined && (
-                    <span className="total-appointments">
-                      ({barber.totalAppointments} total)
-                    </span>
-                  )}
+                <div className="contact-info">
+                  <h4>Contacto:</h4>
+                  <p>{barber.user?.email || 'Sin email'}</p>
+                  <p>{barber.user?.phone || 'Sin teléfono'}</p>
                 </div>
+              </div>
+              
+              <div className="specialties-info">
+                <h4>Especialidades:</h4>
+                <p>{Array.isArray(barber.specialty) ? barber.specialty.join(', ') : barber.specialty || 'Sin especialidades'}</p>
               </div>
             </div>
 
@@ -355,6 +325,7 @@ const BarberManagement = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
+                  required
                 />
               </div>
               
@@ -365,6 +336,8 @@ const BarberManagement = () => {
                   name="specialty"
                   value={formData.specialty}
                   onChange={handleInputChange}
+                  placeholder="Ej: Corte moderno, Barba, Tinte"
+                  required
                 />
               </div>
               

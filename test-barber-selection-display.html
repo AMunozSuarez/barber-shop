@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba - Selección de Barberos</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f8f8;
+            color: #333333;
+        }
+        
+        /* Variables CSS del sistema */
+        :root {
+            --primary: #2b9b5c;
+            --primary-light: #e5f6ee;
+            --primary-dark: #1e6b3e;
+            --dark-text: #333333;
+            --gray-text: #666666;
+            --gray-light: #f5f5f5;
+            --gray-medium: #e0e0e0;
+            --white: #ffffff;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        /* Estilos de BarberSelection */
+        .barber-selection {
+            padding: 20px;
+        }
+        
+        .barbers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .barber-card {
+            background: var(--white);
+            border: 2px solid var(--gray-medium);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            color: var(--dark-text);
+        }
+        
+        .barber-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            border-color: var(--primary);
+        }
+        
+        .barber-card.selected {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+        }
+        
+        .barber-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .barber-info h4 {
+            margin: 0;
+            color: var(--dark-text);
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        
+        .specialty {
+            color: var(--gray-text);
+            font-size: 0.9em;
+            background: var(--gray-light);
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .barber-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stars {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .star {
+            color: #ffc107;
+            font-size: 1.1em;
+        }
+        
+        .reviews {
+            color: var(--gray-text);
+            font-size: 0.85em;
+        }
+        
+        .experience {
+            color: var(--primary);
+            font-size: 0.9em;
+            background: var(--primary-light);
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            font-weight: 500;
+        }
+        
+        .test-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .test-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧔 Prueba de Selección de Barberos</h1>
+        
+        <div class="test-info">
+            <strong>Objetivo:</strong> Verificar que los nombres de los barberos son visibles y legibles en el componente de selección.
+        </div>
+        
+        <div class="barber-selection">
+            <div class="barbers-grid">
+                <!-- Barbero 1 -->
+                <div class="barber-card">
+                    <div class="barber-info">
+                        <h4>Carlos Martínez</h4>
+                        <span class="specialty">Especialista en cortes clásicos</span>
+                        
+                        <div class="barber-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                            </div>
+                            <span class="reviews">(85 reseñas)</span>
+                        </div>
+                        
+                        <span class="experience">8 años de experiencia</span>
+                    </div>
+                </div>
+                
+                <!-- Barbero 2 -->
+                <div class="barber-card selected">
+                    <div class="barber-info">
+                        <h4>Miguel Rodríguez</h4>
+                        <span class="specialty">Experto en barbas y afeitado</span>
+                        
+                        <div class="barber-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                            </div>
+                            <span class="reviews">(120 reseñas)</span>
+                        </div>
+                        
+                        <span class="experience">5 años de experiencia</span>
+                    </div>
+                </div>
+                
+                <!-- Barbero 3 -->
+                <div class="barber-card">
+                    <div class="barber-info">
+                        <h4>Alejandro Silva</h4>
+                        <span class="specialty">Cortes modernos y styling</span>
+                        
+                        <div class="barber-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                            </div>
+                            <span class="reviews">(95 reseñas)</span>
+                        </div>
+                        
+                        <span class="experience">6 años de experiencia</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-success">
+            <strong>✅ Verificación de visibilidad:</strong>
+            <ul>
+                <li>Los nombres de los barberos deben ser claramente visibles</li>
+                <li>El texto debe tener suficiente contraste sobre el fondo</li>
+                <li>Los barberos seleccionados deben tener un fondo diferente</li>
+                <li>Toda la información debe ser legible</li>
+            </ul>
+        </div>
+        
+        <script>
+            console.log('🧔 Prueba de visibilidad de nombres de barberos');
+            
+            // Verificar que todos los elementos estén visibles
+            const barberNames = document.querySelectorAll('.barber-info h4');
+            barberNames.forEach((name, index) => {
+                const styles = window.getComputedStyle(name);
+                console.log(`Barbero ${index + 1}: "${name.textContent}"`);
+                console.log(`- Color: ${styles.color}`);
+                console.log(`- Font Size: ${styles.fontSize}`);
+                console.log(`- Font Weight: ${styles.fontWeight}`);
+                console.log(`- Visibility: ${styles.visibility}`);
+                console.log(`- Display: ${styles.display}`);
+                console.log('---');
+            });
+            
+            // Simular selección de barbero
+            document.querySelectorAll('.barber-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    // Remover selección anterior
+                    document.querySelectorAll('.barber-card').forEach(c => c.classList.remove('selected'));
+                    // Agregar selección actual
+                    this.classList.add('selected');
+                    
+                    const barberName = this.querySelector('h4').textContent;
+                    console.log(`✅ Barbero seleccionado: ${barberName}`);
+                    
+                    // Mostrar mensaje de confirmación
+                    const message = document.createElement('div');
+                    message.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: var(--primary);
+                        color: white;
+                        padding: 10px 20px;
+                        border-radius: 8px;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                        z-index: 1000;
+                    `;
+                    message.textContent = `Barbero seleccionado: ${barberName}`;
+                    document.body.appendChild(message);
+                    
+                    setTimeout(() => {
+                        message.remove();
+                    }, 3000);
+                });
+            });
+        </script>
+    </div>
+</body>
+</html> 

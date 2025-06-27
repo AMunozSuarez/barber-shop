@@ -23,10 +23,18 @@ export const getAppointments = async () => {
 // Crear una nueva cita
 export const createAppointment = async (appointmentData) => {
   try {
-    const response = await api.post('/appointments', appointmentData)
-    return response.data
+    console.log('📝 Creando cita con datos:', appointmentData);
+    const response = await api.post('/appointments', appointmentData);
+    console.log('✅ Respuesta del servidor:', response.data);
+    return response.data;
   } catch (error) {
-    throw new Error(error.message || 'Error al crear cita')
+    console.error('❌ Error al crear cita:', {
+      status: error.response?.status,
+      message: error.response?.data?.error || error.message,
+      details: error.response?.data?.details || {},
+      fullError: error.response?.data || {}
+    });
+    throw error;
   }
 }
 
@@ -77,10 +85,10 @@ export const getBarberAppointments = async (barberId) => {
 }
 
 // Obtener horarios disponibles para un barbero en una fecha específica
-export const getAvailableTimeSlots = async (barberId, date) => {
+export const getAvailableTimeSlots = async (barberId, date, serviceId) => {
   try {
     const response = await api.get(`/dashboard/barber/${barberId}/available-slots`, {
-      params: { date }
+      params: { date, serviceId }
     })
     return response.data
   } catch (error) {
@@ -125,14 +133,34 @@ export const getAppointmentStats = async () => {
 // Buscar citas por filtros
 export const searchAppointments = async (filters) => {
   try {
-    const response = await api.get('/appointments', {
-      params: filters
-    })
-    return response.data
+    // Convertir las fechas a formato ISO para el backend
+    const queryParams = new URLSearchParams();
+    
+    if (filters.startDate) {
+      queryParams.append('startDate', filters.startDate);
+    }
+    if (filters.endDate) {
+      queryParams.append('endDate', filters.endDate);
+    }
+    if (filters.status) {
+      queryParams.append('status', filters.status);
+    }
+    if (filters.barberId) {
+      queryParams.append('barberId', filters.barberId);
+    }
+    if (filters.page) {
+      queryParams.append('page', filters.page);
+    }
+    if (filters.limit) {
+      queryParams.append('limit', filters.limit);
+    }
+
+    const response = await api.get(`/appointments?${queryParams.toString()}`);
+    return response.data;
   } catch (error) {
-    throw new Error(error.message || 'Error al buscar citas')
+    throw new Error(error.response?.data?.error || error.message || 'Error al buscar citas');
   }
-}
+};
 
 const AppointmentService = {
   getMyAppointments,

@@ -8,7 +8,38 @@ import { calculateEndTime } from '../utils/helpers.js';
 // @access  Private/Admin
 export const getAppointments = async (req, res) => {
   try {
-    const appointments = await Appointment.find()
+    const { startDate, endDate, status, barberId, page = 1, limit = 10 } = req.query;
+    const query = {};
+
+    // Aplicar filtros si existen
+    if (startDate || endDate) {
+      query.date = {};
+      if (startDate) {
+        query.date.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        const endDateTime = new Date(endDate);
+        endDateTime.setHours(23, 59, 59, 999);
+        query.date.$lte = endDateTime;
+      }
+    }
+
+    if (status) {
+      query.status = status;
+    }
+
+    if (barberId) {
+      query.barber = barberId;
+    }
+
+    // Calcular skip para paginación
+    const skip = (page - 1) * limit;
+
+    // Obtener total de documentos para la paginación
+    const total = await Appointment.countDocuments(query);
+
+    // Obtener citas con filtros y paginación
+    const appointments = await Appointment.find(query)
       .populate('client', 'name email phone')
       .populate({
         path: 'barber',
@@ -17,14 +48,20 @@ export const getAppointments = async (req, res) => {
           select: 'name email phone'
         }
       })
-      .populate('service');
+      .populate('service')
+      .sort({ date: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
 
     res.status(200).json({
       success: true,
-      count: appointments.length,
-      data: appointments
+      total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: parseInt(page),
+      appointments
     });
   } catch (error) {
+    console.error('Error al obtener citas:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -62,7 +99,7 @@ export const getMyAppointments = async (req, res) => {
 };
 
 // @desc    Obtener citas del barbero actual
-// @route   GET /api/appointments/barber
+// @route   GET /api/appointments/barber/me
 // @access  Private/Barber
 export const getBarberAppointments = async (req, res) => {
   try {
@@ -87,6 +124,45 @@ export const getBarberAppointments = async (req, res) => {
       data: appointments
     });
   } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+// @desc    Obtener citas de un barbero específico por ID
+// @route   GET /api/appointments/barber/:barberId
+// @access  Public (para verificar disponibilidad)
+export const getBarberAppointmentsByID = async (req, res) => {
+  try {
+    const { barberId } = req.params;
+
+    console.log(`🔍 Obteniendo citas para barbero ID: ${barberId}`);
+
+    // Verificar que el barbero existe
+    const barber = await Barber.findById(barberId);
+    if (!barber) {
+      return res.status(404).json({
+        success: false,
+        error: 'Barbero no encontrado'
+      });
+    }
+
+    const appointments = await Appointment.find({ barber: barberId })
+      .populate('client', 'name email phone')
+      .populate('service', 'name duration price')
+      .sort({ date: 1, startTime: 1 });
+
+    console.log(`✅ Encontradas ${appointments.length} citas para barbero ${barberId}`);
+
+    res.status(200).json({
+      success: true,
+      count: appointments.length,
+      data: appointments
+    });
+  } catch (error) {
+    console.error('❌ Error al obtener citas del barbero:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -149,29 +225,68 @@ export const createAppointment = async (req, res) => {
     const { barberId, serviceId, date, startTime, notes } = req.body;
 
     console.log('📝 Creando nueva cita con datos:', {
-      barberId, serviceId, date, startTime, notes,
+      barberId, 
+      serviceId, 
+      date, 
+      startTime, 
+      notes,
       clientId: req.user._id
     });
 
     // Verificar que se proporcionen todos los campos necesarios
     if (!barberId || !serviceId || !date || !startTime) {
-      console.log('❌ Faltan campos requeridos:', { barberId, serviceId, date, startTime });
+      console.log('❌ Faltan campos requeridos:', { 
+        barberId: !!barberId, 
+        serviceId: !!serviceId, 
+        date: !!date, 
+        startTime: !!startTime 
+      });
       return res.status(400).json({
         success: false,
-        error: 'Por favor proporciona todos los campos requeridos'
+        error: 'Por favor proporciona todos los campos requeridos',
+        missingFields: {
+          barberId: !barberId,
+          serviceId: !serviceId,
+          date: !date,
+          startTime: !startTime
+        }
       });
     }
 
-    // Validar que la fecha no sea en el pasado
-    const appointmentDate = new Date(date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Validar que la fecha no sea en el pasado (usando misma lógica que el middleware)
+    const dateString = typeof date === 'string' && date.includes('T') ? date.split('T')[0] : date;
+    const appointmentDate = new Date(dateString + 'T12:00:00.000Z');
     
-    if (appointmentDate < today) {
-      console.log('❌ Fecha en el pasado:', { appointmentDate, today });
+    const today = new Date();
+    const todayString = today.toISOString().split('T')[0];
+    const todayUTC = new Date(todayString + 'T12:00:00.000Z');
+    
+    console.log('🔍 Validación de fecha en controlador:');
+    console.log('   - Fecha original:', date);
+    console.log('   - Fecha normalizada:', appointmentDate.toISOString());
+    console.log('   - Hoy normalizado:', todayUTC.toISOString());
+    
+    if (isNaN(appointmentDate.getTime())) {
+      console.log('❌ Fecha inválida en controlador');
       return res.status(400).json({
         success: false,
-        error: 'No se pueden programar citas para fechas pasadas'
+        error: 'Formato de fecha inválido'
+      });
+    }
+    
+    if (appointmentDate < todayUTC) {
+      console.log('❌ Fecha en el pasado en controlador:', { 
+        appointmentDate: appointmentDate.toISOString(), 
+        today: todayUTC.toISOString(),
+        difference: appointmentDate.getTime() - todayUTC.getTime() 
+      });
+      return res.status(400).json({
+        success: false,
+        error: 'No se pueden programar citas para fechas pasadas',
+        details: {
+          requestedDate: appointmentDate.toISOString(),
+          currentDate: todayUTC.toISOString()
+        }
       });
     }
 
@@ -181,10 +296,15 @@ export const createAppointment = async (req, res) => {
       console.log('❌ Barbero no encontrado:', barberId);
       return res.status(404).json({
         success: false,
-        error: 'Barbero no encontrado'
+        error: 'Barbero no encontrado',
+        barberId
       });
     }
-    console.log('✅ Barbero encontrado:', barber.user);
+    console.log('✅ Barbero encontrado:', {
+      id: barber._id,
+      name: barber.user?.name,
+      isActive: barber.isActive
+    });
 
     // Verificar que el servicio existe
     const service = await Service.findById(serviceId);
@@ -192,13 +312,19 @@ export const createAppointment = async (req, res) => {
       console.log('❌ Servicio no encontrado:', serviceId);
       return res.status(404).json({
         success: false,
-        error: 'Servicio no encontrado'
+        error: 'Servicio no encontrado',
+        serviceId
       });
     }
-    console.log('✅ Servicio encontrado:', service.name, 'duración:', service.duration);
+    console.log('✅ Servicio encontrado:', {
+      id: service._id,
+      name: service.name,
+      duration: service.duration,
+      isActive: service.isActive
+    });
 
     // Verificar disponibilidad del barbero para esa fecha y hora
-    const dayOfWeek = appointmentDate.getDay(); // 0 = domingo, 1 = lunes, etc.
+    const dayOfWeek = appointmentDate.getDay();
     const dayMap = {
       0: 'sunday',
       1: 'monday',
@@ -210,7 +336,11 @@ export const createAppointment = async (req, res) => {
     };
 
     const dayName = dayMap[dayOfWeek];
-    console.log('📅 Verificando disponibilidad para:', dayName);
+    console.log('📅 Verificando disponibilidad para:', {
+      date: appointmentDate,
+      dayOfWeek,
+      dayName
+    });
 
     // Verificar si el barbero trabaja ese día
     const dayAvailability = barber.availability.find(
@@ -218,13 +348,24 @@ export const createAppointment = async (req, res) => {
     );
 
     if (!dayAvailability) {
-      console.log('❌ Barbero no trabaja en', dayName, 'disponibilidad:', barber.availability);
+      console.log('❌ Barbero no trabaja en', dayName, {
+        availability: barber.availability,
+        requestedDay: dayName
+      });
       return res.status(400).json({
         success: false,
-        error: 'El barbero no trabaja en esta fecha'
+        error: 'El barbero no trabaja en esta fecha',
+        details: {
+          requestedDay: dayName,
+          barberAvailability: barber.availability
+        }
       });
     }
-    console.log('✅ Barbero disponible:', dayAvailability.startTime, '-', dayAvailability.endTime);
+    console.log('✅ Barbero disponible:', {
+      day: dayName,
+      startTime: dayAvailability.startTime,
+      endTime: dayAvailability.endTime
+    });
 
     // Verificar si la hora está dentro del horario de trabajo
     const [startHour, startMinute] = startTime.split(':').map(Number);
@@ -237,9 +378,18 @@ export const createAppointment = async (req, res) => {
     const workEndTimeInMinutes = workEndHour * 60 + workEndMinute;
 
     console.log('⏰ Verificando horarios:', {
-      requested: startTimeInMinutes,
-      workStart: workStartTimeInMinutes,
-      workEnd: workEndTimeInMinutes,
+      requested: {
+        time: startTime,
+        minutes: startTimeInMinutes
+      },
+      workStart: {
+        time: dayAvailability.startTime,
+        minutes: workStartTimeInMinutes
+      },
+      workEnd: {
+        time: dayAvailability.endTime,
+        minutes: workEndTimeInMinutes
+      },
       serviceDuration: service.duration
     });
 
@@ -248,7 +398,15 @@ export const createAppointment = async (req, res) => {
       console.log('❌ Hora fuera del horario de trabajo');
       return res.status(400).json({
         success: false,
-        error: 'La hora seleccionada está fuera del horario de trabajo del barbero'
+        error: 'La hora seleccionada está fuera del horario de trabajo del barbero',
+        details: {
+          requestedTime: startTime,
+          serviceDuration: service.duration,
+          workingHours: {
+            start: dayAvailability.startTime,
+            end: dayAvailability.endTime
+          }
+        }
       });
     }
 
@@ -264,10 +422,21 @@ export const createAppointment = async (req, res) => {
     });
 
     if (existingAppointment) {
-      console.log('❌ Ya existe cita:', existingAppointment.startTime, 'estado:', existingAppointment.status);
+      console.log('❌ Ya existe cita:', {
+        id: existingAppointment._id,
+        startTime: existingAppointment.startTime,
+        status: existingAppointment.status
+      });
       return res.status(400).json({
         success: false,
-        error: 'Ya existe una cita programada para esta fecha y hora'
+        error: 'Ya existe una cita programada para esta fecha y hora',
+        details: {
+          existingAppointment: {
+            id: existingAppointment._id,
+            startTime: existingAppointment.startTime,
+            status: existingAppointment.status
+          }
+        }
       });
     }
 
@@ -288,7 +457,14 @@ export const createAppointment = async (req, res) => {
       status: 'pending'
     });
 
-    console.log('✅ Cita creada exitosamente:', appointment._id);
+    console.log('✅ Cita creada exitosamente:', {
+      id: appointment._id,
+      date: appointment.date,
+      startTime: appointment.startTime,
+      endTime: appointment.endTime,
+      status: appointment.status,
+      barber: appointment.barber
+    });
 
     // Obtener la cita con las referencias pobladas
     const populatedAppointment = await Appointment.findById(appointment._id)

@@ -1,19 +1,11 @@
 # App.css
 
-:root {
-  --primary-color: #646cff;
-  --secondary-color: #1a1a1a;
-  --background-color: #f9f9f9;
-  --text-color: #242424;
-  --border-radius: 8px;
-}
+/* Las variables de color están definidas en /src/assets/styles/variables.css */
 
 body {
   margin: 0;
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
-  background-color: var(--background-color);
-  color: var(--text-color);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -21,7 +13,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 a {
-  color: var(--primary-color);
   text-decoration: none;
 }
 
@@ -30,19 +21,12 @@ a:hover {
 }
 
 button {
-  border-radius: var(--border-radius);
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
-  background-color: var(--secondary-color);
-  color: white;
   cursor: pointer;
   transition: border-color 0.25s;
-}
-
-button:hover {
-  border-color: var(--primary-color);
 }
 
 .card {

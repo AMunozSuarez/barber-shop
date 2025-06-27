@@ -20,18 +20,29 @@ table,
 .chart-card,
 .react-calendar,
 .react-calendar__tile:not(.react-calendar__tile--active) {
-  color: var(--dark-text);
+  color: var(--dark-text) !important;
 }
 
 /* Regla para asegurar que botones y elementos con fondo verde primario tengan texto blanco */
 [class*="button"]:not(.navbar-links [class*="button"]),
-[class*="btn"],
+[class*="btn"]:not(.navbar-links [class*="btn"]),
 .calendar-day.selected,
 .react-calendar__tile--active,
 .chart-filter.active,
 .cta-button,
-[class*="status"].status-completed {
+[class*="status"].status-completed,
+button[class*="primary"],
+.primary-button,
+.submit-button,
+.action-btn.primary,
+.form-submit {
   color: var(--white) !important;
+  background-color: var(--primary) !important;
+}
+
+/* Asegurar que los enlaces tengan el color primario */
+a:not(.navbar-links a):not(.sidebar-menu-link) {
+  color: var(--primary) !important;
 }
 
 body {
@@ -45,6 +56,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-secondary);
   font-weight: 700;
   margin-bottom: var(--spacing-md);
+  color: var(--dark-text);
 }
 
 h1 {
@@ -61,6 +73,7 @@ h3 {
 
 p {
   margin-bottom: var(--spacing-md);
+  color: var(--dark-text);
 }
 
 a {
@@ -74,7 +87,7 @@ a:hover {
 }
 
 button {
-  background-color: var(--primary-color);
+  background-color: var(--primary);
   color: var(--white);
   border: none;
   padding: var(--spacing-sm) var(--spacing-lg);
@@ -86,7 +99,7 @@ button {
 }
 
 button:hover {
-  background-color: var(--secondary-color);
+  background-color: var(--primary-dark);
 }
 
 .container {

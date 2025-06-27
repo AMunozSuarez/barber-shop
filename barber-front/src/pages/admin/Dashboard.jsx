@@ -141,9 +141,6 @@ const Dashboard = () => {
             <Link to="/admin/barbers" className="action-btn primary">
               Ver Barberos
             </Link>
-            <Link to="/admin/barbers/new" className="action-btn secondary">
-              Agregar Barbero
-            </Link>
           </div>
         </div>
         
@@ -153,20 +150,14 @@ const Dashboard = () => {
             <Link to="/admin/services" className="action-btn primary">
               Ver Servicios
             </Link>
-            <Link to="/admin/services/new" className="action-btn secondary">
-              Agregar Servicio
-            </Link>
           </div>
         </div>
         
         <div className="action-group">
-          <h3>Reportes</h3>
+          <h3>Citas</h3>
           <div className="action-buttons">
             <Link to="/admin/appointments" className="action-btn primary">
               Ver Todas las Citas
-            </Link>
-            <Link to="/admin/reports" className="action-btn secondary">
-              Generar Reportes
             </Link>
           </div>
         </div>

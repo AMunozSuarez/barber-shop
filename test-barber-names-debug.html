@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Nombres de Barberos</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 20px;
+            background-color: #f8f8f8;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #2b9b5c;
+            text-align: center;
+        }
+        
+        .debug-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .barber-item {
+            background: #f5f5f5;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border-left: 4px solid #2b9b5c;
+        }
+        
+        .barber-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .barber-specialty {
+            color: #666;
+            font-style: italic;
+        }
+        
+        .debug-info {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        
+        button {
+            background: #2b9b5c;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #1e6b3e;
+        }
+        
+        .raw-data {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8em;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧔 Debug - Nombres de Barberos</h1>
+        
+        <div class="debug-panel">
+            <h3>Prueba del Endpoint /api/barbers</h3>
+            <button onclick="testBarberEndpoint()">🔍 Probar Endpoint</button>
+            <button onclick="clearResults()">🧹 Limpiar</button>
+            
+            <div id="results"></div>
+        </div>
+        
+        <div class="debug-panel">
+            <h3>📋 Datos Crudos del Servidor</h3>
+            <div id="raw-data" class="raw-data">
+                Presiona "Probar Endpoint" para ver los datos...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000/api';
+        
+        async function testBarberEndpoint() {
+            const resultsDiv = document.getElementById('results');
+            const rawDataDiv = document.getElementById('raw-data');
+            
+            try {
+                resultsDiv.innerHTML = '<p>🔄 Cargando barberos...</p>';
+                
+                const response = await fetch(`${API_BASE_URL}/barbers`);
+                const data = await response.json();
+                
+                console.log('🧔 Respuesta completa:', data);
+                rawDataDiv.textContent = JSON.stringify(data, null, 2);
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    let html = `<div class="success">✅ Se encontraron ${data.data.length} barberos</div>`;
+                    
+                    data.data.forEach((barber, index) => {
+                        const barberName = getBarberName(barber);
+                        const specialty = barber.specialty || 'Sin especialidad';
+                        
+                        html += `
+                            <div class="barber-item">
+                                <div class="barber-name">${barberName}</div>
+                                <div class="barber-specialty">${specialty}</div>
+                                <div class="debug-info">
+                                    <strong>Debug:</strong><br>
+                                    - ID: ${barber._id}<br>
+                                    - barber.name: ${barber.name || 'undefined'}<br>
+                                    - barber.user?.name: ${barber.user?.name || 'undefined'}<br>
+                                    - barber.user?.username: ${barber.user?.username || 'undefined'}<br>
+                                    - Tiene user objeto: ${barber.user ? 'Sí' : 'No'}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    resultsDiv.innerHTML = html;
+                } else {
+                    resultsDiv.innerHTML = '<div class="error">❌ No se encontraron barberos o hubo un error</div>';
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                resultsDiv.innerHTML = `<div class="error">❌ Error al conectar con el servidor: ${error.message}</div>`;
+                rawDataDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+        
+        function getBarberName(barber) {
+            // Misma lógica que en el componente React
+            if (barber.name) return barber.name;
+            if (barber.user?.name) return barber.user.name;
+            if (barber.user?.username) return barber.user.username;
+            return `Barbero ${barber._id?.slice(-4) || 'Sin ID'}`;
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('raw-data').textContent = 'Presiona "Probar Endpoint" para ver los datos...';
+        }
+        
+        // Test automático al cargar la página
+        window.addEventListener('load', () => {
+            setTimeout(testBarberEndpoint, 1000);
+        });
+    </script>
+</body>
+</html> 

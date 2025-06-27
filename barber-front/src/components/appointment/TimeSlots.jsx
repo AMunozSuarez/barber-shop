@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { getAvailableTimeSlots } from '../../services/appointment.service';
 import '../../assets/styles/components/appointment/TimeSlots.css';
 
-const TimeSlots = ({ onSelect, selectedDate, selectedBarber }) => {
+const TimeSlots = ({ onSelect, selectedDate, selectedBarber, selectedService }) => {
   const [availableSlots, setAvailableSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -10,7 +10,7 @@ const TimeSlots = ({ onSelect, selectedDate, selectedBarber }) => {
 
   // Obtener horarios disponibles del backend
   const fetchTimeSlots = useCallback(async () => {
-    if (!selectedDate || !selectedBarber) {
+    if (!selectedDate || !selectedBarber || !selectedService) {
       setAvailableSlots([]);
       return;
     }
@@ -19,17 +19,17 @@ const TimeSlots = ({ onSelect, selectedDate, selectedBarber }) => {
     setError(null);
     
     try {
-      console.log(`🕐 Obteniendo horarios para barbero ${selectedBarber._id || selectedBarber.id} en fecha ${selectedDate}`);
+      console.log(`🕐 Obteniendo horarios para barbero ${selectedBarber._id || selectedBarber.id} en fecha ${selectedDate} para servicio ${selectedService._id}`);
       
       const response = await getAvailableTimeSlots(
         selectedBarber._id || selectedBarber.id, 
-        selectedDate
+        selectedDate,
+        selectedService._id
       );
       
-      if (response.success && response.data) {
-        console.log('✅ Horarios obtenidos:', response.data);
-        // El endpoint devuelve los slots directamente en response.data
-        setAvailableSlots(Array.isArray(response.data) ? response.data : []);
+      if (response.success && Array.isArray(response.data)) {
+        console.log('✅ Horarios disponibles:', response.data);
+        setAvailableSlots(response.data);
       } else {
         console.warn('⚠️ No se encontraron horarios:', response);
         setAvailableSlots([]);
@@ -38,36 +38,15 @@ const TimeSlots = ({ onSelect, selectedDate, selectedBarber }) => {
     } catch (err) {
       console.error('❌ Error al obtener horarios:', err);
       setError(err.message || 'Error al cargar horarios disponibles');
-      
-      // Como fallback, generar algunos horarios predeterminados
-      const defaultSlots = generateDefaultTimeSlots();
-      setAvailableSlots(defaultSlots);
+      setAvailableSlots([]);
     } finally {
       setIsLoading(false);
     }
-  }, [selectedDate, selectedBarber]);
+  }, [selectedDate, selectedBarber, selectedService]);
 
   useEffect(() => {
     fetchTimeSlots();
   }, [fetchTimeSlots]);
-
-  // Función de respaldo para generar horarios predeterminados
-  const generateDefaultTimeSlots = useCallback(() => {
-    const slots = [];
-    const startHour = 9;
-    const endHour = 17;
-    
-    for (let hour = startHour; hour < endHour; hour++) {
-      // Generar horarios cada 30 minutos
-      slots.push(`${hour.toString().padStart(2, '0')}:00`);
-      if (hour < endHour - 1) {
-        slots.push(`${hour.toString().padStart(2, '0')}:30`);
-      }
-    }
-    
-    // Filtrar algunos horarios aleatoriamente para simular disponibilidad
-    return slots.filter(() => Math.random() > 0.3);
-  }, []);
 
   const handleSelectSlot = (slot) => {
     setSelectedSlot(slot);
@@ -78,12 +57,12 @@ const TimeSlots = ({ onSelect, selectedDate, selectedBarber }) => {
     fetchTimeSlots();
   };
 
-  if (!selectedDate || !selectedBarber) {
+  if (!selectedDate || !selectedBarber || !selectedService) {
     return (
       <div className="time-slots">
         <h2>Selecciona una hora</h2>
         <div className="time-slots-message">
-          <p>📅 Por favor, selecciona un barbero y una fecha primero.</p>
+          <p>📅 Por favor, selecciona un barbero, servicio y fecha primero.</p>
         </div>
       </div>
     );
@@ -111,6 +90,7 @@ const TimeSlots = ({ onSelect, selectedDate, selectedBarber }) => {
           day: 'numeric'
         })}</p>
         <p>💇‍♂️ <strong>Barbero:</strong> {selectedBarber.user?.name || selectedBarber.name}</p>
+        <p>✂️ <strong>Servicio:</strong> {selectedService.name} ({selectedService.duration} min)</p>
       </div>
       
       {error && (
@@ -137,7 +117,14 @@ const TimeSlots = ({ onSelect, selectedDate, selectedBarber }) => {
       ) : !error && (
         <div className="time-slots-message">
           <p>⚠️ No hay horarios disponibles para la fecha seleccionada.</p>
-          <p>💡 Intenta seleccionar otra fecha.</p>
+          <p>💡 Intenta seleccionar otra fecha o barbero.</p>
+          <p>Recuerda que los horarios se actualizan según:</p>
+          <ul>
+            <li>La disponibilidad del barbero</li>
+            <li>Las citas ya programadas</li>
+            <li>La duración del servicio ({selectedService.duration} minutos)</li>
+            <li>El horario de trabajo del barbero</li>
+          </ul>
         </div>
       )}
       

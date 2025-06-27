@@ -3,6 +3,7 @@ import {
   getAppointments,
   getMyAppointments,
   getBarberAppointments,
+  getBarberAppointmentsByID,
   getAppointmentById,
   createAppointment,
   updateAppointmentStatus,
@@ -16,7 +17,10 @@ import {
 
 const router = express.Router();
 
-// Todas las rutas requieren autenticación
+// Ruta pública para obtener citas de un barbero específico (para verificar disponibilidad)
+router.get('/barber/:barberId', getBarberAppointmentsByID);
+
+// Todas las demás rutas requieren autenticación
 router.use(protect);
 
 // Rutas para cualquier usuario autenticado

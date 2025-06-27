@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug: Filtrado de Horarios Ocupados</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .log {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .appointments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .appointment-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            background: #f9f9f9;
+        }
+        .slots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .slot {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            background: #e8f5e8;
+        }
+        .slot.occupied {
+            background: #ffe6e6;
+        }
+        .error { color: #dc3545; }
+        .success { color: #28a745; }
+        .info { color: #007bff; }
+        .warning { color: #ffc107; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        button.danger { background: #dc3545; }
+        button.danger:hover { background: #c82333; }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug: Filtrado de Horarios Ocupados</h1>
+        
+        <div class="test-section">
+            <h2>⚙️ Configuración de Prueba</h2>
+            
+            <div class="form-group">
+                <label>Token de Autenticación:</label>
+                <input type="text" id="authToken" placeholder="Token opcional para crear citas de prueba" />
+                <button onclick="getTokenFromStorage()">Obtener de localStorage</button>
+            </div>
+
+            <div class="form-group">
+                <label>ID del Barbero:</label>
+                <input type="text" id="barberId" value="675e2b8f9b6c1a4e3f8d9a2b" />
+            </div>
+
+            <div class="form-group">
+                <label>ID del Servicio:</label>
+                <input type="text" id="serviceId" value="675e2b8f9b6c1a4e3f8d9a2c" />
+            </div>
+
+            <div class="form-group">
+                <label>Fecha a probar:</label>
+                <input type="date" id="testDate" />
+                <button onclick="setTomorrow()">Mañana</button>
+                <button onclick="setNextWeek()">Próxima Semana</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Análisis Completo</h2>
+            <button onclick="runCompleteAnalysis()">🔍 Analizar Disponibilidad</button>
+            <button onclick="clearResults()">🧹 Limpiar</button>
+            
+            <div class="comparison">
+                <div>
+                    <h3>📅 Citas Existentes</h3>
+                    <div id="existingAppointments"></div>
+                </div>
+                <div>
+                    <h3>🕐 Horarios Disponibles</h3>
+                    <div id="availableSlots"></div>
+                </div>
+            </div>
+            
+            <div id="analysisResults" class="log"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🧪 Crear Cita de Prueba</h2>
+            <p>Para probar el filtrado, podemos crear una cita y verificar que desaparezca de los horarios disponibles.</p>
+            
+            <div class="form-group">
+                <label>Hora para la cita de prueba:</label>
+                <select id="testTimeSlot">
+                    <option value="09:00">09:00</option>
+                    <option value="10:00">10:00</option>
+                    <option value="11:00">11:00</option>
+                    <option value="14:00">14:00</option>
+                    <option value="15:00">15:00</option>
+                    <option value="16:00">16:00</option>
+                </select>
+            </div>
+            
+            <button onclick="createTestAppointment()">➕ Crear Cita de Prueba</button>
+            <button onclick="deleteTestAppointments()" class="danger">🗑️ Eliminar Todas las Citas de Prueba</button>
+            
+            <div id="testResults" class="log"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔄 Comparación Antes/Después</h2>
+            <button onclick="compareBeforeAfter()">📊 Comparar Antes/Después de Crear Cita</button>
+            <div id="comparisonResults" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        let testAppointmentIds = [];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            return '[' + timestamp + '] ' + message;
+        }
+
+        function appendToLog(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const logEntry = log(message, type);
+            element.innerHTML += logEntry + '\n';
+            element.scrollTop = element.scrollHeight;
+        }
+
+        function clearResults() {
+            document.getElementById('analysisResults').innerHTML = '';
+            document.getElementById('testResults').innerHTML = '';
+            document.getElementById('comparisonResults').innerHTML = '';
+            document.getElementById('existingAppointments').innerHTML = '';
+            document.getElementById('availableSlots').innerHTML = '';
+        }
+
+        function getTokenFromStorage() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                document.getElementById('authToken').value = token;
+                appendToLog('testResults', '✅ Token obtenido del localStorage', 'success');
+            } else {
+                appendToLog('testResults', '❌ No se encontró token en localStorage', 'error');
+            }
+        }
+
+        function setTomorrow() {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('testDate').value = tomorrow.toISOString().split('T')[0];
+        }
+
+        function setNextWeek() {
+            const nextWeek = new Date();
+            nextWeek.setDate(nextWeek.getDate() + 7);
+            document.getElementById('testDate').value = nextWeek.toISOString().split('T')[0];
+        }
+
+        async function getExistingAppointments(barberId, date) {
+            try {
+                const response = await axios.get(API_BASE + '/appointments/barber/' + barberId);
+                if (response.data.success && response.data.data) {
+                    const appointmentsForDate = response.data.data.filter(apt => {
+                        const aptDate = new Date(apt.date).toISOString().split('T')[0];
+                        return aptDate === date && ['pending', 'confirmed'].includes(apt.status);
+                    });
+                    return appointmentsForDate;
+                }
+                return [];
+            } catch (error) {
+                console.error('Error obteniendo citas existentes:', error);
+                return [];
+            }
+        }
+
+        async function getAvailableSlots(barberId, date, serviceId) {
+            try {
+                const response = await axios.get(API_BASE + '/dashboard/barber/' + barberId + '/available-slots', {
+                    params: { date, serviceId }
+                });
+                return response.data.success ? response.data.data : [];
+            } catch (error) {
+                console.error('Error obteniendo horarios disponibles:', error);
+                return [];
+            }
+        }
+
+        function displayAppointments(appointments) {
+            const container = document.getElementById('existingAppointments');
+            if (appointments.length === 0) {
+                container.innerHTML = '<p class="info">No hay citas existentes para esta fecha</p>';
+                return;
+            }
+
+            const html = appointments.map(apt => 
+                '<div class="appointment-card">' +
+                '<strong>' + apt.startTime + ' - ' + apt.endTime + '</strong><br>' +
+                'Cliente: ' + (apt.client?.name || 'N/A') + '<br>' +
+                'Servicio: ' + (apt.service?.name || 'N/A') + '<br>' +
+                'Estado: <span class="' + (apt.status === 'confirmed' ? 'success' : 'warning') + '">' + apt.status + '</span><br>' +
+                '<small>ID: ' + apt._id + '</small>' +
+                '</div>'
+            ).join('');
+
+            container.innerHTML = html;
+        }
+
+        function displayAvailableSlots(slots) {
+            const container = document.getElementById('availableSlots');
+            if (slots.length === 0) {
+                container.innerHTML = '<p class="warning">No hay horarios disponibles</p>';
+                return;
+            }
+
+            const html = slots.map(slot => '<div class="slot">' + slot + '</div>').join('');
+            container.innerHTML = '<div class="slots-grid">' + html + '</div>';
+        }
+
+        async function runCompleteAnalysis() {
+            const barberId = document.getElementById('barberId').value;
+            const serviceId = document.getElementById('serviceId').value;
+            const date = document.getElementById('testDate').value;
+
+            if (!barberId || !serviceId || !date) {
+                appendToLog('analysisResults', '❌ Por favor completa todos los campos', 'error');
+                return;
+            }
+
+            appendToLog('analysisResults', '🔍 INICIANDO ANÁLISIS COMPLETO...', 'info');
+            appendToLog('analysisResults', '📊 Parámetros:', 'info');
+            appendToLog('analysisResults', '   - Barbero: ' + barberId, 'info');
+            appendToLog('analysisResults', '   - Servicio: ' + serviceId, 'info');
+            appendToLog('analysisResults', '   - Fecha: ' + date, 'info');
+
+            try {
+                appendToLog('analysisResults', '\n📅 1. OBTENIENDO CITAS EXISTENTES...', 'info');
+                const existingAppointments = await getExistingAppointments(barberId, date);
+                appendToLog('analysisResults', '✅ Encontradas ' + existingAppointments.length + ' citas existentes', 'success');
+                
+                existingAppointments.forEach((apt, index) => {
+                    appendToLog('analysisResults', '   Cita ' + (index + 1) + ': ' + apt.startTime + '-' + apt.endTime + ' (' + apt.status + ') - ' + (apt.client?.name || 'N/A'), 'info');
+                });
+
+                displayAppointments(existingAppointments);
+
+                appendToLog('analysisResults', '\n🕐 2. OBTENIENDO HORARIOS DISPONIBLES...', 'info');
+                const availableSlots = await getAvailableSlots(barberId, date, serviceId);
+                appendToLog('analysisResults', '✅ Encontrados ' + availableSlots.length + ' horarios disponibles', 'success');
+                appendToLog('analysisResults', '   Horarios: [' + availableSlots.join(', ') + ']', 'info');
+
+                displayAvailableSlots(availableSlots);
+
+                appendToLog('analysisResults', '\n🔍 3. ANÁLISIS DE FILTRADO...', 'info');
+                
+                if (existingAppointments.length === 0) {
+                    appendToLog('analysisResults', '✅ No hay citas existentes - todos los horarios deberían estar disponibles', 'success');
+                } else {
+                    appendToLog('analysisResults', '🔍 Verificando que las citas existentes NO aparezcan en horarios disponibles:', 'info');
+                    
+                    let filteredCorrectly = true;
+                    existingAppointments.forEach(apt => {
+                        const startTime = apt.startTime;
+                        if (availableSlots.includes(startTime)) {
+                            appendToLog('analysisResults', '❌ ERROR: El horario ' + startTime + ' aparece disponible pero ya está ocupado', 'error');
+                            filteredCorrectly = false;
+                        } else {
+                            appendToLog('analysisResults', '✅ Correcto: El horario ' + startTime + ' NO aparece en disponibles', 'success');
+                        }
+                    });
+
+                    if (filteredCorrectly) {
+                        appendToLog('analysisResults', '✅ FILTRADO CORRECTO: Todas las citas ocupadas fueron filtradas', 'success');
+                    } else {
+                        appendToLog('analysisResults', '❌ PROBLEMA DETECTADO: Algunos horarios ocupados aparecen como disponibles', 'error');
+                    }
+                }
+
+                appendToLog('analysisResults', '\n📊 RESUMEN:', 'info');
+                appendToLog('analysisResults', '   - Citas existentes: ' + existingAppointments.length, 'info');
+                appendToLog('analysisResults', '   - Horarios disponibles: ' + availableSlots.length, 'info');
+                appendToLog('analysisResults', '   - El filtrado funciona: ' + (existingAppointments.length === 0 || !existingAppointments.some(apt => availableSlots.includes(apt.startTime)) ? 'SÍ' : 'NO'), 'info');
+
+            } catch (error) {
+                appendToLog('analysisResults', '❌ ERROR en análisis: ' + error.message, 'error');
+                console.error('Error en análisis:', error);
+            }
+        }
+
+        async function createTestAppointment() {
+            const token = document.getElementById('authToken').value;
+            const barberId = document.getElementById('barberId').value;
+            const serviceId = document.getElementById('serviceId').value;
+            const date = document.getElementById('testDate').value;
+            const startTime = document.getElementById('testTimeSlot').value;
+
+            if (!token) {
+                appendToLog('testResults', '❌ Necesitas un token para crear citas de prueba', 'error');
+                return;
+            }
+
+            if (!barberId || !serviceId || !date || !startTime) {
+                appendToLog('testResults', '❌ Por favor completa todos los campos', 'error');
+                return;
+            }
+
+            const appointmentData = {
+                barberId,
+                serviceId,
+                date,
+                startTime,
+                notes: '🧪 CITA DE PRUEBA - Debug Filtrado'
+            };
+
+            try {
+                appendToLog('testResults', '➕ Creando cita de prueba para ' + startTime + '...', 'info');
+                
+                const response = await axios.post(API_BASE + '/appointments', appointmentData, {
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.data.success) {
+                    const appointmentId = response.data.data._id;
+                    testAppointmentIds.push(appointmentId);
+                    appendToLog('testResults', '✅ Cita de prueba creada exitosamente', 'success');
+                    appendToLog('testResults', '   - ID: ' + appointmentId, 'success');
+                    appendToLog('testResults', '   - Horario: ' + startTime, 'success');
+                    appendToLog('testResults', '💡 Ahora ejecuta el análisis completo para verificar que este horario ya no aparezca disponible', 'info');
+                } else {
+                    appendToLog('testResults', '❌ Error al crear cita: ' + (response.data.error || 'Error desconocido'), 'error');
+                }
+            } catch (error) {
+                appendToLog('testResults', '❌ Error al crear cita de prueba: ' + (error.response?.data?.error || error.message), 'error');
+            }
+        }
+
+        async function deleteTestAppointments() {
+            const token = document.getElementById('authToken').value;
+            
+            if (!token) {
+                appendToLog('testResults', '❌ Necesitas un token para eliminar citas', 'error');
+                return;
+            }
+
+            if (testAppointmentIds.length === 0) {
+                appendToLog('testResults', '💡 No hay citas de prueba para eliminar', 'info');
+                return;
+            }
+
+            appendToLog('testResults', '🗑️ Eliminando ' + testAppointmentIds.length + ' citas de prueba...', 'info');
+
+            for (const appointmentId of testAppointmentIds) {
+                try {
+                    await axios.put(API_BASE + '/appointments/' + appointmentId + '/status', 
+                        { status: 'cancelled' },
+                        {
+                            headers: {
+                                'Authorization': 'Bearer ' + token,
+                                'Content-Type': 'application/json'
+                            }
+                        }
+                    );
+                    appendToLog('testResults', '✅ Cita ' + appointmentId + ' cancelada', 'success');
+                } catch (error) {
+                    appendToLog('testResults', '❌ Error al cancelar cita ' + appointmentId + ': ' + error.message, 'error');
+                }
+            }
+
+            testAppointmentIds = [];
+            appendToLog('testResults', '✅ Todas las citas de prueba han sido canceladas', 'success');
+        }
+
+        async function compareBeforeAfter() {
+            const barberId = document.getElementById('barberId').value;
+            const serviceId = document.getElementById('serviceId').value;
+            const date = document.getElementById('testDate').value;
+            const testTime = document.getElementById('testTimeSlot').value;
+            const token = document.getElementById('authToken').value;
+
+            if (!barberId || !serviceId || !date || !testTime || !token) {
+                appendToLog('comparisonResults', '❌ Por favor completa todos los campos incluido el token', 'error');
+                return;
+            }
+
+            try {
+                appendToLog('comparisonResults', '🔄 INICIANDO COMPARACIÓN ANTES/DESPUÉS...', 'info');
+
+                appendToLog('comparisonResults', '\n📊 1. OBTENIENDO HORARIOS ANTES...', 'info');
+                const slotsBefore = await getAvailableSlots(barberId, date, serviceId);
+                appendToLog('comparisonResults', '✅ Horarios disponibles ANTES: [' + slotsBefore.join(', ') + ']', 'success');
+
+                if (!slotsBefore.includes(testTime)) {
+                    appendToLog('comparisonResults', '❌ El horario ' + testTime + ' no está disponible para la prueba', 'error');
+                    return;
+                }
+
+                appendToLog('comparisonResults', '\n➕ 2. CREANDO CITA DE PRUEBA EN ' + testTime + '...', 'info');
+                const appointmentData = {
+                    barberId,
+                    serviceId,
+                    date,
+                    startTime: testTime,
+                    notes: '🧪 CITA DE PRUEBA - Comparación Antes/Después'
+                };
+
+                const response = await axios.post(API_BASE + '/appointments', appointmentData, {
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.data.success) {
+                    appendToLog('comparisonResults', '❌ Error al crear cita: ' + response.data.error, 'error');
+                    return;
+                }
+
+                const appointmentId = response.data.data._id;
+                testAppointmentIds.push(appointmentId);
+                appendToLog('comparisonResults', '✅ Cita creada con ID: ' + appointmentId, 'success');
+
+                appendToLog('comparisonResults', '\n⏳ 3. ESPERANDO ACTUALIZACIÓN...', 'info');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                appendToLog('comparisonResults', '\n📊 4. OBTENIENDO HORARIOS DESPUÉS...', 'info');
+                const slotsAfter = await getAvailableSlots(barberId, date, serviceId);
+                appendToLog('comparisonResults', '✅ Horarios disponibles DESPUÉS: [' + slotsAfter.join(', ') + ']', 'success');
+
+                appendToLog('comparisonResults', '\n🔍 5. ANÁLISIS DE RESULTADOS...', 'info');
+                const wasFiltered = !slotsAfter.includes(testTime);
+                
+                if (wasFiltered) {
+                    appendToLog('comparisonResults', '✅ CORRECTO: El horario ' + testTime + ' YA NO aparece en los disponibles', 'success');
+                    appendToLog('comparisonResults', '✅ El filtrado funciona correctamente', 'success');
+                } else {
+                    appendToLog('comparisonResults', '❌ PROBLEMA: El horario ' + testTime + ' SIGUE apareciendo como disponible', 'error');
+                    appendToLog('comparisonResults', '❌ El filtrado NO está funcionando', 'error');
+                }
+
+                appendToLog('comparisonResults', '\n📊 RESUMEN COMPARACIÓN:', 'info');
+                appendToLog('comparisonResults', '   - Horarios ANTES: ' + slotsBefore.length, 'info');
+                appendToLog('comparisonResults', '   - Horarios DESPUÉS: ' + slotsAfter.length, 'info');
+                appendToLog('comparisonResults', '   - Diferencia: ' + (slotsBefore.length - slotsAfter.length), 'info');
+                appendToLog('comparisonResults', '   - Horario ' + testTime + ' filtrado: ' + (wasFiltered ? 'SÍ' : 'NO'), 'info');
+
+            } catch (error) {
+                appendToLog('comparisonResults', '❌ ERROR en comparación: ' + error.message, 'error');
+                console.error('Error en comparación:', error);
+            }
+        }
+
+        window.onload = function() {
+            setTomorrow();
+        };
+    </script>
+</body>
+</html> 

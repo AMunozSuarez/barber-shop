@@ -35,7 +35,8 @@
   font-family: var(--font-primary);
   font-size: var(--text-md);
   transition: border-color 0.3s ease;
-  background-color: white;
+  background-color: var(--white);
+  color: var(--dark-text);
 }
 
 .form-input:focus {

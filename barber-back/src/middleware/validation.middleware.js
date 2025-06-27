@@ -64,24 +64,39 @@ export const validateAppointmentCreation = (req, res, next) => {
     console.log('❌ Falta date');
     errors.push('La fecha es requerida');
   } else {
-    console.log('🔍 Validando fecha:', date);
-    const appointmentDate = new Date(date);
+    console.log('🔍 Validando fecha recibida:', date, 'Tipo:', typeof date);
+    
+    // Normalizar la fecha para evitar problemas de zona horaria
+    const dateString = typeof date === 'string' && date.includes('T') ? date.split('T')[0] : date;
+    const appointmentDate = new Date(dateString + 'T12:00:00.000Z'); // Usar mediodía UTC
+    
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const todayString = today.toISOString().split('T')[0];
+    const todayUTC = new Date(todayString + 'T12:00:00.000Z');
     
-    console.log('🔍 Fecha de cita:', appointmentDate, 'Hoy:', today);
+    console.log('🔍 Fechas normalizadas:');
+    console.log('   - Fecha cita:', appointmentDate.toISOString(), '(' + dateString + ')');
+    console.log('   - Hoy:', todayUTC.toISOString(), '(' + todayString + ')');
+    console.log('   - Comparación:', appointmentDate.getTime(), 'vs', todayUTC.getTime());
     
-    if (appointmentDate < today) {
+    if (isNaN(appointmentDate.getTime())) {
+      console.log('❌ Fecha inválida');
+      errors.push('Formato de fecha inválido');
+    } else if (appointmentDate < todayUTC) {
       console.log('❌ Fecha en el pasado');
       errors.push('No se pueden programar citas para fechas pasadas');
-    }
-    
-    // No permitir citas más de 30 días en el futuro
-    const maxDate = new Date();
-    maxDate.setDate(maxDate.getDate() + 30);
-    if (appointmentDate > maxDate) {
-      console.log('❌ Fecha demasiado lejana');
-      errors.push('No se pueden programar citas con más de 30 días de anticipación');
+    } else {
+      // No permitir citas más de 30 días en el futuro
+      const maxDate = new Date();
+      maxDate.setDate(maxDate.getDate() + 30);
+      maxDate.setHours(12, 0, 0, 0); // Usar mediodía para evitar problemas de zona horaria
+      
+      if (appointmentDate > maxDate) {
+        console.log('❌ Fecha demasiado lejana');
+        errors.push('No se pueden programar citas con más de 30 días de anticipación');
+      } else {
+        console.log('✅ Fecha válida');
+      }
     }
   }
 

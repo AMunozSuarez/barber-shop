@@ -59,6 +59,7 @@ export const useAppointment = () => {
     setLoading(true);
     setError(null);
     try {
+      console.log('📅 Enviando datos de cita:', appointmentData);
       const response = await AppointmentService.createAppointment(appointmentData);
       if (response.success && response.data) {
         setAppointments((prev) => [...prev, response.data]);
@@ -67,10 +68,14 @@ export const useAppointment = () => {
         console.log('✅ Cita agregada y contexto notificado:', response.data);
       }
       return response;
-    } catch (err) {
-      const errorMessage = err.message || 'Error al crear cita';
+    } catch (error) {
+      console.error('❌ Error en useAppointment:', {
+        message: error.message,
+        originalError: error
+      });
+      const errorMessage = error.message || 'Error al crear cita';
       setError(errorMessage);
-      throw new Error(errorMessage);
+      throw error;
     } finally {
       setLoading(false);
     }

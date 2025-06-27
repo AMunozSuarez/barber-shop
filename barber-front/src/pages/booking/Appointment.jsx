@@ -3,6 +3,7 @@ import BarberSelection from '../../components/appointment/BarberSelection';
 import Calendar from '../../components/appointment/Calendar';
 import TimeSlots from '../../components/appointment/TimeSlots';
 import AppointmentForm from '../../components/appointment/AppointmentForm';
+import TimeSlotsDebug from '../../components/common/TimeSlotsDebug';
 import { getServices } from '../../services/service.service';
 import Loading from '../../components/common/Loading';
 import '../../assets/styles/pages/booking/Booking.css';
@@ -52,12 +53,15 @@ const Appointment = () => {
   
   const handleBarberSelect = (barber) => {
     setSelectedBarber(barber);
+    // Al seleccionar un barbero, reseteamos la fecha y hora
+    setSelectedDate(null);
+    setSelectedTime(null);
     setCurrentStep(3);
   };
   
   const handleDateSelect = (date) => {
     setSelectedDate(date);
-    setCurrentStep(3);
+    // No avanzamos al siguiente paso hasta que se seleccione una hora
   };
   
   const handleTimeSelect = (time) => {
@@ -163,28 +167,55 @@ const Appointment = () => {
         );
         
       case 2: // Selección de barbero
-        return <BarberSelection setSelectedBarber={handleBarberSelect} />;
+        return (
+          <div className="step-container">
+            <h3>🧔 Selecciona tu barbero preferido</h3>
+            <p className="step-description">
+              Elige entre nuestros barberos profesionales. Cada uno tiene su especialidad y horarios disponibles.
+            </p>
+            <BarberSelection setSelectedBarber={handleBarberSelect} />
+          </div>
+        );
         
       case 3: // Selección de fecha y hora
         return (
-          <>
-            <Calendar setSelectedDate={handleDateSelect} />
-            <TimeSlots 
-              selectedBarber={selectedBarber}
-              selectedDate={selectedDate}
-              onSelect={handleTimeSelect}
-            />
-          </>
+          <div className="step-container">
+            <h3>Selecciona fecha y hora</h3>
+            <div className="date-time-selection">
+              <Calendar 
+                selectedBarber={selectedBarber} 
+                setSelectedDate={handleDateSelect} 
+              />
+              {selectedDate && (
+                <>
+                  <TimeSlots 
+                    selectedBarber={selectedBarber}
+                    selectedDate={selectedDate}
+                    selectedService={selectedService}
+                    onSelect={handleTimeSelect}
+                  />
+                  <TimeSlotsDebug 
+                    selectedBarber={selectedBarber}
+                    selectedDate={selectedDate}
+                    selectedService={selectedService}
+                  />
+                </>
+              )}
+            </div>
+          </div>
         );
         
       case 4: // Confirmación de detalles
         return (
-          <AppointmentForm 
-            selectedService={selectedService}
-            selectedBarber={selectedBarber}
-            selectedDate={selectedDate}
-            selectedTime={selectedTime}
-          />
+          <div className="step-container">
+            <h3>Confirma tu cita</h3>
+            <AppointmentForm 
+              selectedService={selectedService}
+              selectedBarber={selectedBarber}
+              selectedDate={selectedDate}
+              selectedTime={selectedTime}
+            />
+          </div>
         );
         
       default:
@@ -195,6 +226,23 @@ const Appointment = () => {
   const handleGoBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
+      // Resetear estados según el paso
+      switch (currentStep) {
+        case 4:
+          setSelectedTime(null);
+          break;
+        case 3:
+          setSelectedDate(null);
+          setSelectedTime(null);
+          break;
+        case 2:
+          setSelectedBarber(null);
+          setSelectedDate(null);
+          setSelectedTime(null);
+          break;
+        default:
+          break;
+      }
     }
   };
 
@@ -218,13 +266,13 @@ const Appointment = () => {
           <div className="step-label">Confirmar detalles</div>
         </div>
       </div>
-      
+
       {currentStep > 1 && (
         <button onClick={handleGoBack} className="back-button">
           Volver atrás
         </button>
       )}
-      
+
       {renderStepContent()}
     </div>
   );

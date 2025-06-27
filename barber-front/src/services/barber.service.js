@@ -24,7 +24,7 @@ export const getBarberById = async (id) => {
 // Obtener perfil del barbero autenticado actual
 export const getMyBarberProfile = async () => {
   try {
-    const response = await api.get('/barbers/profile');
+    const response = await api.get('/barbers/me');
     return response.data;
   } catch (error) {
     throw new Error(error.message || 'Error al obtener perfil del barbero');

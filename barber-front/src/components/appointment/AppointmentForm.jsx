@@ -71,7 +71,15 @@ function AppointmentForm({ selectedService, selectedBarber, selectedDate, select
       notes: `Cita para ${user.name}`
     };
 
-    console.log('📅 Creando cita con datos:', appointmentData);
+    console.log('📅 Creando cita con datos:', {
+      ...appointmentData,
+      dateInfo: {
+        original: formData.date,
+        type: typeof formData.date,
+        dateObject: new Date(formData.date),
+        iso: new Date(formData.date).toISOString()
+      }
+    });
     setIsSubmitting(true);
     
     try {
@@ -99,8 +107,25 @@ function AppointmentForm({ selectedService, selectedBarber, selectedDate, select
         throw new Error(response.message || 'Error al crear la cita');
       }
     } catch (error) {
-      console.error('❌ Error al crear cita:', error);
-      setSubmitError(error.message || 'Ha ocurrido un error al agendar la cita. Por favor intenta nuevamente.');
+      console.error('❌ Error al crear cita:', {
+        message: error.message,
+        status: error.status,
+        statusText: error.statusText,
+        data: error.data,
+        fullError: error
+      });
+      
+      let errorMessage = 'Ha ocurrido un error al agendar la cita. Por favor intenta nuevamente.';
+      
+      if (error.data?.details && Array.isArray(error.data.details)) {
+        errorMessage = `Errores de validación: ${error.data.details.join(', ')}`;
+      } else if (error.data?.error) {
+        errorMessage = error.data.error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      setSubmitError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -190,7 +215,14 @@ function AppointmentForm({ selectedService, selectedBarber, selectedDate, select
 
       {submitError && (
         <div className="form-error">
-          ❌ {submitError}
+          <h4>❌ Error al crear la cita:</h4>
+          <p>{submitError}</p>
+          <button 
+            className="service-button secondary"
+            onClick={() => setSubmitError(null)}
+          >
+            Entendido
+          </button>
         </div>
       )}
       

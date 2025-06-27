@@ -44,7 +44,17 @@ api.interceptors.response.use(
   },
   (error) => {
     // Log del error
-    console.error('❌ Response error:', error);
+    console.error('❌ Response error:', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      message: error.message
+    });
+    
+    // Si tenemos una respuesta del servidor, usar ese mensaje de error
+    if (error.response?.data?.error) {
+      error.message = error.response.data.error;
+    }
     
     // Si es error 401, limpiar token y redirigir a login
     if (error.response?.status === 401) {

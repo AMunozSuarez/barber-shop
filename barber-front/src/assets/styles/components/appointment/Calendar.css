@@ -1,214 +1,311 @@
 @import '/src/assets/styles/variables.css';
 
 .calendar-container {
-  background-color: var(--white);
-  color: var(--dark-text);
-  border-radius: var(--border-radius-md);
-  border: 1px solid var(--gray-medium);
-  padding: var(--spacing-lg);
-  margin-bottom: var(--spacing-lg);
-  box-shadow: var(--box-shadow);
-}
-
-.calendar-container h2 {
-  font-size: var(--text-lg);
-  font-weight: 600;
-  margin-bottom: var(--spacing-lg);
-  color: var(--primary);
-  padding-bottom: var(--spacing-sm);
-  border-bottom: 1px solid var(--gray-medium);
+  padding: 20px;
+  background: var(--white);
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .calendar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: 20px;
 }
 
-.calendar-month {
-  font-size: 18px;
-  font-weight: 600;
+.calendar-header h2 {
+  margin: 0;
   color: var(--dark-text);
+  font-size: 1.3em;
+  font-weight: 600;
 }
 
-.calendar-nav {
-  display: flex;
-  gap: 8px;
-}
-
-.calendar-nav-button {
+.month-nav {
   background: none;
   border: none;
   color: var(--primary);
-  font-size: 18px;
+  font-size: 1.5em;
   cursor: pointer;
-  padding: 4px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  padding: 5px 10px;
+  border-radius: var(--border-radius);
+  transition: background-color 0.2s;
 }
 
-.calendar-nav-button:hover {
-  background-color: var(--primary-light);
-  color: var(--primary);
+.month-nav:hover {
+  background: var(--primary-light);
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.day-name {
+  text-align: center;
+  color: var(--gray-text);
+  font-weight: 500;
+  font-size: 0.9em;
+  padding: 5px;
 }
 
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: var(--spacing-xs);
-}
-
-.calendar-weekday {
-  text-align: center;
-  font-weight: 600;
-  color: var(--gray-text);
-  padding: var(--spacing-sm) 0;
-  text-transform: uppercase;
-  font-size: var(--text-sm);
+  gap: 5px;
 }
 
 .calendar-day {
   aspect-ratio: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: var(--border-radius);
   cursor: pointer;
-  font-weight: 500;
+  position: relative;
   transition: all 0.2s ease;
-  padding: 8px;
-  color: var(--dark-text);
+  background: var(--white);
 }
 
-.calendar-day:hover {
-  background-color: var(--primary-light);
-  color: var(--primary);
+.calendar-day.other-month {
+  color: var(--gray-medium);
+}
+
+.calendar-day.not-selectable {
+  cursor: not-allowed;
+  color: var(--gray-medium);
+  background: var(--gray-light);
+}
+
+.calendar-day.selectable {
+  background: var(--white);
+  cursor: pointer;
+  border: 1px solid var(--gray-light);
+}
+
+.calendar-day.selectable:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
 }
 
 .calendar-day.selected {
-  background-color: var(--primary);
+  background: var(--primary);
   color: var(--white);
-  font-weight: 600;
-  transform: scale(1.05);
-  box-shadow: 0 2px 8px rgba(43, 155, 92, 0.3);
+  border-color: var(--primary);
 }
 
 .calendar-day.today {
   border: 2px solid var(--primary);
-  background-color: var(--primary-light);
-  color: var(--primary);
-  font-weight: 600;
+  font-weight: bold;
 }
 
-.calendar-day.disabled {
-  color: var(--gray-text);
-  opacity: 0.5;
-  cursor: not-allowed;
+.day-number {
+  font-size: 1em;
+  font-weight: 500;
+  margin-bottom: 2px;
 }
 
-.calendar-day.other-month {
-  color: var(--gray-text);
-  opacity: 0.5;
+.availability-indicator {
+  width: 4px;
+  height: 4px;
+  background: var(--success);
+  border-radius: 50%;
+  position: absolute;
+  bottom: 4px;
 }
 
-/* Sobrescribir estilos de react-calendar */
-.react-calendar {
-  width: 100%;
-  border: none;
-  font-family: var(--font-primary);
+.calendar-day.selected .availability-indicator {
+  background: var(--white);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .calendar-container {
+    padding: 15px;
+  }
+
+  .calendar-header h2 {
+    font-size: 1.1em;
+  }
+
+  .day-name {
+    font-size: 0.8em;
+  }
+
+  .day-number {
+    font-size: 0.9em;
+  }
+
+  .working-days-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-container {
+    padding: 10px;
+  }
+
+  .calendar-info {
+    padding: 10px;
+  }
+
+  .calendar-header h2 {
+    font-size: 1em;
+  }
+
+  .month-nav {
+    font-size: 1.2em;
+    padding: 3px 8px;
+  }
+
+  .day-name {
+    font-size: 0.7em;
+  }
+
+  .day-number {
+    font-size: 0.8em;
+  }
+
+  .working-days-list li {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+}
+
+.calendar-info {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: var(--gray-light);
+  border-radius: var(--border-radius);
+}
+
+.calendar-info p {
+  margin: 0 0 10px;
   color: var(--dark-text);
 }
 
+.working-days-list {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.working-days-list li {
+  padding: 8px 12px;
+  background: var(--white);
+  border-radius: var(--border-radius);
+  color: var(--gray-text);
+  font-size: 14px;
+  border: 1px solid var(--gray-medium);
+}
+
+.calendar-message {
+  text-align: center;
+  padding: 20px;
+  background-color: var(--gray-light);
+  border-radius: var(--border-radius);
+  color: var(--gray-text);
+}
+
+/* Estilos para react-calendar */
+.react-calendar {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  border: none !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 10px;
+}
+
 .react-calendar__navigation {
-  margin-bottom: var(--spacing-md);
+  margin-bottom: 15px;
 }
 
 .react-calendar__navigation button {
   min-width: 44px;
   background: none;
-  font-size: var(--text-md);
-  color: var(--primary);
+  font-size: 16px;
+  color: #333;
 }
 
 .react-calendar__navigation button:enabled:hover,
 .react-calendar__navigation button:enabled:focus {
-  background-color: var(--light);
-  border-radius: var(--border-radius-sm);
+  background-color: #e6e6e6;
+  border-radius: 6px;
 }
 
 .react-calendar__month-view__weekdays {
   text-align: center;
   text-transform: uppercase;
   font-weight: bold;
-  font-size: var(--text-xs);
-  color: var(--gray-text);
+  font-size: 0.8em;
+  color: #666;
 }
 
-.react-calendar__tile {
-  padding: var(--spacing-sm);
-  font-size: var(--text-md);
-  text-align: center;
-  border-radius: var(--border-radius-sm);
-  color: var(--dark-text);
+.react-calendar__month-view__days__day {
+  padding: 8px;
+  background: none;
+  border: none;
+  outline: none;
 }
 
-.react-calendar__tile:enabled:hover{
-  
-  background-color: var(--primary-light);
-  color: var(--primary);
-}
-.react-calendar__tile:enabled:focus {
-  background-color: var(--primary-light);
-  color: var(--white);
+/* Días laborables */
+.working-day {
+  background-color: #e8f5e9 !important;
+  color: #2e7d32 !important;
+  font-weight: 500;
 }
 
-.react-calendar__tile--now {
-  background: rgba(43, 155, 92, 0.1);
-  color: var(--primary);
-  font-weight: bold;
+.working-day:hover {
+  background-color: #c8e6c9 !important;
 }
 
+.working-day:focus {
+  background-color: #a5d6a7 !important;
+}
+
+/* Días no laborables */
+.non-working-day {
+  background-color: #f5f5f5 !important;
+  color: #bdbdbd !important;
+  cursor: not-allowed !important;
+}
+
+/* Día seleccionado */
 .react-calendar__tile--active {
-  background: var(--primary);
-  color: var(--white);
+  background: #2196f3 !important;
+  color: white !important;
+  border-radius: 6px;
 }
 
 .react-calendar__tile--active:enabled:hover,
 .react-calendar__tile--active:enabled:focus {
-  background: var(--primary);
-  color: var(--white);
+  background: #1976d2 !important;
 }
 
-.react-calendar__tile--hasActive {
-  background: var(--primary);
-}
-
-.react-calendar__tile--hasActive:enabled:hover,
-.react-calendar__tile--hasActive:enabled:focus {
-  background: var(--primary);
-}
-
-/* Días de otros meses */
+/* Días fuera del mes actual */
 .react-calendar__month-view__days__day--neighboringMonth {
-  color: var(--gray-text);
-  opacity: 0.5;
+  color: #ccc !important;
 }
 
-@media (max-width: 768px) {
-  .calendar-grid {
-    gap: 2px;
-  }
-  
-  .calendar-day {
-    font-size: var(--text-sm);
-  }
+/* Días deshabilitados */
+.react-calendar__tile:disabled {
+  background-color: #f5f5f5 !important;
+  color: #bdbdbd !important;
+  cursor: not-allowed !important;
+}
 
-  .react-calendar__tile {
-    padding: var(--spacing-xs);
-    font-size: var(--text-sm);
-  }
+/* Hover en días habilitados */
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  background-color: #e3f2fd !important;
+  border-radius: 6px;
 }
