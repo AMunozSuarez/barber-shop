@@ -87,7 +87,7 @@ export const getBarberById = async (req, res) => {
 // @access  Private/Admin
 export const createBarber = async (req, res) => {
   try {
-    const { name, email, phone, specialties } = req.body;
+    const { name, email, phone, specialties, password } = req.body;
 
     // 1. Validar datos requeridos
     if (!name || !email) {
@@ -97,7 +97,15 @@ export const createBarber = async (req, res) => {
       });
     }
 
-    // 2. Verificar si ya existe un usuario con este email
+    // 2. Validar contraseña si se proporciona
+    if (password && password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        error: 'La contraseña debe tener al menos 6 caracteres'
+      });
+    }
+
+    // 3. Verificar si ya existe un usuario con este email
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({
@@ -106,31 +114,38 @@ export const createBarber = async (req, res) => {
       });
     }
 
-    // 3. Crear el usuario
+    // 4. Crear el usuario con la contraseña proporcionada o una temporal
+    const userPassword = password || 'Barber2024!';
     const user = await User.create({
       name,
       email,
       phone: phone || '',
       role: 'barber',
-      password: 'Barber2024!' // Contraseña temporal
+      password: userPassword
     });
 
-    // 4. Crear el perfil de barbero
+    // 5. Crear el perfil de barbero
     const barber = await Barber.create({
       user: user._id,
       specialty: specialties || [],
       isActive: true
     });
 
-    // 5. Obtener el barbero con los datos del usuario
+    // 6. Obtener el barbero con los datos del usuario
     const populatedBarber = await Barber.findById(barber._id)
       .populate('user', 'name email phone');
 
-    // 6. Enviar respuesta
+    // 7. Preparar mensaje de respuesta
+    const message = password 
+      ? 'Barbero creado exitosamente con la contraseña especificada'
+      : 'Barbero creado exitosamente. Contraseña temporal: Barber2024!';
+
+    // 8. Enviar respuesta
     res.status(201).json({
       success: true,
       data: populatedBarber,
-      message: 'Barbero creado exitosamente. Contraseña temporal: Barber2024!'
+      message,
+      tempPassword: password ? null : 'Barber2024!' // Solo incluir si se usó contraseña temporal
     });
 
   } catch (error) {
@@ -147,7 +162,7 @@ export const createBarber = async (req, res) => {
 // @access  Private/Admin-Barber
 export const updateBarber = async (req, res) => {
   try {
-    const { name, email, phone, specialties, experience, bio, availability, services, isActive } = req.body;
+    const { name, email, phone, specialties, experience, bio, availability, services, isActive, password } = req.body;
 
     // Buscar el barbero
     let barber = await Barber.findById(req.params.id);
@@ -167,8 +182,16 @@ export const updateBarber = async (req, res) => {
       });
     }
 
+    // Validar contraseña si se proporciona
+    if (password && password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        error: 'La contraseña debe tener al menos 6 caracteres'
+      });
+    }
+
     // Actualizar información del usuario si se proporcionan datos
-    if (name || email || phone) {
+    if (name || email || phone || password) {
       const user = await User.findById(barber.user);
       if (!user) {
         return res.status(404).json({
@@ -192,6 +215,7 @@ export const updateBarber = async (req, res) => {
       if (name) user.name = name;
       if (email) user.email = email;
       if (phone) user.phone = phone;
+      if (password) user.password = password;
       await user.save();
     }
 

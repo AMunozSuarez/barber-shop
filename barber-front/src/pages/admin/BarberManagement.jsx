@@ -19,6 +19,7 @@ const BarberManagement = () => {
     email: '',
     phone: '',
     specialty: '',
+    password: '',
     isActive: true
   });
   const [error, setError] = useState('');
@@ -98,7 +99,8 @@ const BarberManagement = () => {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        specialties: formData.specialty.split(',').map(s => s.trim()).filter(s => s)
+        specialties: formData.specialty.split(',').map(s => s.trim()).filter(s => s),
+        password: formData.password
       };
 
       console.log('Enviando datos del barbero:', barberData);
@@ -144,6 +146,7 @@ const BarberManagement = () => {
       email: '',
       phone: '',
       specialty: '',
+      password: '',
       isActive: true
     });
     setEditingBarber(null);
@@ -157,6 +160,7 @@ const BarberManagement = () => {
       email: barber.user?.email || '',
       phone: barber.user?.phone || '',
       specialty: Array.isArray(barber.specialty) ? barber.specialty.join(', ') : '',
+      password: '',
       isActive: barber.isActive !== false
     });
     setShowModal(true);
@@ -327,6 +331,23 @@ const BarberManagement = () => {
                   onChange={handleInputChange}
                   required
                 />
+              </div>
+              
+              <div className="form-group">
+                <label>Contraseña:</label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder={editingBarber ? "Dejar vacío para mantener la actual" : "Mínimo 6 caracteres"}
+                  required={!editingBarber}
+                />
+                {!editingBarber && (
+                  <small style={{color: 'var(--medium)', fontSize: '0.9em', marginTop: '5px', display: 'block'}}>
+                    Si no especificas una contraseña, se usará la temporal: Barber2024!
+                  </small>
+                )}
               </div>
               
               <div className="form-group">
