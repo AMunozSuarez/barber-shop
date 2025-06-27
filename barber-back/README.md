@@ -67,7 +67,6 @@ API REST para sistema de gestión de barbería desarrollado con Node.js, Express
 | `npm start` | Ejecutar en producción |
 | `npm run dev` | Ejecutar en modo desarrollo con nodemon |
 | `npm run seed` | Cargar datos de prueba |
-| `npm test` | Ejecutar tests (pendiente) |
 
 ## 📚 API Endpoints
 

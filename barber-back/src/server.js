@@ -35,8 +35,6 @@ connectDB();
 app.use(cors({
   origin: [
     process.env.FRONTEND_URL || 'http://localhost:3000',
-    'http://localhost:8080',  // Para test-api.html
-    'http://127.0.0.1:8080',  // Para test-api.html
     'null'  // Para archivos locales (file://)
   ],
   credentials: true

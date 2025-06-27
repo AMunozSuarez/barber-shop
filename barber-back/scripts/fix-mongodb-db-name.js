@@ -48,9 +48,8 @@ try {
   console.log('🎉 ¡Configuración actualizada!');
   console.log('');
   console.log('🚀 Próximos pasos:');
-  console.log('1. node scripts/test-atlas-connection.js  (probar conexión)');
+  console.log('1. npm run dev                            (iniciar servidor)');
   console.log('2. npm run seed                           (cargar datos)');
-  console.log('3. node scripts/test-db.js stats          (verificar datos)');
 
 } catch (error) {
   console.error('❌ Error:', error.message);

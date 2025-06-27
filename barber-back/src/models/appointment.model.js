@@ -56,8 +56,9 @@ const appointmentSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Índice compuesto para evitar solapamiento de citas
-appointmentSchema.index({ barber: 1, date: 1, startTime: 1 }, { unique: true });
+// Índice no único para mejorar rendimiento de consultas
+appointmentSchema.index({ barber: 1, date: 1, status: 1 });
+appointmentSchema.index({ client: 1, date: 1 });
 
 const Appointment = mongoose.model('Appointment', appointmentSchema);
 

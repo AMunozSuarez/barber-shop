@@ -3,7 +3,6 @@ import BarberSelection from '../../components/appointment/BarberSelection';
 import Calendar from '../../components/appointment/Calendar';
 import TimeSlots from '../../components/appointment/TimeSlots';
 import AppointmentForm from '../../components/appointment/AppointmentForm';
-import TimeSlotsDebug from '../../components/common/TimeSlotsDebug';
 import { getServices } from '../../services/service.service';
 import Loading from '../../components/common/Loading';
 import '../../assets/styles/pages/booking/Booking.css';
@@ -193,11 +192,6 @@ const Appointment = () => {
                     selectedDate={selectedDate}
                     selectedService={selectedService}
                     onSelect={handleTimeSelect}
-                  />
-                  <TimeSlotsDebug 
-                    selectedBarber={selectedBarber}
-                    selectedDate={selectedDate}
-                    selectedService={selectedService}
                   />
                 </>
               )}

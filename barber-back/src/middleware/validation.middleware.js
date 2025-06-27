@@ -87,14 +87,14 @@ export const validateAppointmentCreation = (req, res, next) => {
       console.log('❌ Fecha en el pasado');
       errors.push('No se pueden programar citas para fechas pasadas');
     } else {
-      // No permitir citas más de 30 días en el futuro
-      const maxDate = new Date();
-      maxDate.setDate(maxDate.getDate() + 30);
+    // No permitir citas más de 30 días en el futuro
+    const maxDate = new Date();
+    maxDate.setDate(maxDate.getDate() + 30);
       maxDate.setHours(12, 0, 0, 0); // Usar mediodía para evitar problemas de zona horaria
       
-      if (appointmentDate > maxDate) {
-        console.log('❌ Fecha demasiado lejana');
-        errors.push('No se pueden programar citas con más de 30 días de anticipación');
+    if (appointmentDate > maxDate) {
+      console.log('❌ Fecha demasiado lejana');
+      errors.push('No se pueden programar citas con más de 30 días de anticipación');
       } else {
         console.log('✅ Fecha válida');
       }

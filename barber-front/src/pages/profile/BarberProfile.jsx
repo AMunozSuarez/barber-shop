@@ -13,7 +13,6 @@ const BarberProfile = () => {
     loading: barberLoading, 
     error: barberError, 
     getBarberProfile, 
-    updateBarberProfile,
     getBarberStats 
   } = useBarber();
   const { completeAppointment, removeAppointment, loading: appointmentLoading } = useAppointment();
@@ -22,13 +21,6 @@ const BarberProfile = () => {
   const [profileData, setProfileData] = useState(null);
   const [stats, setStats] = useState(null);
   const [activeTab, setActiveTab] = useState('appointments');
-  const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    specialty: '',
-    bio: ''
-  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -51,14 +43,6 @@ const BarberProfile = () => {
         const data = await getBarberProfile();
         console.log('✅ Perfil obtenido:', data);
         setProfileData(data);
-        
-        // Inicializar formData con datos del perfil
-        setFormData({
-          name: data.user?.name || '',
-          phone: data.user?.phone || '',
-          specialty: data.specialty || '',
-          bio: data.bio || ''
-        });
         
         // Obtener estadísticas del barbero
         console.log('🔍 Obteniendo estadísticas...');
@@ -120,27 +104,6 @@ const BarberProfile = () => {
       return unsubscribe;
     }
   }, [subscribeToUpdates, refreshStats]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-  
-
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const updatedProfile = await updateBarberProfile(formData);
-      setProfileData(updatedProfile);
-      setIsEditing(false);
-    } catch (err) {
-      setError(err.message || 'Error al actualizar perfil');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Funciones para gestionar citas
   const handleCompleteAppointment = async (appointmentId) => {
@@ -226,23 +189,6 @@ const BarberProfile = () => {
             </div>
             
             <div className="barber-actions">
-              <button
-                className="book-button"
-                onClick={() => setIsEditing(!isEditing)}
-              >
-                {isEditing ? 'Cancelar Edición' : 'Editar Perfil'}
-              </button>
-              {!isEditing && (
-                <>
-                  <button 
-                    className="refresh-button" 
-                    onClick={refreshStats}
-                    title="Actualizar estadísticas"
-                  >
-                    🔄 Actualizar
-                  </button>
-                </>
-              )}
             </div>
           </div>
         </div>
@@ -250,302 +196,240 @@ const BarberProfile = () => {
         {/* Contenido principal */}
         <div className="barber-content">
           <div className="barber-main">
-            {isEditing ? (
-              <div className="profile-section">
-                <h2 className="section-title">Editar Perfil</h2>
-                <form onSubmit={handleSubmit} className="profile-form">
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="name">Nombre</label>
-                    <input
-                      className="form-input"
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="phone">Teléfono</label>
-                    <input
-                      className="form-input"
-                      type="tel"
-                      id="phone"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="specialty">Especialidad</label>
-                    <input
-                      className="form-input"
-                      type="text"
-                      id="specialty"
-                      name="specialty"
-                      value={formData.specialty}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="bio">Biografía</label>
-                    <textarea
-                      className="form-input"
-                      id="bio"
-                      name="bio"
-                      value={formData.bio}
-                      onChange={handleChange}
-                      rows="4"
-                    />
-                  </div>
-
-                  <div className="form-actions">
-                    <button type="button" className="cancel-btn" onClick={() => setIsEditing(false)}>Cancelar</button>
-                    <button type="submit" className="save-btn">Guardar Cambios</button>
-                  </div>
-                </form>
+            <div className="content-tabs">
+              <div 
+                className={`content-tab ${activeTab === 'appointments' ? 'active' : ''}`}
+                onClick={() => setActiveTab('appointments')}
+              >
+                Mis Citas
               </div>
-            ) : (
+              <div 
+                className={`content-tab ${activeTab === 'info' ? 'active' : ''}`}
+                onClick={() => setActiveTab('info')}
+              >
+                Información
+              </div>
+              <div 
+                className={`content-tab ${activeTab === 'availability' ? 'active' : ''}`}
+                onClick={() => setActiveTab('availability')}
+              >
+                Disponibilidad
+              </div>
+              <div 
+                className={`content-tab ${activeTab === 'reviews' ? 'active' : ''}`}
+                onClick={() => setActiveTab('reviews')}
+              >
+                Reseñas
+              </div>
+            </div>
+            
+            
+            {activeTab === 'appointments' && (
+              <div className="appointments-section">
+                <h2 className="section-title">Mis Citas Próximas</h2>
+                {stats?.upcomingAppointments && stats.upcomingAppointments.length > 0 ? (
+                  <div className="appointments-list">
+                    {stats.upcomingAppointments.map((appointment, index) => (
+                      <div key={appointment._id || index} className="appointment-card">
+                        <div className="appointment-header">
+                          <div className="appointment-date">
+                            <div className="date-day">
+                              {new Date(appointment.date).toLocaleDateString('es-ES', { 
+                                day: '2-digit',
+                                month: 'short' 
+                              })}
+                            </div>
+                            <div className="date-weekday">
+                              {new Date(appointment.date).toLocaleDateString('es-ES', { 
+                                weekday: 'short' 
+                              })}
+                            </div>
+                          </div>
+                          <div className="appointment-time">
+                            <div className="time-value">{appointment.startTime}</div>
+                            <div className="time-duration">
+                              {appointment.service?.duration || 30} min
+                            </div>
+                          </div>
+                          <div className={`appointment-status ${appointment.status}`}>
+                            {appointment.status === 'pending' ? 'Pendiente' :
+                             appointment.status === 'confirmed' ? 'Confirmada' :
+                             appointment.status === 'completed' ? 'Completada' : 
+                             appointment.status}
+                          </div>
+                        </div>
+                        <div className="appointment-details">
+                          <div className="client-info">
+                            <div className="client-name">
+                              👤 {appointment.client?.name || 'Cliente no especificado'}
+                            </div>
+                            {appointment.client?.phone && (
+                              <div className="client-phone">
+                                📱 {appointment.client.phone}
+                              </div>
+                            )}
+                          </div>
+                          <div className="service-info">
+                            <div className="service-name">
+                              ✂️ {appointment.service?.name || 'Servicio no especificado'}
+                            </div>
+                            {appointment.service?.price && (
+                              <div className="service-price">
+                                💰 ${appointment.service.price}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        {appointment.notes && (
+                          <div className="appointment-notes">
+                            📝 <strong>Notas:</strong> {appointment.notes}
+                          </div>
+                        )}
+                        {/* Botones de acción para el barbero */}
+                        <div className="appointment-actions">
+                          {appointment.status === 'pending' && (
+                            <>
+                              <button 
+                                className="action-btn complete-btn"
+                                onClick={() => handleCompleteAppointment(appointment._id)}
+                                disabled={appointmentLoading}
+                              >
+                                🎯 Completar
+                              </button>
+                              <button 
+                                className="action-btn cancel-btn"
+                                onClick={() => handleCancelAppointment(appointment._id)}
+                                disabled={appointmentLoading}
+                              >
+                                ❌ Cancelar
+                              </button>
+                            </>
+                          )}
+                          {appointment.status === 'completed' && (
+                            <div className="completed-badge">
+                              🎉 Cita completada
+                            </div>
+                          )}
+                          {appointment.status === 'cancelled' && (
+                            <div className="cancelled-badge">
+                              🚫 Cita cancelada
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="no-appointments">
+                    <div className="no-appointments-icon">📅</div>
+                    <h3>No tienes citas próximas</h3>
+                    <p>Las citas que se programen contigo aparecerán aquí.</p>
+                    <button 
+                      className="refresh-button" 
+                      onClick={refreshStats}
+                    >
+                      🔄 Actualizar
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'availability' && (
+              <div className="availability-section">
+                <AvailabilityManager 
+                  currentAvailability={profileData.availability || []}
+                  onUpdate={(updatedBarber) => {
+                    setProfileData(updatedBarber);
+                    console.log('✅ Disponibilidad actualizada:', updatedBarber);
+                  }}
+                />
+              </div>
+            )}
+
+            {activeTab === 'reviews' && (
+              <div className="reviews-list">
+                {profileData.reviewsList && profileData.reviewsList.length > 0 ? (
+                  profileData.reviewsList.map(review => (
+                    <div key={review.id} className="review-item">
+                      <div className="review-header">
+                        <div className="reviewer">
+                          <img 
+                            className="reviewer-avatar"
+                            src={review.avatar || `https://ui-avatars.com/api/?name=${review.name}`} 
+                            alt={review.name} 
+                          />
+                          <div className="reviewer-name">{review.name}</div>
+                        </div>
+                        <div className="review-date">{review.date}</div>
+                      </div>
+                      <div className="review-rating">{'⭐'.repeat(review.rating)}</div>
+                      <div className="review-content">{review.comment}</div>
+                      <div className="review-service">Servicio: {review.service}</div>
+                    </div>
+                  ))
+                ) : (
+                  <p>No hay reseñas disponibles</p>
+                )}
+              </div>
+            )}
+            
+            {activeTab === 'info' && (
               <>
-                <div className="content-tabs">
-                  <div 
-                    className={`content-tab ${activeTab === 'appointments' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('appointments')}
-                  >
-                    Mis Citas
-                  </div>
-                  <div 
-                    className={`content-tab ${activeTab === 'info' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('info')}
-                  >
-                    Información
-                  </div>
-                  <div 
-                    className={`content-tab ${activeTab === 'availability' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('availability')}
-                  >
-                    Disponibilidad
-                  </div>
-                  <div 
-                    className={`content-tab ${activeTab === 'reviews' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('reviews')}
-                  >
-                    Reseñas
+                <div className="profile-section">
+                  <h2 className="section-title">Información Personal</h2>
+                  <div className="profile-details">
+                    <div className="detail-item">
+                      <span className="detail-label">Nombre:</span>
+                      <span className="detail-value">{profileData.name}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Email:</span>
+                      <span className="detail-value">{profileData.email}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Teléfono:</span>
+                      <span className="detail-value">{profileData.phone || 'No especificado'}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Especialidad:</span>
+                      <span className="detail-value">{profileData.specialty}</span>
+                    </div>
+                    <div className="detail-item">
+                      <span className="detail-label">Experiencia:</span>
+                      <span className="detail-value">{profileData.experience} años</span>
+                    </div>
                   </div>
                 </div>
                 
+                <div className="profile-section">
+                  <h2 className="section-title">Biografía</h2>
+                  <p className="barber-bio">{profileData.bio || 'Sin biografía'}</p>
+                </div>
                 
-                {activeTab === 'appointments' && (
-                  <div className="appointments-section">
-                    <h2 className="section-title">Mis Citas Próximas</h2>
-                    {stats?.upcomingAppointments && stats.upcomingAppointments.length > 0 ? (
-                      <div className="appointments-list">
-                        {stats.upcomingAppointments.map((appointment, index) => (
-                          <div key={appointment._id || index} className="appointment-card">
-                            <div className="appointment-header">
-                              <div className="appointment-date">
-                                <div className="date-day">
-                                  {new Date(appointment.date).toLocaleDateString('es-ES', { 
-                                    day: '2-digit',
-                                    month: 'short' 
-                                  })}
-                                </div>
-                                <div className="date-weekday">
-                                  {new Date(appointment.date).toLocaleDateString('es-ES', { 
-                                    weekday: 'short' 
-                                  })}
-                                </div>
-                              </div>
-                              <div className="appointment-time">
-                                <div className="time-value">{appointment.startTime}</div>
-                                <div className="time-duration">
-                                  {appointment.service?.duration || 30} min
-                                </div>
-                              </div>
-                              <div className={`appointment-status ${appointment.status}`}>
-                                {appointment.status === 'pending' ? 'Pendiente' :
-                                 appointment.status === 'confirmed' ? 'Confirmada' :
-                                 appointment.status === 'completed' ? 'Completada' : 
-                                 appointment.status}
-                              </div>
-                            </div>
-                            <div className="appointment-details">
-                              <div className="client-info">
-                                <div className="client-name">
-                                  👤 {appointment.client?.name || 'Cliente no especificado'}
-                                </div>
-                                {appointment.client?.phone && (
-                                  <div className="client-phone">
-                                    📱 {appointment.client.phone}
-                                  </div>
-                                )}
-                              </div>
-                              <div className="service-info">
-                                <div className="service-name">
-                                  ✂️ {appointment.service?.name || 'Servicio no especificado'}
-                                </div>
-                                {appointment.service?.price && (
-                                  <div className="service-price">
-                                    💰 ${appointment.service.price}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                            {appointment.notes && (
-                              <div className="appointment-notes">
-                                📝 <strong>Notas:</strong> {appointment.notes}
-                              </div>
-                            )}
-                            {/* Botones de acción para el barbero */}
-                            <div className="appointment-actions">
-                              {appointment.status === 'pending' && (
-                                <>
-                                  <button 
-                                    className="action-btn complete-btn"
-                                    onClick={() => handleCompleteAppointment(appointment._id)}
-                                    disabled={appointmentLoading}
-                                  >
-                                    🎯 Completar
-                                  </button>
-                                  <button 
-                                    className="action-btn cancel-btn"
-                                    onClick={() => handleCancelAppointment(appointment._id)}
-                                    disabled={appointmentLoading}
-                                  >
-                                    ❌ Cancelar
-                                  </button>
-                                </>
-                              )}
-                              {appointment.status === 'completed' && (
-                                <div className="completed-badge">
-                                  🎉 Cita completada
-                                </div>
-                              )}
-                              {appointment.status === 'cancelled' && (
-                                <div className="cancelled-badge">
-                                  🚫 Cita cancelada
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ))}
+                <div className="profile-section">
+                  <h2 className="section-title">Disponibilidad</h2>
+                  <div className="availability-list">
+                    {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => (
+                      <div 
+                        key={day} 
+                        className={`availability-day-display ${profileData.availability && profileData.availability.includes(day) ? 'available' : 'unavailable'}`}
+                      >
+                        <span className="day-name">
+                          {day === 'monday' ? 'Lunes' :
+                           day === 'tuesday' ? 'Martes' :
+                           day === 'wednesday' ? 'Miércoles' :
+                           day === 'thursday' ? 'Jueves' :
+                           day === 'friday' ? 'Viernes' :
+                           day === 'saturday' ? 'Sábado' : 'Domingo'}
+                        </span>
+                        <span className="day-status">
+                          {profileData.availability && profileData.availability.includes(day) ? '✓' : '✕'}
+                        </span>
                       </div>
-                    ) : (
-                      <div className="no-appointments">
-                        <div className="no-appointments-icon">📅</div>
-                        <h3>No tienes citas próximas</h3>
-                        <p>Las citas que se programen contigo aparecerán aquí.</p>
-                        <button 
-                          className="refresh-button" 
-                          onClick={refreshStats}
-                        >
-                          🔄 Actualizar
-                        </button>
-                      </div>
-                    )}
+                    ))}
                   </div>
-                )}
-
-                {activeTab === 'availability' && (
-                  <div className="availability-section">
-                    <AvailabilityManager 
-                      currentAvailability={profileData.availability || []}
-                      onUpdate={(updatedBarber) => {
-                        setProfileData(updatedBarber);
-                        console.log('✅ Disponibilidad actualizada:', updatedBarber);
-                      }}
-                    />
-                  </div>
-                )}
-
-                {activeTab === 'reviews' && (
-                  <div className="reviews-list">
-                    {profileData.reviewsList && profileData.reviewsList.length > 0 ? (
-                      profileData.reviewsList.map(review => (
-                        <div key={review.id} className="review-item">
-                          <div className="review-header">
-                            <div className="reviewer">
-                              <img 
-                                className="reviewer-avatar"
-                                src={review.avatar || `https://ui-avatars.com/api/?name=${review.name}`} 
-                                alt={review.name} 
-                              />
-                              <div className="reviewer-name">{review.name}</div>
-                            </div>
-                            <div className="review-date">{review.date}</div>
-                          </div>
-                          <div className="review-rating">{'⭐'.repeat(review.rating)}</div>
-                          <div className="review-content">{review.comment}</div>
-                          <div className="review-service">Servicio: {review.service}</div>
-                        </div>
-                      ))
-                    ) : (
-                      <p>No hay reseñas disponibles</p>
-                    )}
-                  </div>
-                )}
-                
-                {activeTab === 'info' && (
-                  <>
-                    <div className="profile-section">
-                      <h2 className="section-title">Información Personal</h2>
-                      <div className="profile-details">
-                        <div className="detail-item">
-                          <span className="detail-label">Nombre:</span>
-                          <span className="detail-value">{profileData.name}</span>
-                        </div>
-                        <div className="detail-item">
-                          <span className="detail-label">Email:</span>
-                          <span className="detail-value">{profileData.email}</span>
-                        </div>
-                        <div className="detail-item">
-                          <span className="detail-label">Teléfono:</span>
-                          <span className="detail-value">{profileData.phone || 'No especificado'}</span>
-                        </div>
-                        <div className="detail-item">
-                          <span className="detail-label">Especialidad:</span>
-                          <span className="detail-value">{profileData.specialty}</span>
-                        </div>
-                        <div className="detail-item">
-                          <span className="detail-label">Experiencia:</span>
-                          <span className="detail-value">{profileData.experience} años</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="profile-section">
-                      <h2 className="section-title">Biografía</h2>
-                      <p className="barber-bio">{profileData.bio || 'Sin biografía'}</p>
-                    </div>
-                    
-                    <div className="profile-section">
-                      <h2 className="section-title">Disponibilidad</h2>
-                      <div className="availability-list">
-                        {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => (
-                          <div 
-                            key={day} 
-                            className={`availability-day-display ${profileData.availability && profileData.availability.includes(day) ? 'available' : 'unavailable'}`}
-                          >
-                            <span className="day-name">
-                              {day === 'monday' ? 'Lunes' :
-                               day === 'tuesday' ? 'Martes' :
-                               day === 'wednesday' ? 'Miércoles' :
-                               day === 'thursday' ? 'Jueves' :
-                               day === 'friday' ? 'Viernes' :
-                               day === 'saturday' ? 'Sábado' : 'Domingo'}
-                            </span>
-                            <span className="day-status">
-                              {profileData.availability && profileData.availability.includes(day) ? '✓' : '✕'}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
+                </div>
               </>
             )}
           </div>
