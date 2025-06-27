@@ -234,7 +234,6 @@ const BarberProfile = () => {
               </button>
               {!isEditing && (
                 <>
-                  <button className="contact-button">Contactar</button>
                   <button 
                     className="refresh-button" 
                     onClick={refreshStats}
@@ -553,77 +552,6 @@ const BarberProfile = () => {
           
           {/* Barra lateral */}
           <div className="barber-sidebar">
-            <div className="sidebar-card">
-              <h3 className="sidebar-title">Horario</h3>
-              <div className="availability-days">
-                <div className="day-item">
-                  <span className="day-name">Lunes</span>
-                  <span className="day-hours">9:00 AM - 6:00 PM</span>
-                </div>
-                <div className="day-item">
-                  <span className="day-name">Martes</span>
-                  <span className="day-hours">9:00 AM - 6:00 PM</span>
-                </div>
-                <div className="day-item">
-                  <span className="day-name">Miércoles</span>
-                  <span className="day-hours">9:00 AM - 6:00 PM</span>
-                </div>
-                <div className="day-item">
-                  <span className="day-name">Jueves</span>
-                  <span className="day-hours">9:00 AM - 6:00 PM</span>
-                </div>
-                <div className="day-item">
-                  <span className="day-name">Viernes</span>
-                  <span className="day-hours">9:00 AM - 7:00 PM</span>
-                </div>
-                <div className="day-item">
-                  <span className="day-name">Sábado</span>
-                  <span className="day-hours">10:00 AM - 4:00 PM</span>
-                </div>
-                <div className="day-item">
-                  <span className="day-name">Domingo</span>
-                  <span className="day-hours closed">Cerrado</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="sidebar-card">
-              <h3 className="sidebar-title">Contacto</h3>
-              <div className="contact-info">
-                <div className="contact-item">
-                  <div className="contact-icon">📱</div>
-                  <div className="contact-text">{profileData.phone || 'No disponible'}</div>
-                </div>
-                <div className="contact-item">
-                  <div className="contact-icon">📧</div>
-                  <div className="contact-text">{profileData.email}</div>
-                </div>
-                <div className="contact-item">
-                  <div className="contact-icon">📍</div>
-                  <div className="contact-text">Calle Principal #123, Ciudad</div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="sidebar-card">
-              <h3 className="sidebar-title">Galería</h3>
-              <div className="gallery-grid">
-                <div className="gallery-item">
-                  <img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Corte de pelo" />
-                </div>
-                <div className="gallery-item">
-                  <img src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Afeitado de barba" />
-                </div>
-                <div className="gallery-item">
-                  <img src="https://images.unsplash.com/photo-1621607950931-2de456e2d2e9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Corte con tijeras" />
-                </div>
-                <div className="gallery-item">
-                  <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Herramientas de barbería" />
-                </div>
-              </div>
-              <a href="#" className="view-all">Ver más fotos</a>
-            </div>
-            
             {stats && (
               <div className="sidebar-card">
                 <h3 className="sidebar-title">Estadísticas</h3>
