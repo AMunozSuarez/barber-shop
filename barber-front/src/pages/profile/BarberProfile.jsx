@@ -27,8 +27,7 @@ const BarberProfile = () => {
     name: '',
     phone: '',
     specialty: '',
-    bio: '',
-    availability: []
+    bio: ''
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -58,8 +57,7 @@ const BarberProfile = () => {
           name: data.user?.name || '',
           phone: data.user?.phone || '',
           specialty: data.specialty || '',
-          bio: data.bio || '',
-          availability: data.availability || []
+          bio: data.bio || ''
         });
         
         // Obtener estadísticas del barbero
@@ -128,18 +126,7 @@ const BarberProfile = () => {
     setFormData({ ...formData, [name]: value });
   };
   
-  const handleAvailabilityChange = (day) => {
-    const updatedAvailability = [...formData.availability];
-    if (updatedAvailability.includes(day)) {
-      // Remover el día si ya está seleccionado
-      const index = updatedAvailability.indexOf(day);
-      updatedAvailability.splice(index, 1);
-    } else {
-      // Agregar el día si no está seleccionado
-      updatedAvailability.push(day);
-    }
-    setFormData({ ...formData, availability: updatedAvailability });
-  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -315,29 +302,7 @@ const BarberProfile = () => {
                       rows="4"
                     />
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Disponibilidad</label>
-                    <div className="availability-selector">
-                      {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => (
-                        <div key={day} className="availability-day">
-                          <input
-                            type="checkbox"
-                            id={`day-${day}`}
-                            checked={formData.availability.includes(day)}
-                            onChange={() => handleAvailabilityChange(day)}
-                          />
-                          <label htmlFor={`day-${day}`}>
-                            {day === 'monday' ? 'Lunes' :
-                             day === 'tuesday' ? 'Martes' :
-                             day === 'wednesday' ? 'Miércoles' :
-                             day === 'thursday' ? 'Jueves' :
-                             day === 'friday' ? 'Viernes' :
-                             day === 'saturday' ? 'Sábado' : 'Domingo'}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+
                   <div className="form-actions">
                     <button type="button" className="cancel-btn" onClick={() => setIsEditing(false)}>Cancelar</button>
                     <button type="submit" className="save-btn">Guardar Cambios</button>

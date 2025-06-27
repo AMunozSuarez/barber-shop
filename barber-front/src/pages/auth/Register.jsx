@@ -115,6 +115,7 @@ function Register() {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
+                  placeholder="Mínimo 6 dígitos (ej: 123456789)"
                   required
                 />
               </div>

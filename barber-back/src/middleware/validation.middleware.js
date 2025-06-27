@@ -1,10 +1,11 @@
 // Middleware de validación para registro de usuario
 export const validateUserRegistration = (req, res, next) => {
-  const { name, email, password, phone } = req.body;
+  const { name, username, email, password, phone } = req.body;
   const errors = [];
 
-  // Validar nombre
-  if (!name || name.trim().length < 2) {
+  // Validar nombre (usar name o username)
+  const userName = name || username;
+  if (!userName || userName.trim().length < 2) {
     errors.push('El nombre debe tener al menos 2 caracteres');
   }
 
@@ -21,9 +22,9 @@ export const validateUserRegistration = (req, res, next) => {
 
   // Validar teléfono (opcional pero si se proporciona debe ser válido)
   if (phone) {
-    const phoneRegex = /^[0-9]{9,15}$/;
+    const phoneRegex = /^[0-9]{6,15}$/;
     if (!phoneRegex.test(phone.replace(/\s|-|\(|\)/g, ''))) {
-      errors.push('Por favor proporciona un número de teléfono válido');
+      errors.push('Por favor proporciona un número de teléfono válido (6-15 dígitos)');
     }
   }
 
