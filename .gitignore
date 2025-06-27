@@ -1,0 +1,300 @@
+# ==================================================
+# Ì¥í ARCHIVOS CONFIDENCIALES - NUNCA SUBIR
+# ==================================================
+
+# Variables de entorno (contienen claves secretas)
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+.env.staging
+*.env
+!.env.example
+
+# Archivos de configuraci√≥n con datos sensibles
+config.json
+secrets.json
+credentials.json
+firebase-key.json
+google-services.json
+
+# ==================================================
+# Ì≥¶ DEPENDENCIAS Y M√ìDULOS
+# ==================================================
+
+# Node modules
+node_modules/
+*/node_modules/
+barber-back/node_modules/
+barber-front/node_modules/
+
+# Package lock files (opcional - algunos prefieren incluirlos)
+# package-lock.json
+# yarn.lock
+
+# ==================================================
+# Ì∑ÑÔ∏è BASE DE DATOS Y DATOS SENSIBLES
+# ==================================================
+
+# Archivos de base de datos local
+*.db
+*.sqlite
+*.sqlite3
+data/
+database/
+db/
+
+# Dumps y backups
+*.dump
+*.sql
+backup/
+dumps/
+
+# ==================================================
+# Ì¥ê CLAVES Y CERTIFICADOS
+# ==================================================
+
+# Certificados SSL/TLS
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+
+# Claves SSH
+id_rsa
+id_rsa.pub
+*.ppk
+
+# ==================================================
+# Ì≥ù LOGS Y ARCHIVOS TEMPORALES
+# ==================================================
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# ==================================================
+# ÌøóÔ∏è ARCHIVOS DE CONSTRUCCI√ìN
+# ==================================================
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+.nuxt/
+.vuepress/dist
+.serverless/
+.fusebox/
+.dynamodb/
+
+# Frontend build
+barber-front/dist/
+barber-front/build/
+barber-front/.next/
+barber-front/.nuxt/
+
+# ==================================================
+# Ì∑™ TESTING Y DESARROLLO
+# ==================================================
+
+# Test coverage
+coverage/
+.nyc_output
+*.lcov
+
+# Test results
+test-results/
+playwright-report/
+test-results.xml
+
+# ==================================================
+# Ì≤ª IDEs Y EDITORES
+# ==================================================
+
+# VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ==================================================
+# Ì∂•Ô∏è SISTEMA OPERATIVO
+# ==================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.tmp
+*.temp
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ==================================================
+# Ì≥Å ARCHIVOS TEMPORALES Y CACHE
+# ==================================================
+
+# Cache
+.cache/
+.parcel-cache/
+.npm/
+.eslintcache
+.stylelintcache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Temporary folders
+tmp/
+temp/
+.tmp/
+.temp/
+
+# ==================================================
+# Ì∫Ä DEPLOYMENT Y PRODUCCI√ìN
+# ==================================================
+
+# Deployment files
+.vercel
+.netlify
+.now
+
+# PM2
+.pm2/
+
+# ==================================================
+# Ì¥ß ARCHIVOS DE CONFIGURACI√ìN LOCAL
+# ==================================================
+
+# Local configuration overrides
+local.config.js
+local.settings.json
+
+# ==================================================
+# Ì≥ä MONITORING Y ANALYTICS
+# ==================================================
+
+# Analytics
+analytics/
+stats/
+
+# ==================================================
+# Ì∑π LIMPIEZA ADICIONAL
+# ==================================================
+
+# Archivos de respaldo
+*.bak
+*.backup
+*.old
+*.orig
+
+# Archivos comprimidos temporales
+*.zip
+*.tar.gz
+*.rar
+
+# Archivos de configuraci√≥n de desarrollo local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ==================================================
+# Ì≥ã NOTAS IMPORTANTES
+# ==================================================
+# 
+# ‚úÖ SIEMPRE INCLUIR:
+# - .env.example (plantilla sin datos reales)
+# - README.md con instrucciones
+# - package.json
+# - C√≥digo fuente
+# 
+# ‚ùå NUNCA INCLUIR:
+# - Archivos .env con datos reales
+# - Claves de API
+# - Contrase√±as
+# - Certificados SSL
+# - Base de datos local
+# 
+# ==================================================
