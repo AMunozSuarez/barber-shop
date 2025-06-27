@@ -136,131 +136,131 @@ const UserProfile = () => {
           </div>
           
           <div className="profile-main">
-            <div className="content-tabs">
-              <div 
-                className={`content-tab ${activeTab === 'appointments' ? 'active' : ''}`}
-                onClick={() => setActiveTab('appointments')}
-              >
-                Mis Citas
-              </div>
-              <div 
-                className={`content-tab ${activeTab === 'info' ? 'active' : ''}`}
-                onClick={() => setActiveTab('info')}
-              >
-                Información Personal
-              </div>
-            </div>
-
-            {activeTab === 'appointments' && (
-              <div className="appointments-section">
-                <h2 className="section-title">Mis Citas</h2>
-                {appointments.length > 0 ? (
-                  <div className="appointments-list">
-                    {appointments.map((appointment, index) => (
-                      <div key={appointment._id || index} className="appointment-card">
-                        <div className="appointment-header">
-                          <div className="appointment-date">
-                            <div className="date-day">
-                              {new Date(appointment.date).toLocaleDateString('es-ES', { 
-                                day: '2-digit',
-                                month: 'short' 
-                              })}
-                            </div>
-                            <div className="date-weekday">
-                              {new Date(appointment.date).toLocaleDateString('es-ES', { 
-                                weekday: 'short' 
-                              })}
-                            </div>
-                          </div>
-                          <div className="appointment-time">
-                            <div className="time-value">{appointment.startTime}</div>
-                            <div className="time-duration">
-                              {appointment.service?.duration || 30} min
-                            </div>
-                          </div>
-                          <div className={`appointment-status ${appointment.status}`}>
-                            {appointment.status === 'pending' ? 'Pendiente' :
-                             appointment.status === 'confirmed' ? 'Confirmada' :
-                             appointment.status === 'completed' ? 'Completada' :
-                             appointment.status === 'cancelled' ? 'Cancelada' : 
-                             appointment.status}
-                          </div>
-                        </div>
-                        <div className="appointment-details">
-                          <div className="barber-info">
-                            <div className="barber-name">
-                              💼 {appointment.barber?.user?.name || 'Barbero no especificado'}
-                            </div>
-                            {appointment.barber?.user?.phone && (
-                              <div className="barber-phone">
-                                📱 {appointment.barber.user.phone}
-                              </div>
-                            )}
-                          </div>
-                          <div className="service-info">
-                            <div className="service-name">
-                              ✂️ {appointment.service?.name || 'Servicio no especificado'}
-                            </div>
-                            {appointment.service?.price && (
-                              <div className="service-price">
-                                💰 ${appointment.service.price}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        {appointment.notes && (
-                          <div className="appointment-notes">
-                            📝 <strong>Notas:</strong> {appointment.notes}
-                          </div>
-                        )}
-                        {(appointment.status === 'pending' || appointment.status === 'confirmed') && (
-                          <div className="appointment-actions">
-                            <button 
-                              className="cancel-appointment-btn"
-                              onClick={() => handleCancelAppointment(appointment._id)}
-                            >
-                              ❌ Cancelar Cita
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                <div className="content-tabs">
+                  <div 
+                    className={`content-tab ${activeTab === 'appointments' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('appointments')}
+                  >
+                    Mis Citas
                   </div>
-                ) : (
-                                     <div className="no-appointments">
-                     <div className="no-appointments-icon">📅</div>
-                     <h3>No tienes citas programadas</h3>
-                     <p>¡Agenda tu primera cita con nuestros barberos profesionales!</p>
-                     <Link to="/appointment" className="schedule-btn">
-                       📝 Agendar una cita
-                     </Link>
-                   </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === 'info' && (
-              <div className="profile-section">
-                <h2 className="section-title">Información Personal</h2>
-                <div className="profile-details">
-                  <div className="detail-item">
-                    <span className="detail-label">Nombre:</span>
-                    <span className="detail-value">{user.name}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Email:</span>
-                    <span className="detail-value">{user.email}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Teléfono:</span>
-                    <span className="detail-value">{user.phone || 'No especificado'}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Nombre de usuario:</span>
-                    <span className="detail-value">{user.username}</span>
+                  <div 
+                    className={`content-tab ${activeTab === 'info' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('info')}
+                  >
+                    Información Personal
                   </div>
                 </div>
-              </div>
+
+                {activeTab === 'appointments' && (
+                  <div className="appointments-section">
+                    <h2 className="section-title">Mis Citas</h2>
+                    {appointments.length > 0 ? (
+                      <div className="appointments-list">
+                        {appointments.map((appointment, index) => (
+                          <div key={appointment._id || index} className="appointment-card">
+                            <div className="appointment-header">
+                              <div className="appointment-date">
+                                <div className="date-day">
+                                  {new Date(appointment.date).toLocaleDateString('es-ES', { 
+                                    day: '2-digit',
+                                    month: 'short' 
+                                  })}
+                                </div>
+                                <div className="date-weekday">
+                                  {new Date(appointment.date).toLocaleDateString('es-ES', { 
+                                    weekday: 'short' 
+                                  })}
+                                </div>
+                              </div>
+                              <div className="appointment-time">
+                                <div className="time-value">{appointment.startTime}</div>
+                                <div className="time-duration">
+                                  {appointment.service?.duration || 30} min
+                                </div>
+                              </div>
+                              <div className={`appointment-status ${appointment.status}`}>
+                                {appointment.status === 'pending' ? 'Pendiente' :
+                                 appointment.status === 'confirmed' ? 'Confirmada' :
+                                 appointment.status === 'completed' ? 'Completada' :
+                                 appointment.status === 'cancelled' ? 'Cancelada' : 
+                                 appointment.status}
+                              </div>
+                            </div>
+                            <div className="appointment-details">
+                              <div className="barber-info">
+                                <div className="barber-name">
+                                  💼 {appointment.barber?.user?.name || 'Barbero no especificado'}
+                                </div>
+                                {appointment.barber?.user?.phone && (
+                                  <div className="barber-phone">
+                                    📱 {appointment.barber.user.phone}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="service-info">
+                                <div className="service-name">
+                                  ✂️ {appointment.service?.name || 'Servicio no especificado'}
+                                </div>
+                                {appointment.service?.price && (
+                                  <div className="service-price">
+                                    💰 ${appointment.service.price}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            {appointment.notes && (
+                              <div className="appointment-notes">
+                                📝 <strong>Notas:</strong> {appointment.notes}
+                              </div>
+                            )}
+                            {(appointment.status === 'pending' || appointment.status === 'confirmed') && (
+                              <div className="appointment-actions">
+                                <button 
+                                  className="cancel-appointment-btn"
+                                  onClick={() => handleCancelAppointment(appointment._id)}
+                                >
+                                  ❌ Cancelar Cita
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="no-appointments">
+                        <div className="no-appointments-icon">📅</div>
+                        <h3>No tienes citas programadas</h3>
+                        <p>¡Agenda tu primera cita con nuestros barberos profesionales!</p>
+                        <Link to="/appointment" className="schedule-btn">
+                          📝 Agendar una cita
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === 'info' && (
+                  <div className="profile-section">
+                    <h2 className="section-title">Información Personal</h2>
+                    <div className="profile-details">
+                      <div className="detail-item">
+                        <span className="detail-label">Nombre:</span>
+                        <span className="detail-value">{user.name}</span>
+                      </div>
+                      <div className="detail-item">
+                        <span className="detail-label">Email:</span>
+                        <span className="detail-value">{user.email}</span>
+                      </div>
+                      <div className="detail-item">
+                        <span className="detail-label">Teléfono:</span>
+                        <span className="detail-value">{user.phone || 'No especificado'}</span>
+                      </div>
+                      <div className="detail-item">
+                        <span className="detail-label">Nombre de usuario:</span>
+                        <span className="detail-value">{user.username}</span>
+                      </div>
+                    </div>
+                  </div>
             )}
           </div>
         </div>
